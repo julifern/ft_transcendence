@@ -11,6 +11,7 @@ import { DynamicTextArea } from './blueprint/Utils.tsx';
 import { CommitContent, CommitLeaf } from './blueprint/Commit.tsx';
 import { InlineIcon } from '@iconify/react';
 import { GraphXpOverView } from './blueprint/GraphXpOverView.tsx';
+import { BasicContextMenu } from './blueprint/ContextMenu.tsx';
 
 function findStudentByLogin(login: string) : objStudent | undefined {
   return (db.profils.find(tmpLogin => tmpLogin.login === login));
@@ -108,10 +109,12 @@ function ProjectOverView() {
 function Commit() {
   return (
     <>
-      <div className="flex flex-row h-fit">
-        <CommitLeaf />
-        <CommitContent />
-      </div>
+      <BasicContextMenu>
+        <div className="flex flex-row h-fit">
+          <CommitLeaf />
+          <CommitContent />
+        </div>
+      </BasicContextMenu>
     </>
   );
 }
