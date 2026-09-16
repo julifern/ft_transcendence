@@ -2,10 +2,10 @@ import { type objStudent, makeItPrety } from './blueprint/ObjStudent.tsx'
 import './styles/Dashboard.css'
 import './styles/color.css'
 import { Link } from 'react-router-dom';
-import { Dropdown, Menu } from "antd";
+import { Dropdown, type MenuProps } from "antd";
 import db from './assets/test.json';
 
-import { iconLoaded, InlineIcon } from '@iconify/react';
+import { InlineIcon } from '@iconify/react';
 import { Papicons } from '@getpapillon/papicons';
 import { BtnAddCommit, BtnVoirIntra } from './blueprint/Button.tsx';
 import { CommitContent, CommitLeaf } from './blueprint/Commit.tsx';
@@ -29,34 +29,33 @@ function StudentCardEmptyCommit(student: objStudent) {
 }
 
 function StudentCardCommit() {
-  const items = [
+  const items: MenuProps['items'] = [
     {
       label: "Copier",
       key: "cop",
-      onTitleClick: () => {alert("cop")},
+      onClick: () => {alert("cop")},
       icon: <Papicons name="List" />
     },
     {
       label: "Modifier",
       key: "mod",
-      onTitleClick: () => {alert("sup")},
+      onClick: () => {alert("mod")},
       icon: <Papicons name="PenAlt" />
     },
     {
       label: "Supprimer",
       key: "sup",
       danger: true,
-      onTitleClick: () => {alert("sup")},
+      onClick: () => {alert("sup")},
       icon: <Papicons name="Trash" />
     },
   ];
-
   return (
     <Dropdown menu={{items}} trigger={["contextMenu"]}>
-      <div className="flex flex-row h-fit">
-        <CommitLeaf />
-        <CommitContent />
-      </div>
+        <div className="flex flex-row h-fit">
+          <CommitLeaf />
+          <CommitContent />
+        </div>
     </Dropdown>
   );
 }
