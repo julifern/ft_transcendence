@@ -8,6 +8,7 @@ import { Routes, Route/*, redirect */} from 'react-router-dom';
 import { ErrorPage } from './blueprint/Error.tsx';
 import { LoginPage } from './LoginPage.tsx';
 import { DashboardChats } from './DashboardChats.tsx';
+import { Chat } from './Chat.tsx';
 
 function NavBar() {
   return (
@@ -80,6 +81,7 @@ function App() {
         <Route path="/profile/:login" element={<Profile />} />
         <Route path="/login" element={<LoginPage />}/>
         <Route path="/chats" element={<DashboardChats />}/>
+        <Route path="/chat/:title" element={<Chat />}/>
         <Route path="*" element={<ErrorPage />} />
       </Routes>
     </>
