@@ -20,22 +20,23 @@ function Chat({chatPosition, iconName, title, text} : {chatPosition : ChatPositi
   } else if (chatPosition === ChatPosition.Bottom) {
     mainDivStyle = mainDivStyle.concat("rounded-b-xl border-b-2")
   }
-
   return (
     <>
-      <BasicContextMenu>
-        <div className={mainDivStyle}>
-          <div className="flex items-center gap-5">
-            <div className="flex justify-center items-center rounded-full bg-linear-to-r from-(--purple) to-(--bright-purple) w-15 h-15 shrink-0">
-              <Papicons className="text-white" name={iconName} />
-            </div>
-            <div>
-              <h1>{title}</h1>
-              <p className="text-(--text-gray)" >{text}</p>
+      {/* <Link to={"/chat/" + title.replace(' ', '-')} state={title.replace(' ', '-')}> */}
+        <BasicContextMenu>
+          <div className={mainDivStyle}>
+            <div className="flex items-center gap-5">
+              <div className="flex justify-center items-center rounded-full bg-linear-to-r from-(--purple) to-(--bright-purple) w-15 h-15 shrink-0">
+                <Papicons className="text-white" name={iconName} />
+              </div>
+              <div>
+                <h1>{title}</h1>
+                <p className="text-(--text-gray)" >{text}</p>
+              </div>
             </div>
           </div>
-        </div>
-      </BasicContextMenu>
+        </BasicContextMenu>
+      {/* </Link> */}
     </>
   );
 }
