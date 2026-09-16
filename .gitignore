@@ -1,0 +1,14 @@
+# Python (backend-auth42)
+__pycache__/
+*.pyc
+backend-auth42/venv/
+backend-auth42/db.sqlite3
+
+# Env secrets
+.env
+
+# Node (frontend)
+node_modules/
+
+# Editors / OS
+.DS_Store
