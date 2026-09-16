@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+:root {
+  --gray: rgba(0, 0, 0, 0.06);
+  --text-gray: rgba(0, 0, 0, 0.5);
+  --purple: #A78BFA;
+  --bright-purple: #CBBBF9;
+  --bg: #F5F5F5;
+  --border: #E6E6E6;
+}

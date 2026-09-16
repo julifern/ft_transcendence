@@ -1,0 +1,46 @@
+@charset "UTF-8";
+
+.effect {
+  text-align: center;
+  display: inline-block;
+  position: relative;
+  text-decoration: none;
+  color: #fff;
+  text-transform: capitalize;
+  /* background-color: - add your own background-color */
+  font-family: "Roboto", sans-serif;
+  /* put your font-family */
+  font-size: 18px;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+/* effect-1 styles */
+.effect.effect-1 {
+  transition: all 0.2s linear 0s;
+}
+
+.effect.effect-1:before {
+  content: "➔";
+  font-family: FontAwesome;
+  font-size: 15px;
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  right: 0;
+  top: 0;
+  opacity: 0;
+  height: 100%;
+  width: 40px;
+  transition: all 0.2s linear 0s;
+}
+
+.effect.effect-1:hover {
+  text-indent: -40px;
+}
+
+.effect.effect-1:hover:before {
+  opacity: 1;
+  text-indent: 0px;
+}

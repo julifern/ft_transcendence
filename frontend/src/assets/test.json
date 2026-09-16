@@ -1,0 +1,37 @@
+{
+  "profils": [
+    {
+      "login": "emarrot",
+      "email": "emarrot@student.42angouleme.fr",
+      "first_name": "enzo",
+      "last_name": "marrot",
+      "image_url": "https://cdn.intra.42.fr/users/2860ba9526f59a7321244fd831a566e4/emarrot.jpg",
+      "lvl": 0.0,
+      "projects": [
+        { "name": "C Piscine C 00", "slug": "c-piscine-c-00", "valid": true, "note": 60 }
+      ]
+    },
+    {
+      "login": "ykolacze",
+      "email": "ykolacze@student.42angouleme.fr",
+      "first_name": "yohan",
+      "last_name": "kolacze",
+      "image_url": "https://cdn.intra.42.fr/users/02da4722af714c0219484a01be9609f2/ykolacze.jpg",
+      "lvl": 0.0,
+      "projects": [
+        { "name": "C Piscine C 00", "slug": "c-piscine-c-00", "valid": true, "note": 60 }
+      ]
+    },
+    {
+      "login": "mcolin",
+      "email": "mcolin@student.42angouleme.fr",
+      "first_name": "mewen",
+      "last_name": "colin",
+      "image_url": "https://cdn.intra.42.fr/users/bd6af9e902dd25dddcb556cebf09d666/mcolin.jpg",
+      "lvl": 0.0,
+      "projects": [
+        { "name": "C Piscine C 00", "slug": "c-piscine-c-00", "valid": true, "note": 60 }
+      ]
+    }
+  ]
+}
