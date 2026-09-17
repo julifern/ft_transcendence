@@ -1,0 +1,10 @@
+services:
+  django:
+    container_name: django
+    build: ./backend/
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env
+    restart: on-failure
+    image: django:latest
