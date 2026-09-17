@@ -1,16 +1,16 @@
 import db from './assets/test.json';
 import './styles/Profile.css'
 
-import { type objStudent, makeItPrety } from './blueprint/ObjStudent.tsx'
-import { ErrorPage } from './blueprint/Error.tsx'
+import { type objStudent } from './types/ObjStudent.tsx'
+import { ErrorPage } from './components/Error.tsx'
 
 import { useParams } from 'react-router-dom';
 import { useLocation } from 'react-router'
-import { BtnAddCommit, BtnFollow, BtnIASummarise, BtnSeeMoreCommit, BtnVoirIntra } from './blueprint/Button.tsx';
-import { DynamicTextArea } from './blueprint/Utils.tsx';
-import { CommitContent, CommitLeaf } from './blueprint/Commit.tsx';
+import { BtnAddCommit, BtnFollow, BtnIASummarise, BtnSeeMoreCommit, BtnVoirIntra } from './components/Button.tsx';
+import { DynamicTextArea, makeItPrety } from './components/Utils.tsx';
+import { CommitContent, CommitLeaf } from './components/Commit.tsx';
 import { InlineIcon } from '@iconify/react';
-import { GraphXpOverView } from './blueprint/GraphXpOverView.tsx';
+import { GraphXpOverView } from './components/GraphXpOverView.tsx';
 
 function findStudentByLogin(login: string) : objStudent | undefined {
   return (db.profils.find(tmpLogin => tmpLogin.login === login));
@@ -121,7 +121,7 @@ function CommitHistory(student: objStudent) {
     <>
       <div className="module flex flex-col w-full h-fit">
         {/* iter on the first commit */}
-        {db.profils.map(item => <Commit key={item.login} />)}
+        <Commit />
         <div className="flex flex-col lg:flex-row gap-2">
           <BtnAddCommit {...student} />
           <BtnSeeMoreCommit />
@@ -175,7 +175,7 @@ export function Profile() {
           <BtnVoirIntra {...student} />
           <BtnFollow {...student} />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2.5">
+        <div className="grid grid-cols-1 md:grid-cols-2 l g:grid-cols-4 gap-2.5">
           <Description {...student} />
           <CommitHistory {...student} />
           <ProjectOverView />

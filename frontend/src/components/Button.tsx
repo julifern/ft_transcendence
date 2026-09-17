@@ -1,5 +1,5 @@
 import { Papicons } from "@getpapillon/papicons";
-import type { objStudent } from "./ObjStudent";
+import type { objStudent } from "../types/ObjStudent";
 import Popup from "reactjs-popup";
 import { InlineIcon } from "@iconify/react";
 import { DynamicTextArea } from "./Utils";

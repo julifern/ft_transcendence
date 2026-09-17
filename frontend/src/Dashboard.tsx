@@ -1,15 +1,15 @@
-import { type objStudent, makeItPrety } from './blueprint/ObjStudent.tsx'
+import { type objStudent, type profile } from './types/ObjStudent.tsx'
 import './styles/Dashboard.css'
 import './styles/color.css'
 import { Link } from 'react-router-dom';
 import { Dropdown, type MenuProps } from "antd";
-import db from './assets/test.json';
 
 import { InlineIcon } from '@iconify/react';
 import { Papicons } from '@getpapillon/papicons';
-import { BtnAddCommit, BtnVoirIntra } from './blueprint/Button.tsx';
-import { CommitContent, CommitLeaf } from './blueprint/Commit.tsx';
-
+import { BtnAddCommit, BtnVoirIntra } from './components/Button.tsx';
+import { CommitContent, CommitLeaf } from './components/Commit.tsx';
+import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
+import { makeItPrety } from './components/Utils.tsx';
 
 function StudentCardEmptyCommit(student: objStudent) {
   return (
@@ -60,8 +60,8 @@ function StudentCardCommit() {
   );
 }
 
-function StudentCard(student: objStudent) {
-  const haveCommit = true;
+function StudentCard({student}: {student : profile}) {
+  const haveCommit = student.comments.length != 0;
   return (
     <>
       <div className="studentCard flex flex-col p-2.5 gap-2.5">
@@ -94,16 +94,37 @@ function StudentCard(student: objStudent) {
   )
 }
 
-function StudentsCards({isFollowed}: {isFollowed: boolean}) {
+const queryClient = new QueryClient()
 
-  const titel: string = isFollowed ? "Tes suivies" : "Tous";
+function StudentsCards() {
+  // const titel: string = isFollowed ? "Tes suivies" : "Tous";
+  const titel: string = false ? "Tes suivies" : "Tous";
 
+  const { isPending, error, data } = useQuery({ queryKey: ["auth", "api", "profils"], queryFn: async () => {
+      const res = await fetch(
+        "http://localhost:8000/auth/api/profils/",
+        {
+          credentials: "include",
+        }
+      )
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`)
+      }
+      return res.json()
+    },
+  })
+  if (isPending) {
+    return "Loading..."
+  }
+  if (error) {
+    return "An error has occurred: " + error.message
+  }
   return (
     <>
       <div className="studentsCardFollows flex flex-col gap-2.5">
         <p className="font-regular text-1xl text-(--text-gray)">{titel}</p>
         <div className="grid grid-cols-1 md:grid-cols-3 mg:grid-cols-6 gap-2.5">
-            {db.profils.map(item => <StudentCard key={item.login} {...item} />)}
+            {data.profils.map((profil: profile) => (<StudentCard key={profil.id} student={profil} />))}
         </div>
       </div>
     </>
@@ -117,8 +138,9 @@ export function Dashboard() {
         <p className="font-semibold text-2xl pl-3">Students</p>
         <input className="dashboardSearchProfile" type="text" placeholder="Rechercher un student" />
       </div>
-      <StudentsCards isFollowed={true}></StudentsCards>
-      <StudentsCards isFollowed={false}></StudentsCards>
+      <QueryClientProvider client={queryClient}>
+        <StudentsCards></StudentsCards>
+      </QueryClientProvider>
     </>
   )
 }
