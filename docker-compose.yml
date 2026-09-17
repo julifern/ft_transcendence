@@ -1,0 +1,17 @@
+services:
+  django:
+    container_name: django
+    build: ./backend/
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env
+    restart: on-failure
+    image: django:latest
+  react:
+    container_name: react
+    build: ./frontend/
+    ports:
+      - "5173:5173"
+    restart: on-failure
+    image: frontend:latest
