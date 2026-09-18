@@ -1,4 +1,6 @@
 import { Papicons } from "@getpapillon/papicons"
+import { BtnAddCommit, BtnVoirIntra } from "./Button";
+import type { profile } from "../types/ObjStudent";
 
 export function CommitLeaf() {
   return (
@@ -30,4 +32,21 @@ export function CommitContent() {
         </div>
       </>
   )
+}
+
+export function EmptyCommit(student: profile) {
+  return (
+    <>
+      <div className="flex flex-col items-center justify-center w-full h-full gap-1.25">
+        <Papicons className="w-15 h-15 text-(--text-gray)" name="Ghost" />
+        <h1>
+          Aucune activité
+        </h1>
+        <div className="flex flex-col w-full h-fit gap-1.5">
+          <BtnAddCommit {...student} />
+          <BtnVoirIntra {...student} />
+        </div>
+      </div>
+    </>
+  );
 }

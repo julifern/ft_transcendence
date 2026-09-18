@@ -6,28 +6,10 @@ import { Dropdown, type MenuProps } from "antd";
 
 import { InlineIcon } from '@iconify/react';
 import { Papicons } from '@getpapillon/papicons';
-import { BtnAddCommit, BtnVoirIntra } from './components/Button.tsx';
-import { CommitContent, CommitLeaf } from './components/Commit.tsx';
+import { CommitContent, CommitLeaf, EmptyCommit } from './components/Commit.tsx';
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 import { makeItPrety } from './components/Utils.tsx';
 import { getProfilscacheName, getProfilsHook } from './api/Profiles.ts';
-
-function StudentCardEmptyCommit(student: profile) {
-  return (
-    <>
-      <div className="flex flex-col items-center justify-center w-full h-full gap-1.25">
-        <Papicons className="w-15 h-15 text-(--text-gray)" name="Ghost" />
-        <h1>
-          Aucune activité
-        </h1>
-        <div className="flex flex-col w-full h-fit gap-1.5">
-          <BtnAddCommit {...student} />
-          <BtnVoirIntra {...student} />
-        </div>
-      </div>
-    </>
-  );
-}
 
 function StudentCardCommit() {
   const items: MenuProps['items'] = [
@@ -83,14 +65,13 @@ function StudentCard({student}: {student : profile}) {
           haveCommit ?
             // iter on the first commit of student.
             <div>
-              <StudentCardCommit></StudentCardCommit>
-              <StudentCardCommit></StudentCardCommit>
-              <StudentCardCommit></StudentCardCommit>
+              <StudentCardCommit />
+              <StudentCardCommit />
+              <StudentCardCommit />
             </div>
             :
-            <StudentCardEmptyCommit {...student} ></StudentCardEmptyCommit>
+            <EmptyCommit {...student} />
         }
-
       </div>
     </>
   )

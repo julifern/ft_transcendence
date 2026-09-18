@@ -6,7 +6,7 @@ import { ErrorPage } from './components/Error.tsx'
 import { useParams } from 'react-router-dom';
 import { BtnAddCommit, BtnFollow, BtnIASummarise, BtnSeeMoreCommit, BtnVoirIntra } from './components/Button.tsx';
 import { DynamicTextArea, makeItPrety } from './components/Utils.tsx';
-import { CommitContent, CommitLeaf } from './components/Commit.tsx';
+import { CommitContent, CommitLeaf, EmptyCommit } from './components/Commit.tsx';
 import { InlineIcon } from '@iconify/react';
 import { GraphXpOverView } from './components/GraphXpOverView.tsx';
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
@@ -121,25 +121,28 @@ function Commit() {
 }
 
 function CommitHistory(student: profile) {
+  const haveCommit = student.comments.length != 0;
   return (
     <>
       <div className="module flex flex-col w-full h-fit">
         {/* iter on the first commit */}
-        <Commit />
-        <div className="flex flex-col lg:flex-row gap-2">
-          <BtnAddCommit {...student} />
-          <BtnSeeMoreCommit />
-        </div>
+        {haveCommit ?
+          <>
+            <Commit />
+            <div className="flex flex-col lg:flex-row gap-2">
+              <BtnAddCommit {...student} />
+              <BtnSeeMoreCommit />
+            </div>
+          </>
+          :
+          <EmptyCommit {...student} />
+        }
       </div>
     </>
   );
 }
 
 function Description(student: profile) {
-  let description = student.email;
-  if (description == "") {
-    description = "Description...";
-  }
   return (
      <>
       <div className="module">
