@@ -12,12 +12,8 @@ import { GraphXpOverView } from './components/GraphXpOverView.tsx';
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 import { getProfilscacheName, getProfilsHook } from './api/Profiles.ts';
 
-// function findStudentByLogin(login: string) : objStudent | undefined {
-  // return (db.profils.find(tmpLogin => tmpLogin.login === login));
-// }
-
 function findStudentByLogin(data: profiles, login: string) : profile | undefined {
-  for(let i = 0; i < data.profils.length; i++){
+  for(let i = 0; i < data.profils.length; i++) {
       if (data.profils[i].login === login)
         return (data.profils[i]);
   }
@@ -168,12 +164,17 @@ function StudentProfileTop(student: profile) {
 }
 
 export function Profile() {
-  const api: UseQueryResult = useQuery({queryKey: getProfilscacheName, queryFn: getProfilsHook});
-  const data: profiles = api.data as profiles;
-
   const params = useParams();
   if (params.login == undefined)
     return (<><ErrorPage></ErrorPage></>);
+  const api: UseQueryResult = useQuery({queryKey: getProfilscacheName, queryFn: getProfilsHook});
+  const data: profiles = api.data as profiles;
+  if (api.isPending) {
+    return <p>Loading...</p>
+  }
+  if (api.error) {
+    return <p>An error has occurred: {api.error.message}</p>
+  }
   const student = findStudentByLogin(data, params.login);
   if (student == undefined)
     return (<><ErrorPage></ErrorPage></>);
@@ -184,7 +185,7 @@ export function Profile() {
           <BtnVoirIntra {...student} />
           <BtnFollow {...student} />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 l g:grid-cols-4 gap-2.5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2.5">
           <Description {...student} />
           <CommitHistory {...student} />
           <ProjectOverView />
