@@ -1,6 +1,6 @@
 import './styles/Profile.css'
 
-import { type profile, type profiles } from './types/ObjStudent.tsx'
+import { type profile, type profiles } from './types/ObjStudent.ts'
 import { ErrorPage } from './components/Error.tsx'
 
 import { useParams } from 'react-router-dom';
@@ -50,7 +50,7 @@ function Summarize() {
 }
 
 function ProjectOverViewSubmodule({ str }: {str: string}) {
-  const grade: number = 67;
+  const grade: string = "TODO";
   return (
     <>
       <div className="w-full h-fit rounded-xl bg-(--gray) text-(--text-gray) pl-2 pr-2 pb-1 pt-1">
@@ -74,7 +74,7 @@ function ProjectOverViewText({descriptor, str} : {descriptor : string, str : str
   );
 }
 
-function ProjectOverView() {
+function ProjectOverView(student: profile) {
   return (
     <>
       <div className="module flex flex-col w-full h-fit gap-2">
@@ -97,11 +97,11 @@ function ProjectOverView() {
             <div className="bg-(--purple) w-1.5 h-full rounded"></div>
           </div>
           <div className="flex flex-col">
-            <ProjectOverViewText descriptor="Dernier days:" str="C3"/>
-            <ProjectOverViewText descriptor="Enregistré à:" str="C3, C4, Exam2"/>
-            <ProjectOverViewText descriptor="Point d'evaluation:" str="3pts"/>
-            <ProjectOverViewText descriptor="Niveaux:" str="8.67"/>
-            <ProjectOverViewText descriptor="Classement:" str="5eme"/>
+            <ProjectOverViewText descriptor="Dernier days:" str="TODO"/>
+            <ProjectOverViewText descriptor="Enregistré à:" str="TODO"/>
+            <ProjectOverViewText descriptor="Point d'evaluation:" str={student.correction_point.toString() + "pts"}/>
+            <ProjectOverViewText descriptor="Niveaux:" str={student.lvl.toString()}/>
+            <ProjectOverViewText descriptor="Classement:" str="TODO"/>
           </div>
         </div>
     </div>
@@ -191,7 +191,7 @@ export function Profile() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2.5">
           <Description {...student} />
           <CommitHistory {...student} />
-          <ProjectOverView />
+          <ProjectOverView {...student} />
           <XpOverView />
           <Summarize />
         </div>

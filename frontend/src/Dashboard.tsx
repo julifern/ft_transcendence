@@ -1,4 +1,4 @@
-import { type profile, type profiles } from './types/ObjStudent.tsx'
+import { type profile, type profiles } from './types/ObjStudent.ts'
 import './styles/Dashboard.css'
 import './styles/color.css'
 import { Link } from 'react-router-dom';
