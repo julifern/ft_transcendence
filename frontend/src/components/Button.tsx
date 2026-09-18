@@ -1,10 +1,10 @@
 import { Papicons } from "@getpapillon/papicons";
-import type { objStudent } from "../types/ObjStudent";
+import type { profile } from "../types/ObjStudent";
 import Popup from "reactjs-popup";
 import { InlineIcon } from "@iconify/react";
 import { DynamicTextArea } from "./Utils";
 
-export function BtnVoirIntra(student: objStudent) {
+export function BtnVoirIntra(student: profile) {
   return (
     <>
       <a className="w-full rounded-full bg-(--gray)" target="_blank" href={"https://profile.intra.42.fr/users/" + student.login}>
@@ -17,11 +17,11 @@ export function BtnVoirIntra(student: objStudent) {
   )
 }
 
-function popupNewCommit(student: objStudent) {
+function popupNewCommit(student: profile) {
   alert("try to write a new commit for " + student.login);
 }
 
-function AddCommitPopupContente(student: objStudent) {
+function AddCommitPopupContente(student: profile) {
   return (
     <>
       <div className="module flex flex-col h-fit bg-(--bg) p-10 gap-2 border-2 border-solid border-(--gray)" style={{borderRadius: "50px"}}>
@@ -40,7 +40,7 @@ function AddCommitPopupContente(student: objStudent) {
   );
 }
 
-export function BtnAddCommit(student: objStudent) {
+export function BtnAddCommit(student: profile) {
   return (
     <>
       <Popup trigger=
@@ -76,11 +76,11 @@ export function BtnSeeMoreCommit() {
   )
 }
 
-function follow(student: objStudent) {
+function follow(student: profile) {
   alert("try to follow : {" + student.login + "}.");
 }
 
-export function BtnFollow(student: objStudent) {
+export function BtnFollow(student: profile) {
   return (
     <>
       <button onClick={() => follow(student)} type="button" className="w-full rounded-full bg-(--purple) text-white">

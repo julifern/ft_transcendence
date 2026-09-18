@@ -1,5 +1,3 @@
-// import { InlineIcon } from '@iconify/react';
-
 import { Profile } from './Profile.tsx';
 import { Dashboard } from './Dashboard.tsx';
 

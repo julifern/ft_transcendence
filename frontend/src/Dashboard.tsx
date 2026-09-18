@@ -1,4 +1,4 @@
-import { type objStudent, type profile, type profiles } from './types/ObjStudent.tsx'
+import { type profile, type profiles } from './types/ObjStudent.tsx'
 import './styles/Dashboard.css'
 import './styles/color.css'
 import { Link } from 'react-router-dom';
@@ -8,11 +8,11 @@ import { InlineIcon } from '@iconify/react';
 import { Papicons } from '@getpapillon/papicons';
 import { BtnAddCommit, BtnVoirIntra } from './components/Button.tsx';
 import { CommitContent, CommitLeaf } from './components/Commit.tsx';
-import { QueryClient, QueryClientProvider, useQuery, type UseQueryResult } from '@tanstack/react-query';
+import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 import { makeItPrety } from './components/Utils.tsx';
 import { getProfilscacheName, getProfilsHook } from './api/Profiles.ts';
 
-function StudentCardEmptyCommit(student: objStudent) {
+function StudentCardEmptyCommit(student: profile) {
   return (
     <>
       <div className="flex flex-col items-center justify-center w-full h-full gap-1.25">

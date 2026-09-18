@@ -1,19 +1,27 @@
-import db from './assets/test.json';
 import './styles/Profile.css'
 
-import { type objStudent, type profile, type profiles } from './types/ObjStudent.tsx'
+import { type profile, type profiles } from './types/ObjStudent.tsx'
 import { ErrorPage } from './components/Error.tsx'
 
 import { useParams } from 'react-router-dom';
-import { useLocation } from 'react-router'
 import { BtnAddCommit, BtnFollow, BtnIASummarise, BtnSeeMoreCommit, BtnVoirIntra } from './components/Button.tsx';
 import { DynamicTextArea, makeItPrety } from './components/Utils.tsx';
 import { CommitContent, CommitLeaf } from './components/Commit.tsx';
 import { InlineIcon } from '@iconify/react';
 import { GraphXpOverView } from './components/GraphXpOverView.tsx';
+import { useQuery, type UseQueryResult } from '@tanstack/react-query';
+import { getProfilscacheName, getProfilsHook } from './api/Profiles.ts';
 
-function findStudentByLogin(login: string) : objStudent | undefined {
-  return (db.profils.find(tmpLogin => tmpLogin.login === login));
+// function findStudentByLogin(login: string) : objStudent | undefined {
+  // return (db.profils.find(tmpLogin => tmpLogin.login === login));
+// }
+
+function findStudentByLogin(data: profiles, login: string) : profile | undefined {
+  for(let i = 0; i < data.profils.length; i++){
+      if (data.profils[i].login === login)
+        return (data.profils[i]);
+  }
+  return (undefined);
 }
 
 function XpOverView() {
@@ -116,7 +124,7 @@ function Commit() {
   );
 }
 
-function CommitHistory(student: objStudent) {
+function CommitHistory(student: profile) {
   return (
     <>
       <div className="module flex flex-col w-full h-fit">
@@ -131,7 +139,7 @@ function CommitHistory(student: objStudent) {
   );
 }
 
-function Description(student: objStudent) {
+function Description(student: profile) {
   let description = student.email;
   if (description == "") {
     description = "Description...";
@@ -145,7 +153,7 @@ function Description(student: objStudent) {
    );
 }
 
-function StudentProfileTop(student: objStudent) {
+function StudentProfileTop(student: profile) {
   return (
     <>
       <div className="flex flex-col items-center justify-center gap-2">
@@ -159,14 +167,14 @@ function StudentProfileTop(student: objStudent) {
   );
 }
 
-// { profiles }: {student : profiles}
 export function Profile() {
-  const params = useParams();
-  const location = useLocation();
+  const api: UseQueryResult = useQuery({queryKey: getProfilscacheName, queryFn: getProfilsHook});
+  const data: profiles = api.data as profiles;
 
+  const params = useParams();
   if (params.login == undefined)
     return (<><ErrorPage></ErrorPage></>);
-  const student = location.state?.student?.login === params.login ? location.state.student : findStudentByLogin(params.login);
+  const student = findStudentByLogin(data, params.login);
   if (student == undefined)
     return (<><ErrorPage></ErrorPage></>);
   return (
