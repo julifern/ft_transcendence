@@ -1,7 +1,7 @@
 import db from './assets/test.json';
 import './styles/Profile.css'
 
-import { type objStudent } from './types/ObjStudent.tsx'
+import { type objStudent, type profile, type profiles } from './types/ObjStudent.tsx'
 import { ErrorPage } from './components/Error.tsx'
 
 import { useParams } from 'react-router-dom';
@@ -159,6 +159,7 @@ function StudentProfileTop(student: objStudent) {
   );
 }
 
+// { profiles }: {student : profiles}
 export function Profile() {
   const params = useParams();
   const location = useLocation();

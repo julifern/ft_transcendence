@@ -1,4 +1,4 @@
-import { type objStudent, type profile } from './types/ObjStudent.tsx'
+import { type objStudent, type profile, type profiles } from './types/ObjStudent.tsx'
 import './styles/Dashboard.css'
 import './styles/color.css'
 import { Link } from 'react-router-dom';
@@ -8,8 +8,9 @@ import { InlineIcon } from '@iconify/react';
 import { Papicons } from '@getpapillon/papicons';
 import { BtnAddCommit, BtnVoirIntra } from './components/Button.tsx';
 import { CommitContent, CommitLeaf } from './components/Commit.tsx';
-import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, useQuery, type UseQueryResult } from '@tanstack/react-query';
 import { makeItPrety } from './components/Utils.tsx';
+import { getProfilscacheName, getProfilsHook } from './api/Profiles.ts';
 
 function StudentCardEmptyCommit(student: objStudent) {
   return (
@@ -75,7 +76,8 @@ function StudentCard({student}: {student : profile}) {
               {makeItPrety(student.last_name)} ({student.login})
             </p>
           </div>
-          <Link className="flex items-center justify-center rounded-full w-15 h-13.75 shrink-0" style={{backgroundColor: "var(--gray)"}} to={"/profile/" + student.login} state={student}><InlineIcon icon="akar-icons:more-horizontal" /></Link>
+          {/* student={student} */}
+          <Link className="flex items-center justify-center rounded-full w-15 h-13.75 shrink-0" style={{backgroundColor: "var(--gray)"}} to={"/profile/" + student.login} ><InlineIcon icon="akar-icons:more-horizontal" /></Link>
         </div>
         {
           haveCommit ?
@@ -94,30 +96,16 @@ function StudentCard({student}: {student : profile}) {
   )
 }
 
-const queryClient = new QueryClient()
-
 function StudentsCards() {
   // const titel: string = isFollowed ? "Tes suivies" : "Tous";
   const titel: string = false ? "Tes suivies" : "Tous";
-
-  const { isPending, error, data } = useQuery({ queryKey: ["auth", "api", "profils"], queryFn: async () => {
-      const res = await fetch(
-        "http://localhost:8000/auth/api/profils/",
-        {
-          credentials: "include",
-        }
-      )
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`)
-      }
-      return res.json()
-    },
-  })
-  if (isPending) {
-    return "Loading..."
+  const api: UseQueryResult = useQuery({queryKey: getProfilscacheName, queryFn: getProfilsHook});
+  const data: profiles = api.data as profiles;
+  if (api.isPending) {
+    return <p>Loading...</p>
   }
-  if (error) {
-    return "An error has occurred: " + error.message
+  if (api.error) {
+    return <p>An error has occurred: {api.error.message}</p>
   }
   return (
     <>
@@ -138,9 +126,7 @@ export function Dashboard() {
         <p className="font-semibold text-2xl pl-3">Students</p>
         <input className="dashboardSearchProfile" type="text" placeholder="Rechercher un student" />
       </div>
-      <QueryClientProvider client={queryClient}>
-        <StudentsCards></StudentsCards>
-      </QueryClientProvider>
+      <StudentsCards></StudentsCards>
     </>
   )
 }
