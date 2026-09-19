@@ -1,4 +1,5 @@
 import { type profile, type profiles } from './types/ObjStudent.ts'
+import { type Comment } from './types/Comment.ts';
 import './styles/Dashboard.css'
 import './styles/color.css'
 import { Link } from 'react-router-dom';
@@ -11,7 +12,7 @@ import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 import { makeItPrety } from './components/Utils.tsx';
 import { getProfilscacheName, getProfilsHook } from './api/Profiles.ts';
 
-function StudentCardCommit() {
+function StudentCardCommit({ comments }: { comments: Comment[]}) {
   const items: MenuProps['items'] = [
     {
       label: "Copier",
@@ -37,9 +38,9 @@ function StudentCardCommit() {
     <Dropdown menu={{items}} trigger={["contextMenu"]}>
         <div className="flex flex-row h-fit">
           <CommitLeaf />
-          <CommitContent />
+          <CommitContent comment={comments[comments.length - 1]}/>
         </div>
-    </Dropdown>
+    </Dropdown> 
   );
 }
 
@@ -65,9 +66,7 @@ function StudentCard({student}: {student : profile}) {
           haveCommit ?
             // iter on the first commit of student.
             <div>
-              <StudentCardCommit />
-              <StudentCardCommit />
-              <StudentCardCommit />
+              <StudentCardCommit comments={student.comments} />
             </div>
             :
             <EmptyCommit {...student} />

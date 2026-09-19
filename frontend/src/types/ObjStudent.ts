@@ -1,4 +1,5 @@
 import type { Project } from "./Project";
+import type { Comment } from "./Comment.tsx";
 
 export interface ProfileBase {
   id: number,

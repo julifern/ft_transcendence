@@ -1,8 +1,7 @@
 import './styles/Profile.css'
-
 import { type profile, type profiles } from './types/ObjStudent.ts'
+import { type Comment } from './types/Comment.ts';
 import { ErrorPage } from './components/Error.tsx'
-
 import { useParams } from 'react-router-dom';
 import { BtnAddCommit, BtnFollow, BtnIASummarise, BtnSeeMoreCommit, BtnVoirIntra } from './components/Button.tsx';
 import { DynamicTextArea, makeItPrety } from './components/Utils.tsx';
@@ -109,12 +108,12 @@ function ProjectOverView(student: profile) {
   );
 }
 
-function Commit() {
+function Commit({ comment }: {comment: Comment}) {
   return (
     <>
       <div className="flex flex-row h-fit">
         <CommitLeaf />
-        <CommitContent />
+        <CommitContent comment={comment}/>
       </div>
     </>
   );
@@ -125,10 +124,9 @@ function CommitHistory(student: profile) {
   return (
     <>
       <div className="module flex flex-col w-full h-fit">
-        {/* iter on the first commit */}
         {haveCommit ?
           <>
-            <Commit />
+            {student.comments.reverse().map((comment, index) => <Commit key={index} comment={comment}/>)}
             <div className="flex flex-col lg:flex-row gap-2">
               <BtnAddCommit {...student} />
               <BtnSeeMoreCommit />

@@ -18,6 +18,8 @@ export function BtnVoirIntra(student: profile) {
 }
 
 function handleSubmit(e: React.SubmitEvent<HTMLFormElement>, login: string, close: () => void) {
+  // Prevent the browser from reloading the page
+  e.preventDefault();
   const form = e.target;
   const commitContent: string | undefined = new FormData(form).get("commitContent")?.toString();
   if (!commitContent) {
@@ -32,7 +34,7 @@ function handleSubmit(e: React.SubmitEvent<HTMLFormElement>, login: string, clos
     body: JSON.stringify({ content: commitContent }),
   }).then(res => res.json()).then(data => console.log(data));
   close(); // close popup
-  window.location.reload(); // reload the page
+  // window.location.reload(); // reload the page
 }
 
 type Props = {
