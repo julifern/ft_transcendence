@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 
-export function DynamicTextArea({ str, maxLength }: { str: string; maxLength: number }) {
+export function DynamicTextArea({ str, name, maxLength }: { str: string, name: string, maxLength: number }) {
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
   // function call after render
@@ -21,8 +21,7 @@ export function DynamicTextArea({ str, maxLength }: { str: string; maxLength: nu
   }, []);
 
   return (
-    <textarea className="w-full h-fit" ref={textAreaRef} maxLength={maxLength} placeholder={str}
-    />
+    <textarea name={name} className="w-full h-fit" ref={textAreaRef} maxLength={maxLength} placeholder={str}/>
   );
 }
 
