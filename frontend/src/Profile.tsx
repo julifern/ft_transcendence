@@ -8,8 +8,7 @@ import { DynamicTextArea, makeItPrety } from './components/Utils.tsx';
 import { CommitContent, CommitLeaf, EmptyCommit } from './components/Commit.tsx';
 import { InlineIcon } from '@iconify/react';
 import { GraphXpOverView } from './components/GraphXpOverView.tsx';
-import { useQuery, type UseQueryResult } from '@tanstack/react-query';
-import { getProfilscacheName, getProfilsHook } from './api/Profiles.ts';
+import { useGetProfiles } from './api/Profiles.ts';
 
 function findStudentByLogin(data: profiles, login: string) : profile | undefined {
   for(let i = 0; i < data.profils.length; i++) {
@@ -168,7 +167,7 @@ export function Profile() {
   const params = useParams();
   if (params.login == undefined)
     return (<><ErrorPage></ErrorPage></>);
-  const api: UseQueryResult = useQuery({queryKey: getProfilscacheName, queryFn: getProfilsHook});
+  const api = useGetProfiles();
   const data: profiles = api.data as profiles;
   if (api.isPending) {
     return <p>Loading...</p>
