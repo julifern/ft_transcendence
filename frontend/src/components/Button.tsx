@@ -32,9 +32,10 @@ function handleSubmit(e: React.SubmitEvent<HTMLFormElement>, login: string, clos
     headers: { "Content-Type": "application/json" },
     credentials: "include",
     body: JSON.stringify({ content: commitContent }),
-  }).then(res => res.json()).then(data => console.log(data));
-  close(); // close popup
-  // window.location.reload(); // reload the page
+  }).then(res => res.json()).then(() => {
+    close(); // close popup
+    window.location.reload(); // reload the page
+  });
 }
 
 type Props = {
