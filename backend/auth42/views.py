@@ -257,7 +257,7 @@ def add_comment(request: HttpRequest, login: str) -> JsonResponse:
 	if not content:
 		return JsonResponse({'error': 'content required'}, status=400)
 
-	# Recuperation des information
+	# Recuperation des informations
 	profil: Profil | None = Profil.objects.filter(profil_login=login).first()
 	if not profil:
 		return JsonResponse({'error': 'profil not found'}, status=404)
@@ -270,6 +270,31 @@ def add_comment(request: HttpRequest, login: str) -> JsonResponse:
 	)
  
 	return JsonResponse({'message': 'Comment created.'})
+
+# Ajout ou supprimg le suivi d'un profil par un user
+@csrf_exempt # Flag pour contrer la securite CSRF
+def follow(request: HttpRequest, profil_login: str) -> JsonResponse:
+	if not is_logged_in(request):
+		return JsonResponse({'authenticated': False}, status=401)
+
+	if not request.method == 'POST' and not request.method == 'DELETE':
+		return JsonResponse({'error': 'method not allowed'}, status=405)
+
+	# Recuperation des informations
+	user: FtUser = FtUser.objects.get(pk=request.session.get('ft_user_pk'))
+	profil: Profil | None = Profil.objects.filter(profil_login = profil_login).first()
+	if not profil:
+		return JsonResponse({'error': 'profil not found'}, status=404)
+
+	if request.method == 'POST':
+		user.user_followed.add(profil)
+		return JsonResponse({'message': 'Followed added.'})
+
+	user.user_followed.remove(profil)
+	return JsonResponse({'message': 'Followed deleted.'})
+	
+	
+	
 
 # ——— ENVOI AU FRONT ————————————————————————————————————————————————————————————————————————————————————————————— #
 # Vues qui renvoient des donnees au front (lecture seule)

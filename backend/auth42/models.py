@@ -13,6 +13,7 @@ class FtUser(models.Model):
 	user_updated_at: datetime	= models.DateTimeField(auto_now=True)
 	user_kind: str				= models.CharField(max_length=50, default='')
 	user_location: str			= models.CharField(max_length=20, blank=True)
+	user_followed				= models.ManyToManyField('Profil', blank=True)
 
 
 	# Surcharge operator<<
@@ -21,6 +22,9 @@ class FtUser(models.Model):
 
 	# Revoi un dict des valeur de la class
 	def to_dict(self) -> dict:
+		followed: list[str] = []
+		for f in self.user_followed.all():
+			followed.append(f.profil_login)
 		return {
 			'id': self.user_id,
 			'login': self.user_login,
@@ -30,6 +34,7 @@ class FtUser(models.Model):
 			'image_url': self.user_image_url,
 			'kind': self.user_kind,
 			'location': self.user_location,
+			'followed': followed,
 		}
 
 # Class Whitelist

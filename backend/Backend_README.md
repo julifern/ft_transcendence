@@ -20,10 +20,13 @@ Retourne, si connecté :
     "last_name": "Compain",
     "image_url": "https://cdn.intra.42.fr/...",
     "kind": "student",
-    "location": ""
+    "location": "",
+    "followed": ["nvieille", "jecourto"]
   }
 }
 ```
+
+`followed` : la liste des logins des piscineux que ce tuteur suit (`[]` s'il n'en suit aucun). Pour savoir si un piscineux est suivi, comparer son `login` à cette liste.
 
 Si pas connecté : `401` `{ "authenticated": false }`.
 
@@ -105,6 +108,39 @@ fetch("http://localhost:8000/auth/comment/nvieille/", {
 
 Le commentaire apparaît ensuite dans `comments` via `GET /auth/api/profils/`.
 
+## Suivre / ne plus suivre un piscineux
+
+`POST` ou `DELETE http://localhost:8000/auth/follow/<login>/` (faut être connecté)
+
+- `POST` : le tuteur connecté suit ce piscineux.
+- `DELETE` : il ne le suit plus.
+
+Pas de body à envoyer. Le suivi est propre à chaque tuteur (déterminé automatiquement à partir du tuteur connecté).
+
+Les deux appels peuvent être répétés sans risque : suivre deux fois le même piscineux ne crée pas de doublon, et ne plus suivre quelqu'un qu'on ne suit pas ne renvoie pas d'erreur.
+
+Réponses : `200` `{"message": "Followed added."}` (`POST`) ou `{"message": "Followed deleted."}` (`DELETE`) · `401` pas connecté · `404` login inconnu · `405` autre méthode que `POST`/`DELETE`.
+
+```js
+// Suivre
+fetch("http://localhost:8000/auth/follow/nvieille/", {
+  method: "POST",
+  credentials: "include",
+})
+  .then(res => res.json())
+  .then(data => console.log(data));
+
+// Ne plus suivre
+fetch("http://localhost:8000/auth/follow/nvieille/", {
+  method: "DELETE",
+  credentials: "include",
+})
+  .then(res => res.json())
+  .then(data => console.log(data));
+```
+
+La liste à jour des suivis se lit dans `followed` via `GET /auth/me/`.
+
 ## Détail des champs
 
 ### User
@@ -118,6 +154,7 @@ Le commentaire apparaît ensuite dans `comments` via `GET /auth/api/profils/`.
 | `image_url` | string (URL) | oui | `""` | `URL d'image`, ou `""` |
 | `kind` | string | non | `""` | `"student"` (seule valeur observée en pratique ; 42 documente aussi `"admin"` pour le personnel, non vérifié depuis ce projet) |
 | `location` | string | oui | `""` | ex: `"2B7"`, ou `""` si pas connecté à un poste |
+| `followed` | array de string | oui | `[]` | ex: `["nvieille"]`, éventuellement vide |
 
 ### Profil
 

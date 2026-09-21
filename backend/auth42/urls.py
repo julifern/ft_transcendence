@@ -12,4 +12,5 @@ urlpatterns = [
 	path('api/profils/<str:login>/', views.api_profil, name='api_profil'),
 	path('debug/<str:login>/', views.debug_profil, name='debug_profil'),
 	path('comment/<str:login>/', views.add_comment, name='add_comment'),
+	path('follow/<str:profil_login>/', views.follow, name='follow'),
 ]
