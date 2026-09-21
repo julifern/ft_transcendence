@@ -11,6 +11,7 @@ import { CommitContent, CommitLeaf, EmptyCommit } from './components/Commit.tsx'
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 import { makeItPrety } from './components/Utils.tsx';
 import { getProfilscacheName, getProfilsHook } from './api/Profiles.ts';
+import { useState } from 'react';
 
 function StudentCardCommit({ comments }: { comments: Comment[]}) {
   const items: MenuProps['items'] = [
@@ -76,23 +77,35 @@ function StudentCard({student}: {student : profile}) {
   )
 }
 
-function StudentsCards() {
+function ListStudentsCards({data, inputSearchBar}: {data: profiles, inputSearchBar: string}) {
+  const filterData = data.profils.filter((el) => {
+    if (inputSearchBar === "")
+      return (el);
+    else 
+      return (el.login.toLocaleLowerCase().includes(inputSearchBar));
+    });
+  return (
+    <>
+      {filterData.map((profil: profile) => (<StudentCard key={profil.id} student={profil} />))}
+    </>
+  );
+}
+
+function StudentsCards({inputSearchBar}: {inputSearchBar: string}) {
   // const titel: string = isFollowed ? "Tes suivies" : "Tous";
   const titel: string = false ? "Tes suivies" : "Tous";
   const api: UseQueryResult = useQuery({queryKey: getProfilscacheName, queryFn: getProfilsHook});
   const data: profiles = api.data as profiles;
-  if (api.isPending) {
+  if (api.isPending)
     return <p>Loading...</p>
-  }
-  if (api.error) {
+  if (api.error)
     return <p>An error has occurred: {api.error.message}</p>
-  }
   return (
     <>
       <div className="studentsCardFollows flex flex-col gap-2.5">
         <p className="font-regular text-1xl text-(--text-gray)">{titel}</p>
         <div className="grid grid-cols-1 md:grid-cols-3 mg:grid-cols-6 gap-2.5">
-            {data.profils.map((profil: profile) => (<StudentCard key={profil.id} student={profil} />))}
+            <ListStudentsCards data={data} inputSearchBar={inputSearchBar} />
         </div>
       </div>
     </>
@@ -100,13 +113,14 @@ function StudentsCards() {
 }
 
 export function Dashboard() {
+  const [studentsfilter, setstudentsfilter] = useState("");
   return (
     <>
       <div className="dashboardSearch gap-5">
         <p className="font-semibold text-2xl pl-3">Students</p>
-        <input className="dashboardSearchProfile" type="text" placeholder="Rechercher un student" />
+        <input value={studentsfilter} onChange={(e) => {setstudentsfilter(e.target.value)}} className="dashboardSearchProfile" type="text" placeholder="Rechercher un student" />
       </div>
-      <StudentsCards></StudentsCards>
+      <StudentsCards inputSearchBar={studentsfilter}></StudentsCards>
     </>
   )
 }
