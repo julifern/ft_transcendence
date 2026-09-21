@@ -1,19 +1,22 @@
-import db from './assets/test.json';
 import './styles/Profile.css'
-
-import { type objStudent, makeItPrety } from './blueprint/ObjStudent.tsx'
-import { ErrorPage } from './blueprint/Error.tsx'
-
+import { type profile, type profiles } from './types/ObjStudent.ts'
+import { type Comment } from './types/Comment.ts';
+import { ErrorPage } from './components/Error.tsx'
 import { useParams } from 'react-router-dom';
-import { useLocation } from 'react-router'
-import { BtnAddCommit, BtnFollow, BtnIASummarise, BtnSeeMoreCommit, BtnVoirIntra } from './blueprint/Button.tsx';
-import { DynamicTextArea } from './blueprint/Utils.tsx';
-import { CommitContent, CommitLeaf } from './blueprint/Commit.tsx';
+import { BtnAddCommit, BtnFollow, BtnIASummarise, BtnSeeMoreCommit, BtnVoirIntra } from './components/Button.tsx';
+import { DynamicTextArea, makeItPrety } from './components/Utils.tsx';
+import { CommitContent, CommitLeaf, EmptyCommit } from './components/Commit.tsx';
 import { InlineIcon } from '@iconify/react';
-import { GraphXpOverView } from './blueprint/GraphXpOverView.tsx';
+import { GraphXpOverView } from './components/GraphXpOverView.tsx';
+import { useQuery, type UseQueryResult } from '@tanstack/react-query';
+import { getProfilscacheName, getProfilsHook } from './api/Profiles.ts';
 
-function findStudentByLogin(login: string) : objStudent | undefined {
-  return (db.profils.find(tmpLogin => tmpLogin.login === login));
+function findStudentByLogin(data: profiles, login: string) : profile | undefined {
+  for(let i = 0; i < data.profils.length; i++) {
+      if (data.profils[i].login === login)
+        return (data.profils[i]);
+  }
+  return (undefined);
 }
 
 function XpOverView() {
@@ -38,7 +41,7 @@ function Summarize() {
       <div className="module flex flex-col w-full h-fit gap-2">
         <BtnIASummarise />
         <div className="w-full h-full rounded-3xl bg-(--gray) p-5">
-          <DynamicTextArea str="text généré par IA" maxLength={-1} />
+          <DynamicTextArea name="summarize" str="text généré par IA" maxLength={-1} />
         </div>
       </div>
     </>
@@ -46,7 +49,7 @@ function Summarize() {
 }
 
 function ProjectOverViewSubmodule({ str }: {str: string}) {
-  const grade: number = 67;
+  const grade: string = "TODO";
   return (
     <>
       <div className="w-full h-fit rounded-xl bg-(--gray) text-(--text-gray) pl-2 pr-2 pb-1 pt-1">
@@ -70,7 +73,7 @@ function ProjectOverViewText({descriptor, str} : {descriptor : string, str : str
   );
 }
 
-function ProjectOverView() {
+function ProjectOverView(student: profile) {
   return (
     <>
       <div className="module flex flex-col w-full h-fit gap-2">
@@ -93,11 +96,11 @@ function ProjectOverView() {
             <div className="bg-(--purple) w-1.5 h-full rounded"></div>
           </div>
           <div className="flex flex-col">
-            <ProjectOverViewText descriptor="Dernier days:" str="C3"/>
-            <ProjectOverViewText descriptor="Enregistré à:" str="C3, C4, Exam2"/>
-            <ProjectOverViewText descriptor="Point d'evaluation:" str="3pts"/>
-            <ProjectOverViewText descriptor="Niveaux:" str="8.67"/>
-            <ProjectOverViewText descriptor="Classement:" str="5eme"/>
+            <ProjectOverViewText descriptor="Dernier days:" str="TODO"/>
+            <ProjectOverViewText descriptor="Enregistré à:" str="TODO"/>
+            <ProjectOverViewText descriptor="Point d'evaluation:" str={student.correction_point.toString() + "pts"}/>
+            <ProjectOverViewText descriptor="Niveaux:" str={student.lvl.toString()}/>
+            <ProjectOverViewText descriptor="Classement:" str="TODO"/>
           </div>
         </div>
     </div>
@@ -105,47 +108,49 @@ function ProjectOverView() {
   );
 }
 
-function Commit() {
+function Commit({ comment }: {comment: Comment}) {
   return (
     <>
       <div className="flex flex-row h-fit">
         <CommitLeaf />
-        <CommitContent />
+        <CommitContent comment={comment}/>
       </div>
     </>
   );
 }
 
-function CommitHistory(student: objStudent) {
+function CommitHistory(student: profile) {
+  const haveCommit = student.comments.length != 0;
   return (
     <>
       <div className="module flex flex-col w-full h-fit">
-        {/* iter on the first commit */}
-        {db.profils.map(item => <Commit key={item.login} />)}
-        <div className="flex flex-col lg:flex-row gap-2">
-          <BtnAddCommit {...student} />
-          <BtnSeeMoreCommit />
-        </div>
+        {haveCommit ?
+          <>
+            {student.comments.reverse().map((comment, index) => <Commit key={index} comment={comment}/>)}
+            <div className="flex flex-col lg:flex-row gap-2">
+              <BtnAddCommit {...student} />
+              <BtnSeeMoreCommit />
+            </div>
+          </>
+          :
+          <EmptyCommit {...student} />
+        }
       </div>
     </>
   );
 }
 
-function Description(student: objStudent) {
-  let description = student.email;
-  if (description == "") {
-    description = "Description...";
-  }
+function Description(student: profile) {
   return (
      <>
       <div className="module">
-        <DynamicTextArea maxLength={-1} str="Description..."/>
+        <DynamicTextArea name="Description" maxLength={-1} str="Description..."/>
       </div>
      </>
    );
 }
 
-function StudentProfileTop(student: objStudent) {
+function StudentProfileTop(student: profile) {
   return (
     <>
       <div className="flex flex-col items-center justify-center gap-2">
@@ -161,11 +166,17 @@ function StudentProfileTop(student: objStudent) {
 
 export function Profile() {
   const params = useParams();
-  const location = useLocation();
-
   if (params.login == undefined)
     return (<><ErrorPage></ErrorPage></>);
-  const student = location.state?.student?.login === params.login ? location.state.student : findStudentByLogin(params.login);
+  const api: UseQueryResult = useQuery({queryKey: getProfilscacheName, queryFn: getProfilsHook});
+  const data: profiles = api.data as profiles;
+  if (api.isPending) {
+    return <p>Loading...</p>
+  }
+  if (api.error) {
+    return <p>An error has occurred: {api.error.message}</p>
+  }
+  const student = findStudentByLogin(data, params.login);
   if (student == undefined)
     return (<><ErrorPage></ErrorPage></>);
   return (
@@ -178,7 +189,7 @@ export function Profile() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2.5">
           <Description {...student} />
           <CommitHistory {...student} />
-          <ProjectOverView />
+          <ProjectOverView {...student} />
           <XpOverView />
           <Summarize />
         </div>

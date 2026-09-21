@@ -1,5 +1,5 @@
 import { Papicons } from "@getpapillon/papicons";
-import { BtnAddChat } from "./blueprint/Button";
+import { BtnAddChat } from "./components/Button";
 
 enum ChatPosition {
   Top,
