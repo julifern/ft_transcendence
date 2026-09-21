@@ -8,9 +8,8 @@ import { Dropdown, type MenuProps } from "antd";
 import { InlineIcon } from '@iconify/react';
 import { Papicons } from '@getpapillon/papicons';
 import { CommitContent, CommitLeaf, EmptyCommit } from './components/Commit.tsx';
-import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 import { makeItPrety } from './components/Utils.tsx';
-import { getProfilscacheName, getProfilsHook } from './api/Profiles.ts';
+import { useGetProfiles } from './api/Profiles.ts';
 import { useState } from 'react';
 
 function StudentCardCommit({ comments }: { comments: Comment[]}) {
@@ -94,7 +93,7 @@ function ListStudentsCards({data, inputSearchBar}: {data: profiles, inputSearchB
 function StudentsCards({inputSearchBar}: {inputSearchBar: string}) {
   // const titel: string = isFollowed ? "Tes suivies" : "Tous";
   const titel: string = false ? "Tes suivies" : "Tous";
-  const api: UseQueryResult = useQuery({queryKey: getProfilscacheName, queryFn: getProfilsHook});
+  const api = useGetProfiles();
   const data: profiles = api.data as profiles;
   if (api.isPending)
     return <p>Loading...</p>
