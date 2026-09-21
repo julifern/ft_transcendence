@@ -1,6 +1,7 @@
 import { Papicons } from "@getpapillon/papicons";
 import { BtnAddChat } from "./components/Button";
 import { BasicContextMenu } from "./components/ContextMenu";
+import { Link } from "react-router-dom";
 
 enum ChatPosition {
   Top,
@@ -10,21 +11,17 @@ enum ChatPosition {
 
 // chat position refaire to the position of the current Chat in the list.
 function Chat({chatPosition, iconName, title, text} : {chatPosition : ChatPosition, iconName: string, title : string, text : string}) {
-
   let mainDivStyle: string = "flex flex-row bg-white p-2.5 border-l-2 border-r-2 border-(--border) lg:border-t-2 lg:border-b-2 lg:rounded-2xl "
-
-  if (chatPosition === ChatPosition.Top) {
+  if (chatPosition === ChatPosition.Top)
     mainDivStyle = mainDivStyle.concat("rounded-t-xl border-t-2")
-  } else if (chatPosition === ChatPosition.Center) {
+  else if (chatPosition === ChatPosition.Center)
     mainDivStyle = mainDivStyle.concat("border-b-2 border-t-2")
-  } else if (chatPosition === ChatPosition.Bottom) {
+  else if (chatPosition === ChatPosition.Bottom)
     mainDivStyle = mainDivStyle.concat("rounded-b-xl border-b-2")
-  }
   return (
     <>
-      {/* <Link to={"/chat/" + title.replace(' ', '-')} state={title.replace(' ', '-')}> */}
+      <Link className={mainDivStyle} to={"/chat/" + title.replace(' ', '-').toLocaleLowerCase()} state={title.replace(' ', '-')}>
         <BasicContextMenu>
-          <div className={mainDivStyle}>
             <div className="flex items-center gap-5">
               <div className="flex justify-center items-center rounded-full bg-linear-to-r from-(--purple) to-(--bright-purple) w-15 h-15 shrink-0">
                 <Papicons className="text-white" name={iconName} />
@@ -34,9 +31,8 @@ function Chat({chatPosition, iconName, title, text} : {chatPosition : ChatPositi
                 <p className="text-(--text-gray)" >{text}</p>
               </div>
             </div>
-          </div>
         </BasicContextMenu>
-      {/* </Link> */}
+      </Link>
     </>
   );
 }
