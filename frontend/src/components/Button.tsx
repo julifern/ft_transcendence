@@ -67,8 +67,8 @@ function AddCommitPopupContente({ student, close } : Props) {
 export function BtnAddCommit(student: profile) {
   return (
     <>
-      <Popup trigger=
-        {
+      <Popup
+        trigger={
           <button type="button" className="w-full rounded-full bg-(--purple) text-white">
             <div className="flex justify-center items-center p-2 gap-1">
               <Papicons name="Add" />
@@ -150,7 +150,7 @@ function AddChatPopupContente() {
         <button onClick={() => addChat()} type="button" className="w-full rounded-full bg-(--purple) text-white">
           <div className="flex justify-center items-center p-2 gap-1">
             <InlineIcon icon="fa:paper-plane" />
-            <p>Envoyer le commit</p>
+            <p>Crée le nouvel chat</p>
           </div>
         </button>
       </div>

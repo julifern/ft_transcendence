@@ -25,6 +25,15 @@ export function DynamicTextArea({ str, name, maxLength }: { str: string, name: s
   );
 }
 
-export function makeItPrety(str: string) {
+export function makeItPrety(str: string) : string {
   return (str.charAt(0).toUpperCase() + str.slice(1).toLowerCase());
+}
+
+export function slugify(str: string) : string {
+  return (str
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, ''));
 }
