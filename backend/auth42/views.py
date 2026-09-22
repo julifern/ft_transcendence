@@ -87,6 +87,7 @@ def sync_one_profil(login: str, token: str) -> Profil | None:
 					'name': item.get('project', {}).get('name'),
 					'valid': bool(item.get('validated?')), # securite pour projet en cour de validation
 					'note': item.get('final_mark'),
+					'status': item.get('status') or '',
 				},
 			)
 

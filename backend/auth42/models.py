@@ -144,6 +144,7 @@ class Project(models.Model):
 	slug: str = models.CharField(max_length=100)
 	valid: bool = models.BooleanField(default=False)
 	note: int | None = models.IntegerField(null=True)
+	status: str = models.CharField(max_length=30, default='')
 
 	def get_category(self) -> str:
 		if 'rush' in self.slug:
@@ -158,6 +159,7 @@ class Project(models.Model):
 			'slug': self.slug,
 			'valid': self.valid,
 			'note': self.note,
+			'status': self.status,
 		}
 
 # Class pour les commentaires

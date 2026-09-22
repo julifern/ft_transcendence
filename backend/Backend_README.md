@@ -70,13 +70,13 @@ Retourne :
       "risk_score": null,
       "risk_level": "",
       "projets": [
-        { "name": "C Piscine C 00", "slug": "c-piscine-c-00", "valid": true, "note": 50 }
+        { "name": "C Piscine C 00", "slug": "c-piscine-c-00", "valid": true, "note": 50, "status": "finished" }
       ],
       "rushs": [
-        { "name": "C Piscine Rush 00", "slug": "c-piscine-rush-00", "valid": false, "note": 0 }
+        { "name": "C Piscine Rush 00", "slug": "c-piscine-rush-00", "valid": false, "note": 0, "status": "finished" }
       ],
       "exams": [
-        { "name": "C Piscine Exam 00", "slug": "c-piscine-exam-00", "valid": true, "note": 30 }
+        { "name": "C Piscine Exam 00", "slug": "c-piscine-exam-00", "valid": true, "note": 30, "status": "finished" }
       ],
       "comments": [
         { "author": "rcompain", "content": "Bloqué sur le C03", "created_at": "2026-09-10T16:30:32.843808+00:00" }
@@ -215,6 +215,7 @@ La liste à jour des suivis se lit dans `followed` via `GET /auth/me/`.
 | `slug` | string | non | — | version technique du nom, ex: `"c-piscine-c-00"` |
 | `valid` | boolean | non | `false` | `true` ou `false` |
 | `note` | integer ou `null` | oui | — | généralement `0` à `125` (bonus possible), ou `null` |
+| `status` | string | oui | `""` | `"finished"`, `"in_progress"`, `"waiting_for_correction"` |
 
 ### Comment
 
