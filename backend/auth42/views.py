@@ -87,6 +87,7 @@ def sync_one_profil(login: str, token: str) -> Profil | None:
 					'name': item.get('project', {}).get('name'),
 					'valid': bool(item.get('validated?')), # securite pour projet en cour de validation
 					'note': item.get('final_mark'),
+					'status': item.get('status') or '',
 				},
 			)
 
@@ -225,7 +226,7 @@ def sync_all_profils(request: HttpRequest) -> HttpResponse:
 			continue
 		sous_liste: str = ""
 		for key, value in profil.to_dict().items():
-			if key == 'projects':
+			if key in ('projets', 'rushs', 'exams'):
 				continue
 			sous_liste += f"<li>{key}: {value}</li>"
 
@@ -257,7 +258,7 @@ def add_comment(request: HttpRequest, login: str) -> JsonResponse:
 	if not content:
 		return JsonResponse({'error': 'content required'}, status=400)
 
-	# Recuperation des information
+	# Recuperation des informations
 	profil: Profil | None = Profil.objects.filter(profil_login=login).first()
 	if not profil:
 		return JsonResponse({'error': 'profil not found'}, status=404)
@@ -270,6 +271,31 @@ def add_comment(request: HttpRequest, login: str) -> JsonResponse:
 	)
  
 	return JsonResponse({'message': 'Comment created.'})
+
+# Ajout ou supprimg le suivi d'un profil par un user
+@csrf_exempt # Flag pour contrer la securite CSRF
+def follow(request: HttpRequest, profil_login: str) -> JsonResponse:
+	if not is_logged_in(request):
+		return JsonResponse({'authenticated': False}, status=401)
+
+	if not request.method == 'POST' and not request.method == 'DELETE':
+		return JsonResponse({'error': 'method not allowed'}, status=405)
+
+	# Recuperation des informations
+	user: FtUser = FtUser.objects.get(pk=request.session.get('ft_user_pk'))
+	profil: Profil | None = Profil.objects.filter(profil_login = profil_login).first()
+	if not profil:
+		return JsonResponse({'error': 'profil not found'}, status=404)
+
+	if request.method == 'POST':
+		user.user_followed.add(profil)
+		return JsonResponse({'message': 'Followed added.'})
+
+	user.user_followed.remove(profil)
+	return JsonResponse({'message': 'Followed deleted.'})
+	
+	
+	
 
 # ——— ENVOI AU FRONT ————————————————————————————————————————————————————————————————————————————————————————————— #
 # Vues qui renvoient des donnees au front (lecture seule)
@@ -284,14 +310,14 @@ def me(request: HttpRequest) -> JsonResponse:
 
 	return JsonResponse({'authenticated': True, 'user_dict': ft_user.to_dict()})
 
-# Vue : renvoie en JSON tous les piscineux + leur progression
-def api_profils(request: HttpRequest) -> JsonResponse:
+# Vue : renvoie en JSON la liste allegee des piscineux, pour le dashboard
+def dashboard(request: HttpRequest) -> JsonResponse:
 	if not is_logged_in(request):
 		return JsonResponse({'authenticated': False}, status=401)
 
 	profils: list[dict] = []
 	for profil in Profil.objects.all():
-		profils.append(profil.to_dict())
+		profils.append(profil.to_dashboard_dict())
 	return JsonResponse({'profils': profils}, json_dumps_params={'indent': 2})
 
 # Vue : renvoie en JSON un seul piscineux + sa progression
