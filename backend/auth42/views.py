@@ -225,7 +225,7 @@ def sync_all_profils(request: HttpRequest) -> HttpResponse:
 			continue
 		sous_liste: str = ""
 		for key, value in profil.to_dict().items():
-			if key == 'projects':
+			if key in ('projets', 'rushs', 'exams'):
 				continue
 			sous_liste += f"<li>{key}: {value}</li>"
 

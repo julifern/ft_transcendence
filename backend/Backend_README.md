@@ -69,8 +69,14 @@ Retourne :
       },
       "risk_score": null,
       "risk_level": "",
-      "projects": [
+      "projets": [
         { "name": "C Piscine C 00", "slug": "c-piscine-c-00", "valid": true, "note": 50 }
+      ],
+      "rushs": [
+        { "name": "C Piscine Rush 00", "slug": "c-piscine-rush-00", "valid": false, "note": 0 }
+      ],
+      "exams": [
+        { "name": "C Piscine Exam 00", "slug": "c-piscine-exam-00", "valid": true, "note": 30 }
       ],
       "comments": [
         { "author": "rcompain", "content": "Bloqué sur le C03", "created_at": "2026-09-10T16:30:32.843808+00:00" }
@@ -175,7 +181,9 @@ La liste à jour des suivis se lit dans `followed` via `GET /auth/me/`.
 | `presence` | object | non | — | voir section `Presence` |
 | `risk_score` | integer ou `null` | oui | — |  |
 | `risk_level` | string | oui | `""` | ex: `"critical"` |
-| `projects` | array | oui | `[]` | voir section `Project`, éventuellement vide |
+| `projets` | array | oui | `[]` | projets C piscine (`c-piscine-c-XX`) — voir section `Project`, éventuellement vide |
+| `rushs` | array | oui | `[]` | rushs (`c-piscine-rush-XX`) — voir section `Project`, éventuellement vide |
+| `exams` | array | oui | `[]` | exams (`c-piscine-exam-XX`, `c-piscine-final-exam`) — voir section `Project`, éventuellement vide |
 | `comments` | array | oui | `[]` | voir section `Comment`, éventuellement vide |
 
 ### SoftSkills (objet `soft_skills` sur `Profil`)

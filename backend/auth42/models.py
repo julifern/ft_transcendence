@@ -83,9 +83,17 @@ class Profil(models.Model):
 		return self.profil_login
 
 	def to_dict(self) -> dict:
-		projects: list[dict] = []
+		projets: list[dict] = []
+		rushs: list[dict] = []
+		exams: list[dict] = []
 		for p in self.project_set.all():
-			projects.append(p.to_dict())
+			category: str = p.get_category()
+			if category == 'Rushs':
+				rushs.append(p.to_dict())
+			elif category == 'Exams':
+				exams.append(p.to_dict())
+			else:
+				projets.append(p.to_dict())
 		comments: list[dict] = []
 		for c in self.comment_set.all():
 			comments.append(c.to_dict())
@@ -121,7 +129,9 @@ class Profil(models.Model):
 			},
 			'risk_score': self.profil_risk_score,
 			'risk_level': self.profil_risk_level,
-			'projects': projects,
+			'projets': projets,
+			'rushs': rushs,
+			'exams': exams,
 			'comments': comments,
 		}
 
@@ -134,6 +144,13 @@ class Project(models.Model):
 	slug: str = models.CharField(max_length=100)
 	valid: bool = models.BooleanField(default=False)
 	note: int | None = models.IntegerField(null=True)
+
+	def get_category(self) -> str:
+		if 'rush' in self.slug:
+			return 'Rushs'
+		elif 'exam' in self.slug:
+			return 'Exams'
+		return 'Projects'
 
 	def to_dict(self) -> dict:
 		return {
