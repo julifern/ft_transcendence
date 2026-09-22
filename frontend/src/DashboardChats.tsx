@@ -2,11 +2,12 @@ import { Papicons } from "@getpapillon/papicons";
 import { BtnAddChat } from "./components/Button";
 import { BasicContextMenu } from "./components/ContextMenu";
 import { Link } from "react-router-dom";
+import { slugify } from "./components/Utils";
 
 enum ChatPosition {
-  Top,
-  Center,
-  Bottom,
+  Top = 0,
+  Center = 1,
+  Bottom = 2,
 }
 
 // chat position refaire to the position of the current Chat in the list.
@@ -20,7 +21,7 @@ function Chat({chatPosition, iconName, title, text} : {chatPosition : ChatPositi
     mainDivStyle = mainDivStyle.concat("rounded-b-xl border-b-2")
   return (
     <>
-      <Link className={mainDivStyle} to={"/chat/" + title.replace(' ', '-').toLocaleLowerCase()} state={title.replace(' ', '-')}>
+      <Link className={mainDivStyle} to={"/chat/" + slugify(title)}>
         <BasicContextMenu>
             <div className="flex items-center gap-5">
               <div className="flex justify-center items-center rounded-full bg-linear-to-r from-(--purple) to-(--bright-purple) w-15 h-15 shrink-0">

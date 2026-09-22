@@ -1,0 +1,33 @@
+@import "color.css";
+
+.ChatModule {
+	display: flex;
+	justify-content: center;
+	border-end-end-radius: 30px;
+	border-end-start-radius: 30px;
+	padding-left: 20px;
+	padding-right: 20px;
+	padding-top: 15px;
+	padding-bottom: 15px;
+	border: 3px solid #E6E6E6;
+	background-color: white;
+}
+
+.moduleMessage {
+	border-end-start-radius: 30px;
+	border-end-end-radius: 30px;
+	padding-left: 20px;
+	padding-right: 20px;
+	padding-top: 10px;
+	padding-bottom: 15px;
+	border: 2px solid #E6E6E6;
+	background-color: white;
+}
+
+.moduleSenderMessage {
+	border-start-start-radius: 30px;
+}
+
+.moduleReceiverMessage {
+	border-start-end-radius: 30px;
+}
