@@ -310,14 +310,14 @@ def me(request: HttpRequest) -> JsonResponse:
 
 	return JsonResponse({'authenticated': True, 'user_dict': ft_user.to_dict()})
 
-# Vue : renvoie en JSON tous les piscineux + leur progression
-def api_profils(request: HttpRequest) -> JsonResponse:
+# Vue : renvoie en JSON la liste allegee des piscineux, pour le dashboard
+def dashboard(request: HttpRequest) -> JsonResponse:
 	if not is_logged_in(request):
 		return JsonResponse({'authenticated': False}, status=401)
 
 	profils: list[dict] = []
 	for profil in Profil.objects.all():
-		profils.append(profil.to_dict())
+		profils.append(profil.to_dashboard_dict())
 	return JsonResponse({'profils': profils}, json_dumps_params={'indent': 2})
 
 # Vue : renvoie en JSON un seul piscineux + sa progression

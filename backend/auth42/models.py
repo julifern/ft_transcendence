@@ -135,6 +135,19 @@ class Profil(models.Model):
 			'comments': comments,
 		}
 
+	# Version allegee pour la liste du dashboard (pas tout le detail)
+	def to_dashboard_dict(self) -> dict:
+		comments: list[dict] = []
+		for c in self.comment_set.order_by('-created_at')[:3]:
+			comments.append(c.to_dict())
+		return {
+			'login': self.profil_login,
+			'first_name': self.profil_first_name,
+			'last_name': self.profil_last_name,
+			'image_url': self.profil_image_url,
+			'comments': comments,
+		}
+
 
 
 # Class pour les projets

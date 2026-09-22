@@ -1,5 +1,16 @@
 # Backend API
 
+## Sommaire
+
+| Endpoint | Permet au front de... |
+|---|---|
+| `GET /auth/login/` | rediriger vers la connexion 42 |
+| `GET /auth/me/` | savoir qui est connecté, récupérer son profil de tuteur et ses suivis |
+| `GET /auth/api/dashboard/` | liste des piscineux (carte : photo, prénom, nom, login, derniers commentaires) |
+| `GET /auth/api/profils/<login>/` | détail complet d'un piscineux (progression, soft skills, présence, projets...) |
+| `POST /auth/comment/<login>/` | ajouter un commentaire sur un piscineux |
+| `POST`/`DELETE /auth/follow/<login>/` | suivre / ne plus suivre un piscineux |
+
 ## Se connecter
 Rediriger vers : `http://localhost:8000/auth/login/`
 
@@ -30,54 +41,20 @@ Retourne, si connecté :
 
 Si pas connecté : `401` `{ "authenticated": false }`.
 
-## Récupérer les piscineux + leur progression
-`GET http://localhost:8000/auth/api/profils/` (faut être connecté)
+## Dashboard : liste allégée des piscineux
+`GET http://localhost:8000/auth/api/dashboard/` (faut être connecté)
+
+Volontairement léger — juste de quoi afficher une carte par piscineux dans le dashboard, pas toute la progression (pour ça, voir `api/profils/<login>/` juste en dessous).
 
 Retourne :
 ```json
 {
   "profils": [
     {
-      "id": 275227,
       "login": "abenamir",
-      "email": "abenamir@student.42angouleme.fr",
       "first_name": "Abdelaziz",
       "last_name": "Benamira",
       "image_url": "https://cdn.intra.42.fr/...",
-      "pool_year": "2026",
-      "pool_month": "september",
-      "lvl": 1.86,
-      "location": "",
-      "is_online": false,
-      "correction_point": 4,
-      "soft_skills": {
-        "timidity": null,
-        "stress": null,
-        "peer_help": null,
-        "self_research": null,
-        "perseverance": null
-      },
-      "presence": {
-        "total_hours": null,
-        "daily_average_hours": null,
-        "time_slots": {
-          "morning_hours": null,
-          "afternoon_hours": null,
-          "night_hours": null
-        },
-        "preferred_slot": ""
-      },
-      "risk_score": null,
-      "risk_level": "",
-      "projets": [
-        { "name": "C Piscine C 00", "slug": "c-piscine-c-00", "valid": true, "note": 50, "status": "finished" }
-      ],
-      "rushs": [
-        { "name": "C Piscine Rush 00", "slug": "c-piscine-rush-00", "valid": false, "note": 0, "status": "finished" }
-      ],
-      "exams": [
-        { "name": "C Piscine Exam 00", "slug": "c-piscine-exam-00", "valid": true, "note": 30, "status": "finished" }
-      ],
       "comments": [
         { "author": "rcompain", "content": "Bloqué sur le C03", "created_at": "2026-09-10T16:30:32.843808+00:00" }
       ]
@@ -86,7 +63,39 @@ Retourne :
 }
 ```
 
-Voir le détail de chaque champ plus bas.
+`comments` : les 3 derniers commentaires du piscineux (tous tuteurs confondus), du plus récent au plus ancien — voir section `Comment` plus bas pour le détail des champs.
+
+## Récupérer un seul piscineux + sa progression
+
+`GET http://localhost:8000/auth/api/profils/<login>/` (faut être connecté)
+
+Retourne directement l'objet complet du piscineux (contrairement à la version allégée du dashboard ci-dessus, ici tous les champs) :
+```json
+{
+  "id": 275227,
+  "login": "abenamir",
+  "email": "abenamir@student.42angouleme.fr",
+  "first_name": "Abdelaziz",
+  "last_name": "Benamira",
+  "image_url": "https://cdn.intra.42.fr/...",
+  "pool_year": "2026",
+  "pool_month": "september",
+  "lvl": 1.86,
+  "location": "",
+  "is_online": false,
+  "correction_point": 4,
+  "soft_skills": { "...": "..." },
+  "presence": { "...": "..." },
+  "risk_score": null,
+  "risk_level": "",
+  "projets": [ "..." ],
+  "rushs": [ "..." ],
+  "exams": [ "..." ],
+  "comments": [ "..." ]
+}
+```
+
+Réponses : `200` avec l'objet ci-dessus · `401` pas connecté · `404` login inconnu (`{"error": "profil not found"}`).
 
 ## Créer un commentaire sur un piscineux
 
@@ -112,7 +121,7 @@ fetch("http://localhost:8000/auth/comment/nvieille/", {
   .then(data => console.log(data));
 ```
 
-Le commentaire apparaît ensuite dans `comments` via `GET /auth/api/profils/`.
+Le commentaire apparaît ensuite dans `comments` via `GET /auth/api/profils/<login>/` (détail complet) et via `GET /auth/api/dashboard/` (3 derniers seulement, tous piscineux).
 
 ## Suivre / ne plus suivre un piscineux
 
