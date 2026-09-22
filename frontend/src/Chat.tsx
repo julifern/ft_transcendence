@@ -7,7 +7,7 @@ import "./styles/Chats.css"
 function TopBarChat({ title }: { title: string}) {
   return (
     <>
-      <div className="flex felx-rows items-center gap-3">
+      <div className="ChatModuleHeader flex felx-rows items-center gap-3">
         <Link className="flex felx-rows items-center" to="/chats">
           <Papicons className="h-10 w-10 text-(--text-gray)" name="ArrowLeft" />
           <div className="flex justify-center items-center rounded-full bg-linear-to-r from-(--purple) to-(--bright-purple) w-15 h-15 shrink-0">
@@ -55,7 +55,6 @@ function ModuleMessage({nickname, msg, isSender}: {nickname: string, msg: string
   );
 }
 
-
 export function Chat() {
   const params = useParams();
   // const location = useLocation();
@@ -65,6 +64,7 @@ export function Chat() {
   const title: string = params.title;
   return (
     <>
+    <div className="flex flex-col">
       <TopBarChat title={title}/>
       <div className="ChatModule flex flex-col gap-2">
         <ChatHeader title={"caca"} description={"description caca"} />
@@ -72,11 +72,12 @@ export function Chat() {
         <ModuleMessage nickname={"etoad"}  msg={"67!!!"} isSender={false} />
         <ModuleMessage nickname={"etoad"}  msg={"Je suis un texte très long pour regarder comment les modules de message réagissent à ce genre de situation et voir si le responsive ne casse pas, j'espère que cela ne va rien casser. PS : free(C), j'ai le putain de web!!!"} isSender={false} />
       </div>
+    </div>
       <div className="module flex flex-col w-full h-fit gap-2">
         <div className="flex flex-rows h-full w-full g-3">
           <DynamicTextArea name="chatInput" str={"Message"} maxLength={-1}></DynamicTextArea>
-          <div className=" rounded-full">
-            <Papicons className="h-10 w-10 text-(--text-gray)" name="ArrowRight" />
+          <div className="w-fit h-fit rounded-full p-3 bg-(--purple)">
+            <Papicons className="h-7 w-7 text-white" name="ArrowRight" />
           </div>
         </div>
       </div>

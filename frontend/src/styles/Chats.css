@@ -1,5 +1,20 @@
 @import "color.css";
 
+.ChatModuleHeader {
+	display: flex;
+	justify-content: start;
+	border-start-start-radius: 30px;
+	border-start-end-radius: 30px;
+	padding-left: 20px;
+	padding-right: 20px;
+	padding-top: 15px;
+	padding-bottom: 15px;
+	border-top: 3px solid #E6E6E6;
+	border-left: 3px solid #E6E6E6;
+	border-right: 3px solid #E6E6E6;
+	background-color: white;
+}
+
 .ChatModule {
 	display: flex;
 	justify-content: center;
