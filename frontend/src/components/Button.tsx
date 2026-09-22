@@ -1,10 +1,10 @@
 import { Papicons } from "@getpapillon/papicons";
-import type { objStudent } from "./ObjStudent";
+import type { profile } from "../types/ObjStudent";
 import Popup from "reactjs-popup";
 import { InlineIcon } from "@iconify/react";
 import { DynamicTextArea } from "./Utils";
 
-export function BtnVoirIntra(student: objStudent) {
+export function BtnVoirIntra(student: profile) {
   return (
     <>
       <a className="w-full rounded-full bg-(--gray)" target="_blank" href={"https://profile.intra.42.fr/users/" + student.login}>
@@ -17,30 +17,54 @@ export function BtnVoirIntra(student: objStudent) {
   )
 }
 
-function popupNewCommit(student: objStudent) {
-  alert("try to write a new commit for " + student.login);
+function handleSubmit(e: React.SubmitEvent<HTMLFormElement>, login: string, close: () => void) {
+  // Prevent the browser from reloading the page
+  e.preventDefault();
+  const form = e.target;
+  const commitContent: string | undefined = new FormData(form).get("commitContent")?.toString();
+  if (!commitContent) {
+    console.log("failed to get the content of your commit message...")
+    close(); // close popup
+    return ;
+  }
+  fetch("http://localhost:8000/auth/comment/" + login + "/", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ content: commitContent }),
+  }).then(res => res.json()).then(() => {
+    close(); // close popup
+    window.location.reload(); // reload the page
+  });
 }
 
-function AddCommitPopupContente(student: objStudent) {
+type Props = {
+  student: profile;
+  close: () => void;
+};
+
+function AddCommitPopupContente({ student, close } : Props) {
   return (
     <>
       <div className="module flex flex-col h-fit bg-(--bg) p-10 gap-2 border-2 border-solid border-(--gray)" style={{borderRadius: "50px"}}>
-        <h1>Contenu de votre nouveau commit:</h1>
-        <div className="module flex flex-col">
-          <DynamicTextArea maxLength={100} str="Description (100 char max)" />
-        </div>
-        <button onClick={() => popupNewCommit(student)} type="button" className="w-full rounded-full bg-(--purple) text-white">
-          <div className="flex justify-center items-center p-2 gap-1">
-            <InlineIcon icon="fa:paper-plane" />
-            <p>Envoyer le commit</p>
+        <form action="post" onSubmit={(e) => handleSubmit(e, student.login, close)}>
+          <h1>Contenu de votre nouveau commit:</h1>
+          <div className="module flex flex-col">
+            <DynamicTextArea name="commitContent" maxLength={100} str="Description (100 char max)" />
           </div>
-        </button>
+          <button type="submit" className="w-full rounded-full bg-(--purple) text-white">
+            <div className="flex justify-center items-center p-2 gap-1">
+              <InlineIcon icon="fa:paper-plane" />
+              <p>Envoyer le commit</p>
+            </div>
+          </button>
+        </form>
       </div>
     </>
   );
 }
 
-export function BtnAddCommit(student: objStudent) {
+export function BtnAddCommit(student: profile) {
   return (
     <>
       <Popup trigger=
@@ -53,7 +77,7 @@ export function BtnAddCommit(student: objStudent) {
           </button>
         }
         modal nested>
-        <AddCommitPopupContente {...student}/>
+      { close => (<AddCommitPopupContente student={student} close={close} />)}
       </Popup>
     </>
   )
@@ -76,11 +100,11 @@ export function BtnSeeMoreCommit() {
   )
 }
 
-function follow(student: objStudent) {
+function follow(student: profile) {
   alert("try to follow : {" + student.login + "}.");
 }
 
-export function BtnFollow(student: objStudent) {
+export function BtnFollow(student: profile) {
   return (
     <>
       <button onClick={() => follow(student)} type="button" className="w-full rounded-full bg-(--purple) text-white">
@@ -118,10 +142,10 @@ function AddChatPopupContente() {
   return (
       <div className="module flex flex-col h-fit bg-(--bg) p-10 gap-2 border-2 border-solid border-(--gray)" style={{borderRadius: "50px"}}>
         <div className="module flex flex-col">
-          <DynamicTextArea maxLength={30} str="Titre (30 char max)" />
+          <DynamicTextArea name="newChatName" maxLength={30} str="Titre (30 char max)" />
         </div>
         <div className="module flex flex-col">
-          <DynamicTextArea maxLength={142} str="Description (142 char max)" />
+          <DynamicTextArea name="newChatName" maxLength={142} str="Description (142 char max)" />
         </div>
         <button onClick={() => addChat()} type="button" className="w-full rounded-full bg-(--purple) text-white">
           <div className="flex justify-center items-center p-2 gap-1">

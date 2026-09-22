@@ -1,34 +1,18 @@
-import { type objStudent, makeItPrety } from './blueprint/ObjStudent.tsx'
+import { type profile, type profiles } from './types/ObjStudent.ts'
+import { type Comment } from './types/Comment.ts';
 import './styles/Dashboard.css'
 import './styles/color.css'
 import { Link } from 'react-router-dom';
 import { Dropdown, type MenuProps } from "antd";
-import db from './assets/test.json';
 
 import { InlineIcon } from '@iconify/react';
 import { Papicons } from '@getpapillon/papicons';
-import { BtnAddCommit, BtnVoirIntra } from './blueprint/Button.tsx';
-import { CommitContent, CommitLeaf } from './blueprint/Commit.tsx';
+import { CommitContent, CommitLeaf, EmptyCommit } from './components/Commit.tsx';
+import { makeItPrety } from './components/Utils.tsx';
+import { useGetProfiles } from './api/Profiles.ts';
+import { useState } from 'react';
 
-
-function StudentCardEmptyCommit(student: objStudent) {
-  return (
-    <>
-      <div className="flex flex-col items-center justify-center w-full h-full gap-1.25">
-        <Papicons className="w-15 h-15 text-(--text-gray)" name="Ghost" />
-        <h1>
-          Aucune activité
-        </h1>
-        <div className="flex flex-col w-full h-fit gap-1.5">
-          <BtnAddCommit {...student} />
-          <BtnVoirIntra {...student} />
-        </div>
-      </div>
-    </>
-  );
-}
-
-function StudentCardCommit() {
+function StudentCardCommit({ comments }: { comments: Comment[]}) {
   const items: MenuProps['items'] = [
     {
       label: "Copier",
@@ -54,14 +38,14 @@ function StudentCardCommit() {
     <Dropdown menu={{items}} trigger={["contextMenu"]}>
         <div className="flex flex-row h-fit">
           <CommitLeaf />
-          <CommitContent />
+          <CommitContent comment={comments[comments.length - 1]}/>
         </div>
-    </Dropdown>
+    </Dropdown> 
   );
 }
 
-function StudentCard(student: objStudent) {
-  const haveCommit = true;
+function StudentCard({student}: {student : profile}) {
+  const haveCommit = student.comments.length != 0;
   return (
     <>
       <div className="studentCard flex flex-col p-2.5 gap-2.5">
@@ -75,35 +59,52 @@ function StudentCard(student: objStudent) {
               {makeItPrety(student.last_name)} ({student.login})
             </p>
           </div>
-          <Link className="flex items-center justify-center rounded-full w-15 h-13.75 shrink-0" style={{backgroundColor: "var(--gray)"}} to={"/profile/" + student.login} state={student}><InlineIcon icon="akar-icons:more-horizontal" /></Link>
+          {/* student={student} */}
+          <Link className="flex items-center justify-center rounded-full w-15 h-13.75 shrink-0" style={{backgroundColor: "var(--gray)"}} to={"/profile/" + student.login} ><InlineIcon icon="akar-icons:more-horizontal" /></Link>
         </div>
         {
           haveCommit ?
             // iter on the first commit of student.
             <div>
-              <StudentCardCommit></StudentCardCommit>
-              <StudentCardCommit></StudentCardCommit>
-              <StudentCardCommit></StudentCardCommit>
+              <StudentCardCommit comments={student.comments} />
             </div>
             :
-            <StudentCardEmptyCommit {...student} ></StudentCardEmptyCommit>
+            <EmptyCommit {...student} />
         }
-
       </div>
     </>
   )
 }
 
-function StudentsCards({isFollowed}: {isFollowed: boolean}) {
+function ListStudentsCards({data, inputSearchBar}: {data: profiles, inputSearchBar: string}) {
+  const filterData = data.profils.filter((el) => {
+    if (inputSearchBar === "")
+      return (el);
+    else 
+      return (el.login.toLocaleLowerCase().includes(inputSearchBar));
+    });
+  return (
+    <>
+      {filterData.map((profil: profile) => (<StudentCard key={profil.id} student={profil} />))}
+    </>
+  );
+}
 
-  const titel: string = isFollowed ? "Tes suivies" : "Tous";
-
+function StudentsCards({inputSearchBar}: {inputSearchBar: string}) {
+  // const titel: string = isFollowed ? "Tes suivies" : "Tous";
+  const titel: string = false ? "Tes suivies" : "Tous";
+  const api = useGetProfiles();
+  const data: profiles = api.data as profiles;
+  if (api.isPending)
+    return <p>Loading...</p>
+  if (api.error)
+    return <p>An error has occurred: {api.error.message}</p>
   return (
     <>
       <div className="studentsCardFollows flex flex-col gap-2.5">
         <p className="font-regular text-1xl text-(--text-gray)">{titel}</p>
         <div className="grid grid-cols-1 md:grid-cols-3 mg:grid-cols-6 gap-2.5">
-            {db.profils.map(item => <StudentCard key={item.login} {...item} />)}
+            <ListStudentsCards data={data} inputSearchBar={inputSearchBar} />
         </div>
       </div>
     </>
@@ -111,14 +112,14 @@ function StudentsCards({isFollowed}: {isFollowed: boolean}) {
 }
 
 export function Dashboard() {
+  const [studentsfilter, setstudentsfilter] = useState("");
   return (
     <>
       <div className="dashboardSearch gap-5">
         <p className="font-semibold text-2xl pl-3">Students</p>
-        <input className="dashboardSearchProfile" type="text" placeholder="Rechercher un student" />
+        <input value={studentsfilter} onChange={(e) => {setstudentsfilter(e.target.value)}} className="dashboardSearchProfile" type="text" placeholder="Rechercher un student" />
       </div>
-      <StudentsCards isFollowed={true}></StudentsCards>
-      <StudentsCards isFollowed={false}></StudentsCards>
+      <StudentsCards inputSearchBar={studentsfilter}></StudentsCards>
     </>
   )
 }
