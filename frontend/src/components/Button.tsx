@@ -3,6 +3,8 @@ import type { ProfileDashboard } from "../types/ObjStudent";
 import Popup from "reactjs-popup";
 import { InlineIcon } from "@iconify/react";
 import { DynamicTextArea } from "./Utils";
+import { queryClient } from "../main";
+import { Link, useNavigate } from "react-router-dom";
 
 export function BtnVoirIntra(student: ProfileDashboard) {
   return (
@@ -17,33 +19,34 @@ export function BtnVoirIntra(student: ProfileDashboard) {
   )
 }
 
-function handleSubmit(e: React.SubmitEvent<HTMLFormElement>, login: string, close: () => void) {
-  // Prevent the browser from reloading the page
-  e.preventDefault();
-  const form = e.target;
-  const commitContent: string | undefined = new FormData(form).get("commitContent")?.toString();
-  if (!commitContent) {
-    console.log("failed to get the content of your commit message...")
-    close(); // close popup
-    return ;
-  }
-  fetch("http://localhost:8000/auth/comment/" + login + "/", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-    body: JSON.stringify({ content: commitContent }),
-  }).then(res => res.json()).then(() => {
-    close(); // close popup
-    window.location.reload(); // reload the page
-  });
-}
-
 type Props = {
   student: ProfileDashboard;
   close: () => void;
 };
 
 function AddCommitPopupContente({ student, close } : Props) {
+  const navigate = useNavigate();
+  function handleSubmit(e: React.SubmitEvent<HTMLFormElement>, login: string, close: () => void) {
+    // Prevent the browser from reloading the page
+    e.preventDefault();
+    const form = e.target;
+    const commitContent: string | undefined = new FormData(form).get("commitContent")?.toString();
+    if (!commitContent) {
+      console.log("failed to get the content of your commit message...")
+      close(); // close popup
+      return ;
+    }
+    fetch("http://localhost:8000/auth/comment/" + login + "/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ content: commitContent }),
+    }).then(res => res.json()).then(() => {
+      close(); // close popup
+      queryClient.invalidateQueries({queryKey: ["auth", "api", "profils", login]})
+      navigate("/profile/" + login);
+    });
+  }
   return (
     <>
       <div className="module flex flex-col h-fit bg-(--bg) p-10 gap-2 border-2 border-solid border-(--gray)" style={{borderRadius: "50px"}}>
