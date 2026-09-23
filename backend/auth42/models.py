@@ -1,6 +1,15 @@
 from django.db import models
 from datetime import datetime
 
+# Import des services metier
+from auth42.services.metrics import (
+	compute_student_progress,
+	compute_risk_score,
+	compute_presence_metrics,
+	compute_xp_history,
+	get_assigned_tutor,
+)
+
 # Class par user se connectant au site
 class FtUser(models.Model):
 	user_id: int 				= models.IntegerField(unique=True) # unique=True: jamais 2 fois le meme utilisateur
@@ -83,6 +92,13 @@ class Profil(models.Model):
 		return self.profil_login
 
 	def to_dict(self) -> dict:
+		# services metier
+		progress_data: dict 			= compute_student_progress(self)
+		risk_score, risk_level 			= compute_risk_score(self, progress_data)
+		presence_data: dict 			= compute_presence_metrics(self)
+		xp_history: list[dict] 			= compute_xp_history(self)
+		assigned_to: str | None 		= get_assigned_tutor(self)
+
 		projets: list[dict] = []
 		rushs: list[dict] = []
 		exams: list[dict] = []
@@ -110,6 +126,8 @@ class Profil(models.Model):
 			'location': self.profil_location,
 			'is_online': self.profil_is_online,
 			'correction_point': self.profil_correction_point,
+			'assigned_to': assigned_to,
+			'progress': progress_data,
 			'soft_skills': {
 				'timidity': self.profil_timidity,
 				'stress': self.profil_stress,
@@ -117,18 +135,10 @@ class Profil(models.Model):
 				'self_research': self.profil_self_research,
 				'perseverance': self.profil_perseverance,
 			},
-			'presence': {
-				'total_hours': self.profil_total_hours,
-				'daily_average_hours': self.profil_daily_average_hours,
-				'time_slots': {
-					'morning_hours': self.profil_morning_hours,
-					'afternoon_hours': self.profil_afternoon_hours,
-					'night_hours': self.profil_night_hours,
-				},
-				'preferred_slot': self.profil_preferred_slot,
-			},
-			'risk_score': self.profil_risk_score,
-			'risk_level': self.profil_risk_level,
+			'presence': presence_data,
+			'risk_score': risk_score,
+			'risk_level': risk_level,
+			'xp_history': xp_history,
 			'projets': projets,
 			'rushs': rushs,
 			'exams': exams,
