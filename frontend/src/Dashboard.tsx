@@ -1,4 +1,4 @@
-import { type profile, type profiles } from './types/ObjStudent.ts'
+import { type ProfilesDashboard, type ProfileDashboard } from './types/ObjStudent.ts'
 import { type Comment } from './types/Comment.ts';
 import './styles/Dashboard.css'
 import './styles/color.css'
@@ -9,7 +9,7 @@ import { InlineIcon } from '@iconify/react';
 import { Papicons } from '@getpapillon/papicons';
 import { CommitContent, CommitLeaf, EmptyCommit } from './components/Commit.tsx';
 import { makeItPrety } from './components/Utils.tsx';
-import { useGetProfiles } from './api/Profiles.ts';
+import { useGetProfilesDashboard } from './api/ProfilesDashboard.ts';
 import { useState } from 'react';
 
 function StudentCardCommit({ comments }: { comments: Comment[]}) {
@@ -44,7 +44,7 @@ function StudentCardCommit({ comments }: { comments: Comment[]}) {
   );
 }
 
-function StudentCard({student}: {student : profile}) {
+function StudentCard({student}: {student : ProfileDashboard}) {
   const haveCommit = student.comments.length != 0;
   return (
     <>
@@ -76,7 +76,7 @@ function StudentCard({student}: {student : profile}) {
   )
 }
 
-function ListStudentsCards({data, inputSearchBar}: {data: profiles, inputSearchBar: string}) {
+function ListStudentsCards({data, inputSearchBar}: {data: ProfilesDashboard, inputSearchBar: string}) {
   const filterData = data.profils.filter((el) => {
     if (inputSearchBar === "")
       return (el);
@@ -85,7 +85,7 @@ function ListStudentsCards({data, inputSearchBar}: {data: profiles, inputSearchB
     });
   return (
     <>
-      {filterData.map((profil: profile) => (<StudentCard key={profil.id} student={profil} />))}
+      {filterData.map((ProfileDashboard: ProfileDashboard) => (<StudentCard key={ProfileDashboard.login} student={ProfileDashboard} />))}
     </>
   );
 }
@@ -93,8 +93,7 @@ function ListStudentsCards({data, inputSearchBar}: {data: profiles, inputSearchB
 function StudentsCards({inputSearchBar}: {inputSearchBar: string}) {
   // const titel: string = isFollowed ? "Tes suivies" : "Tous";
   const titel: string = false ? "Tes suivies" : "Tous";
-  const api = useGetProfiles();
-  const data: profiles = api.data as profiles;
+  const api = useGetProfilesDashboard();
   if (api.isPending)
     return <p>Loading...</p>
   if (api.error)
@@ -104,7 +103,7 @@ function StudentsCards({inputSearchBar}: {inputSearchBar: string}) {
       <div className="studentsCardFollows flex flex-col gap-2.5">
         <p className="font-regular text-1xl text-(--text-gray)">{titel}</p>
         <div className="grid grid-cols-1 md:grid-cols-3 mg:grid-cols-6 gap-2.5">
-            <ListStudentsCards data={data} inputSearchBar={inputSearchBar} />
+            <ListStudentsCards data={api.data} inputSearchBar={inputSearchBar} />
         </div>
       </div>
     </>

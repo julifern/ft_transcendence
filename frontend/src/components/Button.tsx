@@ -1,10 +1,10 @@
 import { Papicons } from "@getpapillon/papicons";
-import type { profile } from "../types/ObjStudent";
+import type { ProfileDashboard } from "../types/ObjStudent";
 import Popup from "reactjs-popup";
 import { InlineIcon } from "@iconify/react";
 import { DynamicTextArea } from "./Utils";
 
-export function BtnVoirIntra(student: profile) {
+export function BtnVoirIntra(student: ProfileDashboard) {
   return (
     <>
       <a className="w-full rounded-full bg-(--gray)" target="_blank" href={"https://profile.intra.42.fr/users/" + student.login}>
@@ -39,7 +39,7 @@ function handleSubmit(e: React.SubmitEvent<HTMLFormElement>, login: string, clos
 }
 
 type Props = {
-  student: profile;
+  student: ProfileDashboard;
   close: () => void;
 };
 
@@ -64,7 +64,7 @@ function AddCommitPopupContente({ student, close } : Props) {
   );
 }
 
-export function BtnAddCommit(student: profile) {
+export function BtnAddCommit(student: ProfileDashboard) {
   return (
     <>
       <Popup
@@ -100,11 +100,11 @@ export function BtnSeeMoreCommit() {
   )
 }
 
-function follow(student: profile) {
+function follow(student: ProfileDashboard) {
   alert("try to follow : {" + student.login + "}.");
 }
 
-export function BtnFollow(student: profile) {
+export function BtnFollow(student: ProfileDashboard) {
   return (
     <>
       <button onClick={() => follow(student)} type="button" className="w-full rounded-full bg-(--purple) text-white">

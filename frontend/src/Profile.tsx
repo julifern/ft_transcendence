@@ -1,5 +1,5 @@
 import './styles/Profile.css'
-import { type profile, type profiles } from './types/ObjStudent.ts'
+import { type Profile } from './types/ObjStudent.ts'
 import { type Comment } from './types/Comment.ts';
 import { ErrorPage } from './components/Error.tsx'
 import { useParams } from 'react-router-dom';
@@ -8,15 +8,7 @@ import { DynamicTextArea, makeItPrety } from './components/Utils.tsx';
 import { CommitContent, CommitLeaf, EmptyCommit } from './components/Commit.tsx';
 import { InlineIcon } from '@iconify/react';
 import { GraphXpOverView } from './components/GraphXpOverView.tsx';
-import { useGetProfiles } from './api/Profiles.ts';
-
-function findStudentByLogin(data: profiles, login: string) : profile | undefined {
-  for(let i = 0; i < data.profils.length; i++) {
-      if (data.profils[i].login === login)
-        return (data.profils[i]);
-  }
-  return (undefined);
-}
+import { useGetProfile } from './api/Profile.ts';
 
 function XpOverView() {
   return (
@@ -72,7 +64,7 @@ function ProjectOverViewText({descriptor, str} : {descriptor : string, str : str
   );
 }
 
-function ProjectOverView(student: profile) {
+function ProjectOverView(student: Profile) {
   return (
     <>
       <div className="module flex flex-col w-full h-fit gap-2">
@@ -118,7 +110,7 @@ function Commit({ comment }: {comment: Comment}) {
   );
 }
 
-function CommitHistory(student: profile) {
+function CommitHistory(student: Profile) {
   const haveCommit = student.comments.length != 0;
   return (
     <>
@@ -139,7 +131,7 @@ function CommitHistory(student: profile) {
   );
 }
 
-function Description(student: profile) {
+function Description(student: Profile) {
   return (
      <>
       <div className="module">
@@ -149,7 +141,7 @@ function Description(student: profile) {
    );
 }
 
-function StudentProfileTop(student: profile) {
+function StudentProfileTop(student: Profile) {
   return (
     <>
       <div className="flex flex-col items-center justify-center gap-2">
@@ -167,15 +159,14 @@ export function Profile() {
   const params = useParams();
   if (params.login == undefined)
     return (<><ErrorPage></ErrorPage></>);
-  const api = useGetProfiles();
-  const data: profiles = api.data as profiles;
+  const api = useGetProfile(params.login);
   if (api.isPending) {
     return <p>Loading...</p>
   }
   if (api.error) {
     return <p>An error has occurred: {api.error.message}</p>
   }
-  const student = findStudentByLogin(data, params.login);
+  const student: Profile = api.data as Profile;
   if (student == undefined)
     return (<><ErrorPage></ErrorPage></>);
   return (

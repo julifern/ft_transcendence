@@ -1,5 +1,18 @@
-import type { Project } from "./Project";
 import type { Comment } from "./Comment.tsx";
+import type { Project } from "./Project.ts";
+
+export interface ProfileDashboard {
+  login: string,
+  first_name: string,
+  last_name: string,
+  image_url: string,
+  comments: Comment[];
+}
+
+export interface ProfilesDashboard {
+  profils: ProfileDashboard[];
+}
+
 
 export interface ProfileBase {
   id: number,
@@ -10,7 +23,7 @@ export interface ProfileBase {
   image_url: string,
 }
 
-export interface profile extends ProfileBase {
+export interface Profile extends ProfileBase {
   pool_year: string,
   pool_month: string,
   lvl: number,
@@ -38,8 +51,4 @@ export interface profile extends ProfileBase {
   risk_level: string
   projects: Project[],
   comments: Comment[]
-}
-
-export interface profiles  {
-  profils: profile[]
 }
