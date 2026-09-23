@@ -4,10 +4,13 @@ services:
     build: ./backend/
     ports:
       - "8000:8000"
+    volumes:
+      - ./backend:/app
     env_file:
       - ./backend/.env
     restart: on-failure
     image: django:latest
+
   react:
     container_name: react
     build: ./frontend/
@@ -15,3 +18,23 @@ services:
       - "5173:5173"
     restart: on-failure
     image: frontend:latest
+
+  ollama:
+    container_name: ollama
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ${OLLAMA_STORAGE_PATH:-./ai_models}:/root/.ollama
+    restart: on-failure
+
+  # Service ephemere qui s'assure que le modele est bien telecharge au demarrage
+  ollama-pull:
+    image: ollama/ollama:latest
+    container_name: ollama-pull
+    depends_on:
+      - ollama
+    environment:
+      - OLLAMA_HOST=ollama:11434
+    entrypoint: ["ollama", "pull", "qwen2.5:3b"]
+    restart: "no"

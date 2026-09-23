@@ -7,7 +7,12 @@ WORKDIR /app
 # prevents Python from writing pyc files to disk
 ENV PYTHONDONTWRITEBYTECODE=1
 # prevents Python from buffering stdout and stderr
-ENV PYTHONUNBUFFERED=1 
+ENV PYTHONUNBUFFERED=1
+
+# tool for chroma-hnswlib (C++11/C++14)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
  
 RUN pip install --upgrade pip 
  

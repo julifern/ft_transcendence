@@ -13,3 +13,7 @@ node_modules/
 
 # Editors / OS
 .DS_Store
+
+# AI
+ai_models/
+backend/ai/data/
