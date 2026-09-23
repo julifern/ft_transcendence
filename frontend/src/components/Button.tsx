@@ -1,4 +1,4 @@
-import { Papicons } from "@getpapillon/papicons";
+import { Login, Papicons } from "@getpapillon/papicons";
 import type { ProfileDashboard } from "../types/ObjStudent";
 import Popup from "reactjs-popup";
 import { InlineIcon } from "@iconify/react";
@@ -103,19 +103,32 @@ export function BtnSeeMoreCommit() {
   )
 }
 
-function follow(student: ProfileDashboard) {
-  alert("try to follow : {" + student.login + "}.");
-}
-
 export function BtnFollow(student: ProfileDashboard) {
+  function handleFollow(e: React.SubmitEvent<HTMLFormElement>, student: ProfileDashboard) {
+    // Prevent the browser from reloading the page
+    e.preventDefault();
+    fetch("http://localhost:8000/auth/follow/" + student.login + '/', {
+      method: "POST",
+      credentials: "include",
+    }).then(res => res.json()).then(data => console.log(data));
+    // Ne plus suivre
+    // fetch("http://localhost:8000/auth/follow/nvieille/", {
+      // method: "DELETE",
+      // credentials: "include",
+    // })
+      // .then(res => res.json())
+      // .then(data => console.log(data));
+  }
   return (
     <>
-      <button onClick={() => follow(student)} type="button" className="w-full rounded-full bg-(--purple) text-white">
-        <div className="flex justify-center items-center p-2 gap-1">
-          <Papicons name="Add" />
-          <p>Suivre</p>
-        </div>
-      </button>
+      <form action="post" onSubmit={(e) => (handleFollow(e, student))} className="w-full rounded-full bg-(--purple) text-white">
+        <button type="submit" className="w-full rounded-full bg-(--purple) text-white">
+          <div className="flex justify-center items-center p-2 gap-1">
+            <Papicons name="Add" />
+            <p>Suivre</p>
+          </div>
+        </button>
+      </form>
     </>
   );
 }
