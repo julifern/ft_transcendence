@@ -50,5 +50,8 @@ export interface Profile extends ProfileBase {
   risk_score: string | null
   risk_level: string
   projects: Project[],
-  comments: Comment[]
+  rushs: Project[],
+  exams: Project[],
+  comments: Comment[],
+
 }

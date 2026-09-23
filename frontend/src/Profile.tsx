@@ -9,6 +9,7 @@ import { CommitContent, CommitLeaf, EmptyCommit } from './components/Commit.tsx'
 import { InlineIcon } from '@iconify/react';
 import { GraphXpOverView } from './components/GraphXpOverView.tsx';
 import { useGetProfile } from './api/Profile.ts';
+import type { Project } from './types/Project.ts';
 
 function XpOverView() {
   return (
@@ -39,16 +40,47 @@ function Summarize() {
   );
 }
 
-function ProjectOverViewSubmodule({ str }: {str: string}) {
-  const grade: string = "TODO";
+function ProjectOverViewSubmodule({ str, grade}: {str: string, grade: number | null}) {
+  let strGrade;
+  if (grade !== null)
+    strGrade = grade.toString() + '%';
+  else
+    strGrade = "...";
   return (
     <>
       <div className="w-full h-fit rounded-xl bg-(--gray) text-(--text-gray) pl-2 pr-2 pb-1 pt-1">
         <div className="flex flex-col items-center gap-1">
           <p className="text-xs">{str}</p>
-          <p className="bg-(--purple) text-white rounded-full pl-3 pr-3">{grade}%</p>
+          <p className="bg-(--purple) text-white rounded-full pl-3 pr-3">{strGrade}</p>
         </div>
       </div>
+    </>
+  );
+}
+
+function ProjectOverViewGrade({projects, name, nb_total_projects}: {projects: Project[], name: string, nb_total_projects: number}) {
+  return (
+    <>
+      {
+        Array.from({ length: nb_total_projects }, (_, i) => {
+          if (i < projects.length) {
+            return (
+              <ProjectOverViewSubmodule
+                key={i}
+                str={name + i}
+                grade={projects[projects.length - i - 1].note}
+              />
+            );
+          }
+          return (
+            <ProjectOverViewSubmodule
+              key={i}
+              str={name + i}
+              grade={null}
+            />
+          );
+        })
+      }
     </>
   );
 }
@@ -70,16 +102,10 @@ function ProjectOverView(student: Profile) {
       <div className="module flex flex-col w-full h-fit gap-2">
         <div className="flex flex-col w-full h-fit gap-3">
           <div className="grid grid-flow-col grid-rows-1 md:grid-rows-2 2xl:grid-rows-1 gap-2">
-            <ProjectOverViewSubmodule str="Exam 00"/>
-            <ProjectOverViewSubmodule str="Exam 01"/>
-            <ProjectOverViewSubmodule str="Exam 02"/>
-            <ProjectOverViewSubmodule str="Exam 03"/>
+            <ProjectOverViewGrade projects={student.exams} name="Exam" nb_total_projects={4} />
           </div>
           <div className="grid grid-flow-col grid-rows-1 md:grid-rows-2 2xl:grid-rows-1 gap-2">
-            <ProjectOverViewSubmodule str="Rush 00"/>
-            <ProjectOverViewSubmodule str="Rush 01"/>
-            <ProjectOverViewSubmodule str="Rush 02"/>
-            <ProjectOverViewSubmodule str="Rush 03"/>
+            <ProjectOverViewGrade projects={student.rushs} name="Rush" nb_total_projects={4} />
           </div>
         </div>
         <div className="flex flex-row h-fit gap-3">
