@@ -5,7 +5,7 @@ export const getProfilscacheName = ["auth", "api", "profils"];
 
 export async function getProfilsHook(): Promise<profiles> {
   const res = await fetch(
-    "http://localhost:8000/auth/api/profils/",
+    "/auth/api/profils/",
     {
       credentials: "include",
     }

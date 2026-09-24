@@ -27,7 +27,7 @@ function handleSubmit(e: React.SubmitEvent<HTMLFormElement>, login: string, clos
     close(); // close popup
     return ;
   }
-  fetch("http://localhost:8000/auth/comment/" + login + "/", {
+  fetch("/auth/comment/" + login + "/", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
