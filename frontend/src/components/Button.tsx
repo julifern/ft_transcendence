@@ -2,7 +2,7 @@ import { Papicons } from "@getpapillon/papicons";
 import type { ProfileDashboard } from "../types/ObjStudent";
 import Popup from "reactjs-popup";
 import { InlineIcon } from "@iconify/react";
-import { DynamicTextArea } from "./Utils";
+import { DynamicTextArea, isFollowed } from "./Utils";
 import { queryClient } from "../main";
 import { useNavigate } from "react-router-dom";
 import { useGetUser } from "../api/User";
@@ -105,14 +105,6 @@ export function BtnSeeMoreCommit() {
       </button>
     </>
   )
-}
-
-function isFollowed(login: string, user: User) : boolean {
-  for (let i = 0; i < user.user_dict.followed.length; i++) {
-    if (user.user_dict.followed[i] === login)
-      return (true);
-  }
-  return (false);
 }
 
 function BtnFollowBase({txt, rotate, login, handlefunction} : {txt: string, rotate: number, login: string, handlefunction: (login: string) => void}) {

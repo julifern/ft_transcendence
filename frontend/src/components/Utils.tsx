@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import type { User } from "../types/User";
 
 export function DynamicTextArea({ str, name, maxLength }: { str: string, name: string, maxLength: number }) {
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
@@ -23,6 +24,14 @@ export function DynamicTextArea({ str, name, maxLength }: { str: string, name: s
   return (
     <textarea name={name} className="w-full h-fit" ref={textAreaRef} maxLength={maxLength} placeholder={str}/>
   );
+}
+
+export function isFollowed(login: string, user: User) : boolean {
+  for (let i = 0; i < user.user_dict.followed.length; i++) {
+    if (user.user_dict.followed[i] === login)
+      return (true);
+  }
+  return (false);
 }
 
 export function makeItPrety(str: string) : string {
