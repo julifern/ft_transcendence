@@ -1,11 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
-import type { profiles } from '../types/ObjStudent';
+import type { Profile } from '../types/ObjStudent';
 
-export const getProfilscacheName = ["auth", "api", "profils"];
-
-export async function getProfilsHook(): Promise<profiles> {
+export async function getProfile(login: string): Promise<Profile> {
   const res = await fetch(
-    "http://localhost:8000/auth/api/profils/",
+    "http://localhost:8000/auth/api/profils/" + login,
     {
       credentials: "include",
     }
@@ -16,8 +14,8 @@ export async function getProfilsHook(): Promise<profiles> {
   return res.json()
 }
 
-export function useGetProfiles() {
-  return (useQuery({ queryKey: getProfilscacheName, queryFn: getProfilsHook,
+export function useGetProfile(login: string) {
+  return (useQuery({ queryKey: ["auth", "api", "profils", login], queryFn: () => getProfile(login),
     retry: (failureCount: number, error: Error) => {
       if (error.message === "HTTP 401") {
         return (false);
@@ -26,3 +24,4 @@ export function useGetProfiles() {
     }
   }));
 }
+

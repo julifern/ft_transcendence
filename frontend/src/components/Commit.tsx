@@ -1,7 +1,8 @@
 import { Papicons } from "@getpapillon/papicons"
 import { BtnAddCommit, BtnVoirIntra } from "./Button";
-import type { profile } from "../types/ObjStudent";
+import type { ProfileDashboard } from "../types/ObjStudent";
 import { type Comment } from "../types/Comment";
+import type { MenuProps } from "antd";
 
 export function CommitLeaf() {
   return (
@@ -35,7 +36,7 @@ export function CommitContent({ comment }: { comment: Comment }) {
   )
 }
 
-export function EmptyCommit(student: profile) {
+export function EmptyCommit(student: ProfileDashboard) {
   return (
     <>
       <div className="flex flex-col items-center justify-center w-full h-full gap-1.25">
@@ -51,3 +52,25 @@ export function EmptyCommit(student: profile) {
     </>
   );
 }
+
+export const items: MenuProps['items'] = [
+  {
+    label: "Copier",
+    key: "cop",
+    onClick: () => {alert("cop")},
+    icon: <Papicons name="List" />
+  },
+  {
+    label: "Modifier",
+    key: "mod",
+    onClick: () => {alert("mod")},
+    icon: <Papicons name="PenAlt" />
+  },
+  {
+    label: "Supprimer",
+    key: "sup",
+    danger: true,
+    onClick: () => {alert("sup")},
+    icon: <Papicons name="Trash" />
+  },
+];
