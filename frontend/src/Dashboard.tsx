@@ -12,6 +12,7 @@ import { isFollowed, makeItPrety } from './components/Utils.tsx';
 import { useGetProfilesDashboard } from './api/ProfilesDashboard.ts';
 import { useState } from 'react';
 import { useGetUser } from './api/User.ts';
+import { BtnAddCommit, BtnVoirIntra } from './components/Button.tsx';
 
 function StudentCardCommit({ comments }: { comments: Comment[]}) {
   const items: MenuProps['items'] = [
@@ -64,8 +65,14 @@ function StudentCard({student}: {student : ProfileDashboard}) {
         </div>
         {
           haveCommit ?
-            <div>
-              <StudentCardCommit comments={student.comments} />
+            <div className="flex flex-col w-full h-full">
+              <div className="flex flex-col w-full h-full">
+                <StudentCardCommit comments={student.comments} />
+              </div>
+              <div className="flex flex-col w-full h-fit justify-end gap-1.5">
+                <BtnAddCommit {...student} />
+                <BtnVoirIntra {...student} />
+              </div>
             </div>
             :
             <EmptyCommit {...student} />
