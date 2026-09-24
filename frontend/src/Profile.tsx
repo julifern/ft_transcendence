@@ -2,14 +2,16 @@ import './styles/Profile.css'
 import { type Profile } from './types/ObjStudent.ts'
 import { type Comment } from './types/Comment.ts';
 import { ErrorPage } from './components/Error.tsx'
-import { useParams } from 'react-router-dom';
 import { BtnAddCommit, BtnFollow, BtnIASummarise, BtnSeeMoreCommit, BtnVoirIntra } from './components/Button.tsx';
 import { DynamicTextArea, makeItPrety } from './components/Utils.tsx';
 import { CommitContent, CommitLeaf, EmptyCommit } from './components/Commit.tsx';
 import { InlineIcon } from '@iconify/react';
 import { GraphXpOverView } from './components/GraphXpOverView.tsx';
-import { useGetProfile } from './api/Profile.ts';
 import type { Project } from './types/Project.ts';
+import { Dropdown } from 'antd';
+import { items } from './components/Commit.tsx';
+import { useParams } from 'react-router-dom';
+import { useGetProfile } from './api/Profile.ts';
 
 function XpOverView() {
   return (
@@ -128,10 +130,12 @@ function ProjectOverView(student: Profile) {
 function Commit({ comment }: {comment: Comment}) {
   return (
     <>
-      <div className="flex flex-row h-fit">
-        <CommitLeaf />
-        <CommitContent comment={comment}/>
-      </div>
+      <Dropdown menu={{items}} trigger={["contextMenu"]}>
+        <div className="flex flex-row h-fit">
+          <CommitLeaf />
+          <CommitContent comment={comment}/>
+        </div>
+      </Dropdown>
     </>
   );
 }

@@ -1,41 +1,22 @@
-import { type ProfileDashboard } from './types/ObjStudent.ts'
-import { type Comment } from './types/Comment.ts';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Dropdown } from "antd";
+import { InlineIcon } from '@iconify/react';
+
 import './styles/Dashboard.css'
 import './styles/color.css'
-import { Link } from 'react-router-dom';
-import { Dropdown, type MenuProps } from "antd";
 
-import { InlineIcon } from '@iconify/react';
-import { Papicons } from '@getpapillon/papicons';
+import { type ProfileDashboard } from './types/ObjStudent.ts'
+import { type Comment } from './types/Comment.ts';
+
+import { items } from './components/Commit.tsx';
 import { CommitContent, CommitLeaf, EmptyCommit } from './components/Commit.tsx';
 import { isFollowed, makeItPrety } from './components/Utils.tsx';
 import { useGetProfilesDashboard } from './api/ProfilesDashboard.ts';
-import { useState } from 'react';
 import { useGetUser } from './api/User.ts';
 import { BtnAddCommit, BtnVoirIntra } from './components/Button.tsx';
 
 function StudentCardCommit({ comments }: { comments: Comment[]}) {
-  const items: MenuProps['items'] = [
-    {
-      label: "Copier",
-      key: "cop",
-      onClick: () => {alert("cop")},
-      icon: <Papicons name="List" />
-    },
-    {
-      label: "Modifier",
-      key: "mod",
-      onClick: () => {alert("mod")},
-      icon: <Papicons name="PenAlt" />
-    },
-    {
-      label: "Supprimer",
-      key: "sup",
-      danger: true,
-      onClick: () => {alert("sup")},
-      icon: <Papicons name="Trash" />
-    },
-  ];
   return (
     <Dropdown menu={{items}} trigger={["contextMenu"]}>
         <div className="flex flex-row h-fit">

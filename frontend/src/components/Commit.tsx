@@ -2,6 +2,7 @@ import { Papicons } from "@getpapillon/papicons"
 import { BtnAddCommit, BtnVoirIntra } from "./Button";
 import type { ProfileDashboard } from "../types/ObjStudent";
 import { type Comment } from "../types/Comment";
+import type { MenuProps } from "antd";
 
 export function CommitLeaf() {
   return (
@@ -51,3 +52,25 @@ export function EmptyCommit(student: ProfileDashboard) {
     </>
   );
 }
+
+export const items: MenuProps['items'] = [
+  {
+    label: "Copier",
+    key: "cop",
+    onClick: () => {alert("cop")},
+    icon: <Papicons name="List" />
+  },
+  {
+    label: "Modifier",
+    key: "mod",
+    onClick: () => {alert("mod")},
+    icon: <Papicons name="PenAlt" />
+  },
+  {
+    label: "Supprimer",
+    key: "sup",
+    danger: true,
+    onClick: () => {alert("sup")},
+    icon: <Papicons name="Trash" />
+  },
+];
