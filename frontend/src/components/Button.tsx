@@ -1,10 +1,14 @@
-import { Login, Papicons } from "@getpapillon/papicons";
+import { Papicons } from "@getpapillon/papicons";
 import type { ProfileDashboard } from "../types/ObjStudent";
 import Popup from "reactjs-popup";
 import { InlineIcon } from "@iconify/react";
 import { DynamicTextArea } from "./Utils";
 import { queryClient } from "../main";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useGetUser } from "../api/User";
+import type { User } from "../types/User";
+
+import "./../styles/App.css"
 
 export function BtnVoirIntra(student: ProfileDashboard) {
   return (
@@ -103,33 +107,48 @@ export function BtnSeeMoreCommit() {
   )
 }
 
+function isFollowed(login: string, user: User) : boolean {
+  for (let i = 0; i < user.user_dict.followed.length; i++) {
+    if (user.user_dict.followed[i] === login)
+      return (true);
+  }
+  return (false);
+}
+
+function BtnFollowBase({txt, rotate, login, handlefunction} : {txt: string, rotate: number, login: string, handlefunction: (login: string) => void}) {
+  return (
+    <button type="submit" className="w-full rounded-full bg-(--purple) text-white" onClick={() => (handlefunction(login))}>
+      <div className="flex justify-center items-center p-2 gap-1">
+        <span className="follow-btn-icon" style={{display: "inline-block", transition: "transform 0.25s ease", transform: `rotate(${rotate}deg)` }}>
+          <Papicons rotate={rotate} name="Add" />
+        </span>
+        <p>{txt}</p>
+      </div>
+    </button>
+  );
+}
+
 export function BtnFollow(student: ProfileDashboard) {
-  function handleFollow(e: React.SubmitEvent<HTMLFormElement>, student: ProfileDashboard) {
-    // Prevent the browser from reloading the page
-    e.preventDefault();
-    fetch("http://localhost:8000/auth/follow/" + student.login + '/', {
-      method: "POST",
+  const api = useGetUser();
+  if (api.isPending) return <p>Loading...</p>
+  if (api.error) return <p>An error has occurred: {api.error.message}</p>
+  const followed = isFollowed(student.login, api.data);
+  const handleFollow = async (follow: boolean) => {
+    const res = await fetch(`http://localhost:8000/auth/follow/${student.login}/`, {
+      method: follow ? "POST" : "DELETE",
       credentials: "include",
-    }).then(res => res.json()).then(data => console.log(data));
-    // Ne plus suivre
-    // fetch("http://localhost:8000/auth/follow/nvieille/", {
-      // method: "DELETE",
-      // credentials: "include",
-    // })
-      // .then(res => res.json())
-      // .then(data => console.log(data));
+    });
+    const data = await res.json();
+    console.log(data)
+    queryClient.invalidateQueries({queryKey: ["auth", "me"]})
   }
   return (
-    <>
-      <form action="post" onSubmit={(e) => (handleFollow(e, student))} className="w-full rounded-full bg-(--purple) text-white">
-        <button type="submit" className="w-full rounded-full bg-(--purple) text-white">
-          <div className="flex justify-center items-center p-2 gap-1">
-            <Papicons name="Add" />
-            <p>Suivre</p>
-          </div>
-        </button>
-      </form>
-    </>
+    <BtnFollowBase
+      txt={followed ? "Ne plus suivre" : "Suivre"}
+      rotate={followed ? 45 : 0}
+      login={student.login}
+      handlefunction={() => handleFollow(!followed)}
+    />
   );
 }
 
