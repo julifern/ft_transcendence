@@ -143,7 +143,7 @@ function CommitHistory(student: Profile) {
       <div className="module flex flex-col w-full h-fit">
         {haveCommit ?
           <>
-            {student.comments.reverse().map((comment, index) => <Commit key={index} comment={comment}/>)}
+            {student.comments.map((comment, index) => <Commit key={index} comment={comment}/>)}
             <div className="flex flex-col lg:flex-row gap-2">
               <BtnAddCommit {...student} />
               <BtnSeeMoreCommit />

@@ -4,11 +4,7 @@ import Popup from "reactjs-popup";
 import { InlineIcon } from "@iconify/react";
 import { DynamicTextArea, isFollowed } from "./Utils";
 import { queryClient } from "../main";
-import { useNavigate } from "react-router-dom";
 import { useGetUser } from "../api/User";
-import type { User } from "../types/User";
-
-import "./../styles/App.css"
 
 export function BtnVoirIntra(student: ProfileDashboard) {
   return (
@@ -29,7 +25,6 @@ type Props = {
 };
 
 function AddCommitPopupContente({ student, close } : Props) {
-  const navigate = useNavigate();
   function handleSubmit(e: React.SubmitEvent<HTMLFormElement>, login: string, close: () => void) {
     // Prevent the browser from reloading the page
     e.preventDefault();
@@ -47,8 +42,8 @@ function AddCommitPopupContente({ student, close } : Props) {
       body: JSON.stringify({ content: commitContent }),
     }).then(res => res.json()).then(() => {
       close(); // close popup
-      queryClient.invalidateQueries({queryKey: ["auth", "api", "profils", login]})
-      navigate("/profile/" + login);
+      queryClient.invalidateQueries({queryKey: ["auth", "api", "profils", login]});
+      queryClient.invalidateQueries({queryKey: ["auth", "api", "dashboard"]});
     });
   }
   return (

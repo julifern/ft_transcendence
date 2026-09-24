@@ -1,4 +1,4 @@
-import { type ProfilesDashboard, type ProfileDashboard } from './types/ObjStudent.ts'
+import { type ProfileDashboard } from './types/ObjStudent.ts'
 import { type Comment } from './types/Comment.ts';
 import './styles/Dashboard.css'
 import './styles/color.css'
@@ -12,8 +12,6 @@ import { isFollowed, makeItPrety } from './components/Utils.tsx';
 import { useGetProfilesDashboard } from './api/ProfilesDashboard.ts';
 import { useState } from 'react';
 import { useGetUser } from './api/User.ts';
-import type { User } from './types/User.ts';
-import type { UseQueryResult } from '@tanstack/react-query';
 
 function StudentCardCommit({ comments }: { comments: Comment[]}) {
   const items: MenuProps['items'] = [
@@ -41,7 +39,7 @@ function StudentCardCommit({ comments }: { comments: Comment[]}) {
     <Dropdown menu={{items}} trigger={["contextMenu"]}>
         <div className="flex flex-row h-fit">
           <CommitLeaf />
-          <CommitContent comment={comments[comments.length - 1]}/>
+          <CommitContent comment={comments[0]}/>
         </div>
     </Dropdown> 
   );
@@ -62,12 +60,10 @@ function StudentCard({student}: {student : ProfileDashboard}) {
               {makeItPrety(student.last_name)} ({student.login})
             </p>
           </div>
-          {/* student={student} */}
           <Link className="flex items-center justify-center rounded-full w-15 h-13.75 shrink-0" style={{backgroundColor: "var(--gray)"}} to={"/profile/" + student.login} ><InlineIcon icon="akar-icons:more-horizontal" /></Link>
         </div>
         {
           haveCommit ?
-            // iter on the first commit of student.
             <div>
               <StudentCardCommit comments={student.comments} />
             </div>
