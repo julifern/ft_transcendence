@@ -98,6 +98,18 @@ function ProjectOverViewText({descriptor, str} : {descriptor : string, str : str
   );
 }
 
+function getProject(projects: Project[], tag: string) : string[] {
+  const result: string[] = [];
+  projects.map((el) => {
+    if (el.status === tag)
+      result.push(el.name.substring(10));
+  });
+  console.log("result: " + result);
+  if (!result.length)
+    result.push("...");
+  return (result);
+}
+
 function ProjectOverView(student: Profile) {
   return (
     <>
@@ -115,8 +127,8 @@ function ProjectOverView(student: Profile) {
             <div className="bg-(--purple) w-1.5 h-full rounded"></div>
           </div>
           <div className="flex flex-col">
-            <ProjectOverViewText descriptor="Dernier days:" str="TODO"/>
-            <ProjectOverViewText descriptor="Enregistré à:" str="TODO"/>
+            <ProjectOverViewText descriptor="Enregistré à:" str={getProject(student.projets, "in_progress").join(", ")}/>
+            <ProjectOverViewText descriptor="Fait corriger:" str={getProject(student.projets, "waiting_for_correction").join(", ")}/>
             <ProjectOverViewText descriptor="Point d'evaluation:" str={student.correction_point.toString() + "pts"}/>
             <ProjectOverViewText descriptor="Niveaux:" str={student.lvl.toString()}/>
             <ProjectOverViewText descriptor="Classement:" str="TODO"/>
