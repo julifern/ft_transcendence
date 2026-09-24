@@ -25,4 +25,6 @@ COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+
+# Lance le serveur ASGI Daphne en production au lieu du runserver de dev
+CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "config.asgi:application"]
