@@ -12,6 +12,8 @@ import { isFollowed, makeItPrety } from './components/Utils.tsx';
 import { useGetProfilesDashboard } from './api/ProfilesDashboard.ts';
 import { useState } from 'react';
 import { useGetUser } from './api/User.ts';
+import type { User } from './types/User.ts';
+import type { UseQueryResult } from '@tanstack/react-query';
 
 function StudentCardCommit({ comments }: { comments: Comment[]}) {
   const items: MenuProps['items'] = [
@@ -77,62 +79,46 @@ function StudentCard({student}: {student : ProfileDashboard}) {
   )
 }
 
-function ListStudentsCards({inputSearchBar}: {inputSearchBar: string}) {
+function ListStudentsCards({inputSearchBar, followedOnly}: {inputSearchBar: string, followedOnly: boolean}) {
   const api = useGetProfilesDashboard();
-  if (api.isPending) return <p>Loading...</p>
-  if (api.error) return <p>An error has occurred: {api.error.message}</p>
-  const filterData = api.data.profils.filter((el) => {
-    if (inputSearchBar === "")
-      return (el);
-    else 
-      return (el.login.toLocaleLowerCase().includes(inputSearchBar));
-    });
-  return (
-    <>
-      {filterData.map((ProfileDashboard: ProfileDashboard) => (<StudentCard key={ProfileDashboard.login} student={ProfileDashboard} />))}
-    </>
-  );
-}
-
-function ListStudentsCardsFollowed() {
-  const api = useGetProfilesDashboard();
-  const apiUser = useGetUser();
-  if (api.isPending) return <p>Loading...</p>
-  if (api.error) return <p>An error has occurred: {api.error.message}</p>
-  if (apiUser.isPending) return <p>Loading...</p>
-  if (apiUser.error) return <p>An error has occurred: {apiUser.error.message}</p>
-  const filterData = api.data.profils.filter((el) => {
+  const title: string = followedOnly ? "Tes suivis" : "Tous"
+  let filterData;
+  if (followedOnly) {
+    const apiUser = useGetUser();
+    if (api.isPending || apiUser.isPending) return <p>Loading...</p>
+    if (api.error) return <p>An error has occurred: {api.error.message}</p>
+    if (apiUser.error) return <p>An error has occurred: {apiUser.error.message}</p>
+    filterData = api.data.profils.filter((el) => {
     if (isFollowed(el.login, apiUser.data))
       return (el);
-  });
+    });
+  } else {
+    if (api.isPending) return <p>Loading...</p>
+    if (api.error) return <p>An error has occurred: {api.error.message}</p>
+    filterData = api.data.profils.filter((el) => {
+      if (inputSearchBar === "")
+        return (el);
+      else
+        return (el.login.toLocaleLowerCase().includes(inputSearchBar));
+    });
+  }
+  if (!filterData.length)
+    return (<></>);
   return (
     <>
-      {filterData.map((ProfileDashboard: ProfileDashboard) => (<StudentCard key={ProfileDashboard.login} student={ProfileDashboard} />))}
-    </>
-  );
-}
-
-function StudentsCards({inputSearchBar}: {inputSearchBar: string}) {
-  return (
-    <>
-      <div className="studentsCardFollows flex flex-col gap-2.5">
-        <p className="font-regular text-1xl text-(--text-gray)">Tous</p>
-        <div className="grid grid-cols-1 md:grid-cols-3 mg:grid-cols-6 gap-2.5">
-            <ListStudentsCards inputSearchBar={inputSearchBar} />
-        </div>
+      <p className="font-regular text-1xl text-(--text-gray)">{title}</p>
+      <div className="grid grid-cols-1 md:grid-cols-3 mg:grid-cols-6 gap-2.5">
+        {filterData.map((ProfileDashboard: ProfileDashboard) => (<StudentCard key={ProfileDashboard.login} student={ProfileDashboard} />))}
       </div>
     </>
   );
 }
 
-function StudentsCardsFollowed() {
+function StudentsCards({inputSearchBar, followedOnly}: {inputSearchBar: string, followedOnly: boolean}) {
   return (
     <>
       <div className="studentsCardFollows flex flex-col gap-2.5">
-        <p className="font-regular text-1xl text-(--text-gray)">Tes suivies</p>
-        <div className="grid grid-cols-1 md:grid-cols-3 mg:grid-cols-6 gap-2.5">
-            <ListStudentsCardsFollowed />
-        </div>
+        <ListStudentsCards inputSearchBar={inputSearchBar} followedOnly={followedOnly} />
       </div>
     </>
   );
@@ -146,8 +132,8 @@ export function Dashboard() {
         <p className="font-semibold text-2xl pl-3">Students</p>
         <input value={studentsfilter} onChange={(e) => {setstudentsfilter(e.target.value)}} className="dashboardSearchProfile" type="text" placeholder="Rechercher un student" />
       </div>
-      <StudentsCardsFollowed />
-      <StudentsCards inputSearchBar={studentsfilter}/>
+      <StudentsCards inputSearchBar={""} followedOnly={true}/>
+      <StudentsCards inputSearchBar={studentsfilter} followedOnly={false}/>
     </>
   )
-}
+} 
