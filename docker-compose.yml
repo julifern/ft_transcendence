@@ -27,6 +27,9 @@ services:
     restart: on-failure
     networks:
       - transcendence-net
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   react:
     container_name: react
@@ -37,8 +40,27 @@ services:
     networks:
       - transcendence-net
 
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - transcendence-net
+
 volumes:
   ssl_certs:
+  postgres_data:
 
 networks:
   transcendence-net:
