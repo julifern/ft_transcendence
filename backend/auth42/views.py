@@ -272,6 +272,34 @@ def add_comment(request: HttpRequest, login: str) -> JsonResponse:
  
 	return JsonResponse({'message': 'Comment created.'})
 
+# Modifie (PATCH) ou supprime (DELETE) un commentaire existant, par son id
+@csrf_exempt # Flag pour contrer la securite CSRF
+def manage_comment(request: HttpRequest, comment_id: int) -> JsonResponse:
+	if not is_logged_in(request):
+		return JsonResponse({'authenticated': False}, status=401)
+
+	comment: Comment | None = Comment.objects.filter(pk=comment_id).first()
+	if not comment:
+		return JsonResponse({'error': 'comment not found'}, status=404)
+
+	if comment.author_id != request.session.get('ft_user_pk'):
+		return JsonResponse({'error': 'not your comment'}, status=403)
+
+	if request.method == 'PATCH':
+		data: dict = json.loads(request.body)
+		content: str | None = data.get('content')
+		if not content:
+			return JsonResponse({'error': 'content required'}, status=400)
+		comment.content = content
+		comment.save()
+		return JsonResponse({'message': 'Comment updated.'})
+
+	if request.method == 'DELETE':
+		comment.delete()
+		return JsonResponse({'message': 'Comment deleted.'})
+
+	return JsonResponse({'error': 'method not allowed'}, status=405)
+
 # Ajout ou supprimg le suivi d'un profil par un user
 @csrf_exempt # Flag pour contrer la securite CSRF
 def follow(request: HttpRequest, profil_login: str) -> JsonResponse:

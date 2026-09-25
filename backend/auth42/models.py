@@ -184,6 +184,7 @@ class Comment(models.Model):
 
 	def to_dict(self) -> dict:
 		return {
+			'id': self.pk,
 			'author': self.author.user_login,
 			'content': self.content,
 			'created_at': self.created_at,
