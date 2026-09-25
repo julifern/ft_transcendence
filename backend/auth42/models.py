@@ -189,3 +189,11 @@ class Comment(models.Model):
 			'content': self.content,
 			'created_at': self.created_at,
 		}
+
+# Class pour definir la promo
+class SyncConfig(models.Model):
+    pool_year: str = models.CharField(max_length=4, default='2026')
+    pool_month: str = models.CharField(max_length=20, default='september')
+
+    def __str__(self) -> str:
+        return f"{self.pool_month} {self.pool_year}"

@@ -44,6 +44,12 @@ python manage.py sync_loop
 
 Toujours tester sur `localhost:8000`, pas `127.0.0.1:8000` — les cookies de session ne sont pas partagés entre les deux.
 
+## Nouvelle promo
+
+1. Dans `/admin/`, "Sync configs" → modifier `pool_year`/`pool_month`.
+2. Dans "Profils", tout sélectionner → "Delete selected" (supprime aussi les projets/commentaires liés en cascade).
+3. Relancer `sync_all_profils/` ou `sync_loop` pour resynchroniser sur la nouvelle promo.
+
 ## Tester
 
 1. `http://localhost:8000/auth/login/` → Connexion via 42.

@@ -11,7 +11,7 @@ from django.conf import settings
 import requests
 
 # Importation des class
-from .models import FtUser, WhitelistUser, Profil, Project, Comment
+from .models import FtUser, WhitelistUser, Profil, Project, Comment, SyncConfig
 
 import time
 import json
@@ -99,13 +99,14 @@ def list_profil_login() -> list[str]:
 	token: str | None = get_app_token()
 	if not token:
 		return []
+	config, created = SyncConfig.objects.get_or_create(pk=1)
 	lst_login: list[str] = []
 	page: int = 1
 	while True:
 		response: requests.Response = requests.get('https://api.intra.42.fr/v2/users', params={
 			'filter[primary_campus_id]': 31,
-			'filter[pool_year]': 2026,
-			'filter[pool_month]': 'september',
+			'filter[pool_year]': config.pool_year,
+			'filter[pool_month]': config.pool_month,
 			'page[size]': 100,
 			'page[number]': page,
 		}, headers={'Authorization': f'Bearer {token}'})

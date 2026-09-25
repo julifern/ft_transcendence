@@ -263,6 +263,6 @@ La liste à jour des suivis se lit dans `followed` via `GET /auth/me/`.
 | Champ | Type | Peut être vide/null ? | Default | Valeurs possibles |
 |---|---|---|---|---|
 | `id` | integer | non | — | entier positif, à garder pour modifier/supprimer ce commentaire |
-| `author` | string | non | — | login 42, texte libre |
+| `author` | string ou `null` | oui | — | login 42, texte libre — `null` si le tuteur auteur a depuis été supprimé |
 | `content` | string | non | — | texte libre, 200 caractères max |
 | `created_at` | string | non | — | ex: `"2026-09-10T16:30:32.843808+00:00"` |
