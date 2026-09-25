@@ -3,7 +3,7 @@ import type { ProfilesDashboard } from '../types/ObjStudent';
 
 export async function getProfilesDashboard(): Promise<ProfilesDashboard> {
   const res = await fetch(
-    "http://localhost:8000/auth/api/dashboard/",
+    "auth/api/dashboard/",
     {
       credentials: "include",
     }
