@@ -1,6 +1,7 @@
 COMPOSE_PATH := ./docker-compose.yml
 
 all: up
+restart: down up
 
 up:
 	docker compose -f $(COMPOSE_PATH) up --build -d --remove-orphans
@@ -9,7 +10,7 @@ down:
 	docker compose -f $(COMPOSE_PATH) down
 
 clean:
-	docker compose -f $(COMPOSE_PATH) down -v --remove-orphans
+	docker compose -f $(COMPOSE_PATH) down -v --remove-orphans	
 
 fclean: clean
 	docker compose -f $(COMPOSE_PATH) down --rmi local -v --remove-orphans
@@ -23,4 +24,4 @@ logs:
 
 re: fclean up
 
-.PHONY: all up down clean fclean logs re
+.PHONY: all up down restart clean fclean logs re
