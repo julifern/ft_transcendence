@@ -95,7 +95,7 @@ class Profil(models.Model):
 			else:
 				projets.append(p.to_dict())
 		comments: list[dict] = []
-		for c in self.comment_set.all():
+		for c in self.comment_set.order_by('-created_at'):
 			comments.append(c.to_dict())
 		return {
 			'id': self.profil_id,
