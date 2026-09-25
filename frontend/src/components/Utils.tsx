@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import type { User } from "../types/User";
 
 export function DynamicTextArea({ str, name, maxLength }: { str: string, name: string, maxLength: number }) {
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
@@ -25,6 +26,23 @@ export function DynamicTextArea({ str, name, maxLength }: { str: string, name: s
   );
 }
 
-export function makeItPrety(str: string) {
+export function isFollowed(login: string, user: User) : boolean {
+  for (let i = 0; i < user.user_dict.followed.length; i++) {
+    if (user.user_dict.followed[i] === login)
+      return (true);
+  }
+  return (false);
+}
+
+export function makeItPrety(str: string) : string {
   return (str.charAt(0).toUpperCase() + str.slice(1).toLowerCase());
+}
+
+export function slugify(str: string) : string {
+  return (str
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, ''));
 }
