@@ -12,6 +12,7 @@ urlpatterns = [
     path('api/profils/', views.dashboard, name='api_profils'),
 	path('api/profils/<str:login>/', views.api_profil, name='api_profil'),
 	path('debug/<str:login>/', views.debug_profil, name='debug_profil'),
+	path('comment/<int:comment_id>/', views.manage_comment, name='manage_comment'), # avant <str:login> : <int:> ne matche que des chiffres
 	path('comment/<str:login>/', views.add_comment, name='add_comment'),
 	path('follow/<str:profil_login>/', views.follow, name='follow'),
 ]
