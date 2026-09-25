@@ -31,6 +31,12 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
+## Loop
+
+```bash
+python manage.py sync_loop
+```
+
 ## Se whitelister
 
 1. Aller sur `http://localhost:8000/admin/`, Se connecter avec le superuser créé.
@@ -43,7 +49,7 @@ Toujours tester sur `localhost:8000`, pas `127.0.0.1:8000` — les cookies de se
 1. `http://localhost:8000/auth/login/` → Connexion via 42.
 2. `http://localhost:8000/auth/me/` → Renvoyer les infos du connecté.
 3. `http://localhost:8000/auth/sync_all_profils/` →Synchronise tous les piscineux de la session en cours (~35s).
-4. `http://localhost:8000/auth/api/profils/` → Liste JSON des piscineux + progression (voir `Backend_README.md`).
+4. `http://localhost:8000/auth/api/dashboard/` → Liste JSON des piscineux + progression (voir `Backend_README.md`).
 
 ## Commandes utiles
 
@@ -56,3 +62,4 @@ Toujours tester sur `localhost:8000`, pas `127.0.0.1:8000` — les cookies de se
 | `python manage.py shell` | Ouvrir un shell Python avec Django chargé (pour inspecter la base) |
 | `python manage.py createsuperuser` | Créer un compte admin Django |
 | `pip install <paquet> && pip freeze > requirements.txt` | Ajouter une dépendance |
+| `python manage.py sync_loop` | Resynchronise tous les piscineux en boucle (toutes les 5 min) |
