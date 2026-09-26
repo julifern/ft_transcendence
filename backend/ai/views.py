@@ -5,7 +5,7 @@ from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 
-from ai.services.llm import answer_user_query
+from ai.services.orchestrator import process_ai_query
 
 # ==============================================================================
 # AI API VIEWS
@@ -14,7 +14,7 @@ from ai.services.llm import answer_user_query
 # Exempt de CSRF pour permettre au frontend React de poster directement avec les cookies CORS
 @method_decorator(csrf_exempt, name="dispatch")
 class AskAIView(View):
-    # Traite la question utilisateur, execute le RAG et renvoie la reponse generee
+    # Traite la question via l'orchestrateur (RAG, requetes ORM ou resume) et renvoie la reponse
     def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> JsonResponse:
         try:
             payload: dict[str, Any] = json.loads(request.body.decode("utf-8"))
@@ -31,14 +31,17 @@ class AskAIView(View):
                 status=400,
             )
 
-        # Execution du pipeline complet (retrieval + LLM local)
+        # Routage et execution par l'orchestrateur
         try:
-            result: dict[str, Any] = answer_user_query(query_text=query_text.strip())
+            cleaned_query: str = query_text.strip()
+            result: dict[str, Any] = process_ai_query(user_query=cleaned_query)
+
             return JsonResponse(
                 {
-                    "query": result["query"],
-                    "answer": result["answer"],
+                    "query": cleaned_query,
+                    "answer": result.get("answer", ""),
                     "sources": list(set(result.get("sources", []))),
+                    "action": result.get("action"),
                 },
                 status=200,
             )
