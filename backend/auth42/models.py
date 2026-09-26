@@ -98,6 +98,24 @@ class Profil(models.Model):
 		self.profil_risk_score, self.profil_risk_level = compute_risk_score(self, progress_data)
 		self.save(update_fields=['profil_risk_score', 'profil_risk_level'])
 
+	# Projets le plus avance dont le slug contient motif_slug
+	def get_max_unfinished_project(self, motif_slug: str) -> str | None:
+		projects: list[Project] = []
+		for p in self.project_set.all():
+			if motif_slug in p.slug:
+				projects.append(p)
+		if not projects:
+			return None
+		projet_max: Project = max(projects, key=lambda p: int(p.slug.split('-')[-1]))
+		return projet_max.name
+
+	# Dernier days en cours : priorite aux C
+	def get_last_project(self) -> str | None:
+		best_c: str | None = self.get_max_unfinished_project('piscine-c-')
+		if best_c is not None:
+			return best_c
+		return self.get_max_unfinished_project('shell')
+
 	def to_dict(self) -> dict:
 		# services metier
 		progress_data: dict 			= compute_student_progress(self)
@@ -148,6 +166,7 @@ class Profil(models.Model):
 			'risk_score': risk_score,
 			'risk_level': risk_level,
 			'xp_history': xp_history,
+			'last_project': self.get_last_project(),
 			'projets': projets,
 			'rushs': rushs,
 			'exams': exams,
@@ -173,6 +192,7 @@ class Profil(models.Model):
 			'risk_score': self.profil_risk_score,
 			'risk_level': self.profil_risk_level or 'ok',
 			'assigned_to': get_assigned_tutor(self),
+			'last_project': self.get_last_project(),
 			'comments': comments,
 		}
 

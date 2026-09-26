@@ -56,6 +56,7 @@ Retourne :
       "first_name": "Abdelaziz",
       "last_name": "Benamira",
       "image_url": "https://cdn.intra.42.fr/...",
+      "last_project": "C Piscine C 05",
       "comments": [
         { "id": 4, "author": "rcompain", "content": "Bloqué sur le C03", "created_at": "2026-09-10T16:30:32.843808+00:00" }
       ]
@@ -65,6 +66,8 @@ Retourne :
 ```
 
 `comments` : les 3 derniers commentaires du piscineux (tous tuteurs confondus), du plus récent au plus ancien — voir section `Comment` plus bas pour le détail des champs.
+
+`last_project` : le projet le plus avancé du piscineux (priorité aux C piscine, repli sur les shells s'il n'a pas encore commencé les C), ou `null` s'il n'a aucun projet.
 
 ## Récupérer un seul piscineux + sa progression
 
@@ -89,6 +92,7 @@ Retourne directement l'objet complet du piscineux (contrairement à la version a
   "presence": { "...": "..." },
   "risk_score": null,
   "risk_level": "",
+  "last_project": "C Piscine C 05",
   "projets": [ "..." ],
   "rushs": [ "..." ],
   "exams": [ "..." ],
@@ -222,6 +226,7 @@ La liste à jour des suivis se lit dans `followed` via `GET /auth/me/`.
 | `presence` | object | non | — | voir section `Presence` |
 | `risk_score` | integer ou `null` | oui | — |  |
 | `risk_level` | string | oui | `""` | ex: `"critical"` |
+| `last_project` | string ou `null` | oui | — | nom du projet le plus avancé (priorité C, repli shell), ex: `"C Piscine C 05"`, ou `null` sans aucun projet |
 | `projets` | array | oui | `[]` | projets C piscine (`c-piscine-c-XX`) — voir section `Project`, éventuellement vide |
 | `rushs` | array | oui | `[]` | rushs (`c-piscine-rush-XX`) — voir section `Project`, éventuellement vide |
 | `exams` | array | oui | `[]` | exams (`c-piscine-exam-XX`, `c-piscine-final-exam`) — voir section `Project`, éventuellement vide |
