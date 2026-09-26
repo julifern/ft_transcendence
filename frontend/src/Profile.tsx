@@ -1,22 +1,17 @@
 import './styles/Profile.css'
-import { type profile, type profiles } from './types/ObjStudent.ts'
+import { type Profile } from './types/ObjStudent.ts'
 import { type Comment } from './types/Comment.ts';
 import { ErrorPage } from './components/Error.tsx'
-import { useParams } from 'react-router-dom';
 import { BtnAddCommit, BtnFollow, BtnIASummarise, BtnSeeMoreCommit, BtnVoirIntra } from './components/Button.tsx';
 import { DynamicTextArea, makeItPrety } from './components/Utils.tsx';
 import { CommitContent, CommitLeaf, EmptyCommit } from './components/Commit.tsx';
 import { InlineIcon } from '@iconify/react';
 import { GraphXpOverView } from './components/GraphXpOverView.tsx';
-import { useGetProfiles } from './api/Profiles.ts';
-
-function findStudentByLogin(data: profiles, login: string) : profile | undefined {
-  for(let i = 0; i < data.profils.length; i++) {
-      if (data.profils[i].login === login)
-        return (data.profils[i]);
-  }
-  return (undefined);
-}
+import type { Project } from './types/Project.ts';
+import { Dropdown } from 'antd';
+import { items } from './components/Commit.tsx';
+import { useParams } from 'react-router-dom';
+import { useGetProfile } from './api/Profile.ts';
 
 function XpOverView() {
   return (
@@ -47,16 +42,47 @@ function Summarize() {
   );
 }
 
-function ProjectOverViewSubmodule({ str }: {str: string}) {
-  const grade: string = "TODO";
+function ProjectOverViewSubmodule({ str, grade}: {str: string, grade: number | null}) {
+  let strGrade;
+  if (grade !== null)
+    strGrade = grade.toString() + '%';
+  else
+    strGrade = "...";
   return (
     <>
       <div className="w-full h-fit rounded-xl bg-(--gray) text-(--text-gray) pl-2 pr-2 pb-1 pt-1">
         <div className="flex flex-col items-center gap-1">
           <p className="text-xs">{str}</p>
-          <p className="bg-(--purple) text-white rounded-full pl-3 pr-3">{grade}%</p>
+          <p className="bg-(--purple) text-white rounded-full pl-3 pr-3">{strGrade}</p>
         </div>
       </div>
+    </>
+  );
+}
+
+function ProjectOverViewGrade({projects, name, nb_total_projects}: {projects: Project[], name: string, nb_total_projects: number}) {
+  return (
+    <>
+      {
+        Array.from({ length: nb_total_projects }, (_, i) => {
+          if (i < projects.length) {
+            return (
+              <ProjectOverViewSubmodule
+                key={i}
+                str={name + i}
+                grade={projects[projects.length - i - 1].note}
+              />
+            );
+          }
+          return (
+            <ProjectOverViewSubmodule
+              key={i}
+              str={name + i}
+              grade={null}
+            />
+          );
+        })
+      }
     </>
   );
 }
@@ -72,22 +98,28 @@ function ProjectOverViewText({descriptor, str} : {descriptor : string, str : str
   );
 }
 
-function ProjectOverView(student: profile) {
+function getProject(projects: Project[], tag: string) : string[] {
+  const result: string[] = [];
+  projects.map((el) => {
+    if (el.status === tag)
+      result.push(el.name.substring(10));
+  });
+  console.log("result: " + result);
+  if (!result.length)
+    result.push("...");
+  return (result);
+}
+
+function ProjectOverView(student: Profile) {
   return (
     <>
       <div className="module flex flex-col w-full h-fit gap-2">
         <div className="flex flex-col w-full h-fit gap-3">
           <div className="grid grid-flow-col grid-rows-1 md:grid-rows-2 2xl:grid-rows-1 gap-2">
-            <ProjectOverViewSubmodule str="Exam 00"/>
-            <ProjectOverViewSubmodule str="Exam 01"/>
-            <ProjectOverViewSubmodule str="Exam 02"/>
-            <ProjectOverViewSubmodule str="Exam 03"/>
+            <ProjectOverViewGrade projects={student.exams} name="Exam" nb_total_projects={4} />
           </div>
           <div className="grid grid-flow-col grid-rows-1 md:grid-rows-2 2xl:grid-rows-1 gap-2">
-            <ProjectOverViewSubmodule str="Rush 00"/>
-            <ProjectOverViewSubmodule str="Rush 01"/>
-            <ProjectOverViewSubmodule str="Rush 02"/>
-            <ProjectOverViewSubmodule str="Rush 03"/>
+            <ProjectOverViewGrade projects={student.rushs} name="Rush" nb_total_projects={4} />
           </div>
         </div>
         <div className="flex flex-row h-fit gap-3">
@@ -95,8 +127,8 @@ function ProjectOverView(student: profile) {
             <div className="bg-(--purple) w-1.5 h-full rounded"></div>
           </div>
           <div className="flex flex-col">
-            <ProjectOverViewText descriptor="Dernier days:" str="TODO"/>
-            <ProjectOverViewText descriptor="Enregistré à:" str="TODO"/>
+            <ProjectOverViewText descriptor="Enregistré à:" str={getProject(student.projets, "in_progress").join(", ")}/>
+            <ProjectOverViewText descriptor="Fait corriger:" str={getProject(student.projets, "waiting_for_correction").join(", ")}/>
             <ProjectOverViewText descriptor="Point d'evaluation:" str={student.correction_point.toString() + "pts"}/>
             <ProjectOverViewText descriptor="Niveaux:" str={student.lvl.toString()}/>
             <ProjectOverViewText descriptor="Classement:" str="TODO"/>
@@ -110,22 +142,24 @@ function ProjectOverView(student: profile) {
 function Commit({ comment }: {comment: Comment}) {
   return (
     <>
-      <div className="flex flex-row h-fit">
-        <CommitLeaf />
-        <CommitContent comment={comment}/>
-      </div>
+      <Dropdown menu={{items}} trigger={["contextMenu"]}>
+        <div className="flex flex-row h-fit">
+          <CommitLeaf />
+          <CommitContent comment={comment}/>
+        </div>
+      </Dropdown>
     </>
   );
 }
 
-function CommitHistory(student: profile) {
+function CommitHistory(student: Profile) {
   const haveCommit = student.comments.length != 0;
   return (
     <>
       <div className="module flex flex-col w-full h-fit">
         {haveCommit ?
           <>
-            {student.comments.reverse().map((comment, index) => <Commit key={index} comment={comment}/>)}
+            {student.comments.map((comment, index) => <Commit key={index} comment={comment}/>)}
             <div className="flex flex-col lg:flex-row gap-2">
               <BtnAddCommit {...student} />
               <BtnSeeMoreCommit />
@@ -139,7 +173,7 @@ function CommitHistory(student: profile) {
   );
 }
 
-function Description(student: profile) {
+function Description(student: Profile) {
   return (
      <>
       <div className="module">
@@ -149,7 +183,7 @@ function Description(student: profile) {
    );
 }
 
-function StudentProfileTop(student: profile) {
+function StudentProfileTop(student: Profile) {
   return (
     <>
       <div className="flex flex-col items-center justify-center gap-2">
@@ -167,15 +201,14 @@ export function Profile() {
   const params = useParams();
   if (params.login == undefined)
     return (<><ErrorPage></ErrorPage></>);
-  const api = useGetProfiles();
-  const data: profiles = api.data as profiles;
+  const api = useGetProfile(params.login);
   if (api.isPending) {
     return <p>Loading...</p>
   }
   if (api.error) {
     return <p>An error has occurred: {api.error.message}</p>
   }
-  const student = findStudentByLogin(data, params.login);
+  const student: Profile = api.data as Profile;
   if (student == undefined)
     return (<><ErrorPage></ErrorPage></>);
   return (

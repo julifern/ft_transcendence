@@ -2,5 +2,6 @@ export interface Project {
   name: string,
   slug: string,
   valid: boolean,
-  note: number
+  note: number | null,
+  status: string,
 }

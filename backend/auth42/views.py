@@ -11,7 +11,7 @@ from django.conf import settings
 import requests
 
 # Importation des class
-from .models import FtUser, WhitelistUser, Profil, Project, Comment
+from .models import FtUser, WhitelistUser, Profil, Project, Comment, SyncConfig
 
 import time
 import json
@@ -99,13 +99,14 @@ def list_profil_login() -> list[str]:
 	token: str | None = get_app_token()
 	if not token:
 		return []
+	config, created = SyncConfig.objects.get_or_create(pk=1)
 	lst_login: list[str] = []
 	page: int = 1
 	while True:
 		response: requests.Response = requests.get('https://api.intra.42.fr/v2/users', params={
 			'filter[primary_campus_id]': 31,
-			'filter[pool_year]': 2026,
-			'filter[pool_month]': 'september',
+			'filter[pool_year]': config.pool_year,
+			'filter[pool_month]': config.pool_month,
 			'page[size]': 100,
 			'page[number]': page,
 		}, headers={'Authorization': f'Bearer {token}'})
@@ -117,6 +118,19 @@ def list_profil_login() -> list[str]:
 		page += 1
 
 	return lst_login
+
+# Synchronise tous les piscineux de la session en cours, renvoie les logins synchronises avec succes
+def sync_all_profils() -> list[str]:
+	token: str | None = get_app_token()
+	if not token:
+		return []
+	synced_logins: list[str] = []
+	for login in list_profil_login():
+		profil: Profil | None = sync_one_profil(login, token)
+		time.sleep(0.5) # Pause pour pas declancher le rate limit de l'api
+		if profil:
+			synced_logins.append(profil.profil_login)
+	return synced_logins
 
 
 # ——— APPEL API ————————————————————————————————————————————————————————————————————————————————————————————— #
@@ -211,17 +225,15 @@ def sync_profil(request: HttpRequest, login: str) -> JsonResponse:
 	return JsonResponse({'synced': profil.profil_login})
 
 # Vue : synchronise tous les piscineux, affiche une page HTML de resultat
-def sync_all_profils(request: HttpRequest) -> HttpResponse:
+def sync_all_profils_init(request: HttpRequest) -> HttpResponse:
 	if not is_logged_in(request):
 		return JsonResponse({'error': 'not authenticated'}, status=401)
-	lst_login: list[str] = list_profil_login()
+	synced_logins: list[str] = sync_all_profils()
+	if not synced_logins:
+		return HttpResponse("Erreur : aucun profil synchronise (token applicatif indisponible ou aucun piscineux trouve)")
 	html: str = ""
-	token: str | None = get_app_token()
-	if not token:
-		return HttpResponse("Erreur : impossible d'obtenir un token applicatif")
-	for login in lst_login:
-		profil: Profil | None = sync_one_profil(login, token)
-		time.sleep(0.5) # Pause pour pas declancher le rate limit de l'api
+	for login in synced_logins:
+		profil: Profil | None = Profil.objects.filter(profil_login=login).first()
 		if not profil:
 			continue
 		sous_liste: str = ""
@@ -271,6 +283,34 @@ def add_comment(request: HttpRequest, login: str) -> JsonResponse:
 	)
  
 	return JsonResponse({'message': 'Comment created.'})
+
+# Modifie (PATCH) ou supprime (DELETE) un commentaire existant, par son id
+@csrf_exempt # Flag pour contrer la securite CSRF
+def manage_comment(request: HttpRequest, comment_id: int) -> JsonResponse:
+	if not is_logged_in(request):
+		return JsonResponse({'authenticated': False}, status=401)
+
+	comment: Comment | None = Comment.objects.filter(pk=comment_id).first()
+	if not comment:
+		return JsonResponse({'error': 'comment not found'}, status=404)
+
+	if comment.author_id != request.session.get('ft_user_pk'):
+		return JsonResponse({'error': 'not your comment'}, status=403)
+
+	if request.method == 'PATCH':
+		data: dict = json.loads(request.body)
+		content: str | None = data.get('content')
+		if not content:
+			return JsonResponse({'error': 'content required'}, status=400)
+		comment.content = content
+		comment.save()
+		return JsonResponse({'message': 'Comment updated.'})
+
+	if request.method == 'DELETE':
+		comment.delete()
+		return JsonResponse({'message': 'Comment deleted.'})
+
+	return JsonResponse({'error': 'method not allowed'}, status=405)
 
 # Ajout ou supprimg le suivi d'un profil par un user
 @csrf_exempt # Flag pour contrer la securite CSRF

@@ -10,6 +10,10 @@ backend/db.sqlite3
 # Node (frontend)
 node_modules/
 
-
 # Editors / OS
 .DS_Store
+compile_commands.json
+
+# ai
+ai_models/
+backend/ai/data/

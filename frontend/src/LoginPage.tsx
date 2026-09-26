@@ -9,7 +9,7 @@ export function LoginPage() {
             42SH
           </h1>
           <div className="bg-(--bright-purple) w-30 h-1"></div>
-            <a className="effect effect-1 w-full rounded bg-(--bright-purple) hover:bg-(--purple) btn-primary btn-md login-button pt-1.5 pb-1.5 pr-3 pl-3" href="http://localhost:8000/auth/login/">
+            <a className="effect effect-1 w-full rounded bg-(--bright-purple) hover:bg-(--purple) btn-primary btn-md login-button pt-1.5 pb-1.5 pr-3 pl-3" href="/auth/login/">
               Login with 42
             </a>
         </div>

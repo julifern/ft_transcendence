@@ -9,6 +9,7 @@
 | `GET /auth/api/dashboard/` | liste des piscineux (carte : photo, prénom, nom, login, derniers commentaires) |
 | `GET /auth/api/profils/<login>/` | détail complet d'un piscineux (progression, soft skills, présence, projets...) |
 | `POST /auth/comment/<login>/` | ajouter un commentaire sur un piscineux |
+| `PATCH`/`DELETE /auth/comment/<comment_id>/` | modifier / supprimer un de ses propres commentaires |
 | `POST`/`DELETE /auth/follow/<login>/` | suivre / ne plus suivre un piscineux |
 
 ## Se connecter
@@ -56,7 +57,7 @@ Retourne :
       "last_name": "Benamira",
       "image_url": "https://cdn.intra.42.fr/...",
       "comments": [
-        { "author": "rcompain", "content": "Bloqué sur le C03", "created_at": "2026-09-10T16:30:32.843808+00:00" }
+        { "id": 4, "author": "rcompain", "content": "Bloqué sur le C03", "created_at": "2026-09-10T16:30:32.843808+00:00" }
       ]
     }
   ]
@@ -121,7 +122,38 @@ fetch("http://localhost:8000/auth/comment/nvieille/", {
   .then(data => console.log(data));
 ```
 
-Le commentaire apparaît ensuite dans `comments` via `GET /auth/api/profils/<login>/` (détail complet) et via `GET /auth/api/dashboard/` (3 derniers seulement, tous piscineux).
+Le commentaire apparaît ensuite dans `comments` via `GET /auth/api/profils/<login>/` (détail complet) et via `GET /auth/api/dashboard/` (3 derniers seulement, tous piscineux), avec son `id` (voir section `Comment` plus bas) — c'est cet `id` qu'il faut garder pour modifier/supprimer ce commentaire précis, voir juste en dessous.
+
+## Modifier / supprimer un commentaire
+
+`PATCH` ou `DELETE http://localhost:8000/auth/comment/<comment_id>/` (faut être connecté)
+
+- `PATCH` : modifie le contenu du commentaire. Body JSON attendu : `{ "content": "Nouveau texte" }`.
+- `DELETE` : supprime le commentaire. Pas de body à envoyer.
+
+Seul l'auteur du commentaire peut le modifier ou le supprimer — un autre tuteur reçoit `403`.
+
+Réponses : `200` `{"message": "Comment updated."}` (`PATCH`) ou `{"message": "Comment deleted."}` (`DELETE`) · `401` pas connecté · `403` pas l'auteur (`{"error": "not your comment"}`) · `400` `content` manquant (`PATCH` uniquement) · `404` `comment_id` inconnu · `405` autre méthode que `PATCH`/`DELETE`.
+
+```js
+// Modifier
+fetch("http://localhost:8000/auth/comment/4/", {
+  method: "PATCH",
+  headers: { "Content-Type": "application/json" },
+  credentials: "include",
+  body: JSON.stringify({ content: "Nouveau texte" }),
+})
+  .then(res => res.json())
+  .then(data => console.log(data));
+
+// Supprimer
+fetch("http://localhost:8000/auth/comment/4/", {
+  method: "DELETE",
+  credentials: "include",
+})
+  .then(res => res.json())
+  .then(data => console.log(data));
+```
 
 ## Suivre / ne plus suivre un piscineux
 
@@ -230,6 +262,7 @@ La liste à jour des suivis se lit dans `followed` via `GET /auth/me/`.
 
 | Champ | Type | Peut être vide/null ? | Default | Valeurs possibles |
 |---|---|---|---|---|
-| `author` | string | non | — | login 42, texte libre |
+| `id` | integer | non | — | entier positif, à garder pour modifier/supprimer ce commentaire |
+| `author` | string ou `null` | oui | — | login 42, texte libre — `null` si le tuteur auteur a depuis été supprimé |
 | `content` | string | non | — | texte libre, 200 caractères max |
 | `created_at` | string | non | — | ex: `"2026-09-10T16:30:32.843808+00:00"` |

@@ -18,5 +18,13 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . /app/
  
 EXPOSE 8000
- 
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+
+# Utilise un entrypoint pour automatiser les migrations de base de donnees au demarrage
+# avant de passer la main au serveur web (evite l'execution manuelle de manage.py migrate)
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
+
+# Lance le serveur ASGI Daphne en production au lieu du runserver de dev
+CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "config.asgi:application"]
