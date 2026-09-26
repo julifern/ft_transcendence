@@ -8,6 +8,7 @@ from auth42.services.metrics import (
 	compute_presence_metrics,
 	compute_xp_history,
 	get_assigned_tutor,
+	compute_student_rank,
 )
 
 # Class par user se connectant au site
@@ -91,6 +92,12 @@ class Profil(models.Model):
 	def __str__(self) -> str:
 		return self.profil_login
 
+	# Met a jour et persiste le score et niveau de risque en base
+	def update_metrics(self) -> None:
+		progress_data: dict = compute_student_progress(self)
+		self.profil_risk_score, self.profil_risk_level = compute_risk_score(self, progress_data)
+		self.save(update_fields=['profil_risk_score', 'profil_risk_level'])
+
 	def to_dict(self) -> dict:
 		# services metier
 		progress_data: dict 			= compute_student_progress(self)
@@ -98,6 +105,7 @@ class Profil(models.Model):
 		presence_data: dict 			= compute_presence_metrics(self)
 		xp_history: list[dict] 			= compute_xp_history(self)
 		assigned_to: str | None 		= get_assigned_tutor(self)
+		rank: int 						= compute_student_rank(self)
 
 		projets: list[dict] = []
 		rushs: list[dict] = []
@@ -123,6 +131,7 @@ class Profil(models.Model):
 			'pool_year': self.profil_pool_year,
 			'pool_month': self.profil_pool_month,
 			'lvl': self.profil_lvl,
+			'rank': rank,
 			'location': self.profil_location,
 			'is_online': self.profil_is_online,
 			'correction_point': self.profil_correction_point,
@@ -145,16 +154,25 @@ class Profil(models.Model):
 			'comments': comments,
 		}
 
-	# Version allegee pour la liste du dashboard (pas tout le detail)
-	def to_dashboard_dict(self) -> dict:
+	# Version allegee pour la liste du dashboard (cartes / tableau)
+	def to_dashboard_dict(self, rank: int | None = None) -> dict:
 		comments: list[dict] = []
 		for c in self.comment_set.order_by('-created_at')[:3]:
 			comments.append(c.to_dict())
+
 		return {
+			'id': self.profil_id,
 			'login': self.profil_login,
 			'first_name': self.profil_first_name,
 			'last_name': self.profil_last_name,
 			'image_url': self.profil_image_url,
+			'lvl': self.profil_lvl,
+			'rank': rank if rank is not None else compute_student_rank(self),
+			'is_online': self.profil_is_online,
+			'location': self.profil_location,
+			'risk_score': self.profil_risk_score,
+			'risk_level': self.profil_risk_level or 'ok',
+			'assigned_to': get_assigned_tutor(self),
 			'comments': comments,
 		}
 

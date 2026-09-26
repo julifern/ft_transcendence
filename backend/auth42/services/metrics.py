@@ -259,3 +259,22 @@ def compute_risk_score(profil: Any, progress: dict) -> tuple[int, str]:
 		risk_level = 'warning'
 
 	return score, risk_level
+
+# Calcule le rang d'un etudiant au sein de sa promotion selon son niveau d'XP
+def compute_student_rank(profil: Any) -> int:
+	if profil.profil_lvl is None:
+		return 0
+
+	# profil.__class__ permet de requeter Profil sans importer le modele au sommet du fichier
+	ProfilModel = profil.__class__
+	qs = ProfilModel.objects.all()
+
+	if profil.profil_pool_year and profil.profil_pool_month:
+		qs = qs.filter(
+			profil_pool_year=profil.profil_pool_year,
+			profil_pool_month=profil.profil_pool_month,
+		)
+
+	# Nombre d'etudiants avec un niveau strictement superieur
+	higher_students: int = qs.filter(profil_lvl__gt=profil.profil_lvl).count()
+	return higher_students + 1

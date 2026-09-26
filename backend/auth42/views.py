@@ -7,6 +7,9 @@ from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonRes
 # Importation de settings pour avoir acces au variable de .env
 from django.conf import settings
 
+# Pour garantir que les profils sans niveau soient placés à la fin du classement
+from django.db.models import F
+
 # Appel HTTP POST pour remplacer le code par un token
 import requests
 
@@ -91,6 +94,8 @@ def sync_one_profil(login: str, token: str) -> Profil | None:
 				},
 			)
 
+	# Met a jour et persiste le score et niveau de risque en base
+	profil.update_metrics()
 
 	return profil
 
@@ -355,9 +360,14 @@ def dashboard(request: HttpRequest) -> JsonResponse:
 	if not is_logged_in(request):
 		return JsonResponse({'authenticated': False}, status=401)
 
+	# Tri par niveau decroissant (les nulls a la fin)
+	profils_qs = Profil.objects.all().order_by(F('profil_lvl').desc(nulls_last=True))
+
 	profils: list[dict] = []
-	for profil in Profil.objects.all():
-		profils.append(profil.to_dashboard_dict())
+	for rank, profil in enumerate(profils_qs, start=1):
+		# On passe le rank calcule par l'ordre du tri pour eviter 150 requetes SQL de comptage
+		profils.append(profil.to_dashboard_dict(rank=rank))
+
 	return JsonResponse({'profils': profils}, json_dumps_params={'indent': 2})
 
 # Vue : renvoie en JSON un seul piscineux + sa progression
