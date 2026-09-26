@@ -178,14 +178,22 @@ class Project(models.Model):
 # Class pour les commentaires
 class Comment(models.Model):
 	profil: Profil = models.ForeignKey(Profil, on_delete=models.CASCADE)
-	author: FtUser = models.ForeignKey(FtUser, on_delete=models.CASCADE)
+	author: FtUser | None = models.ForeignKey(FtUser, on_delete=models.SET_NULL, null=True)
 	content: str = models.CharField(max_length=200)
 	created_at: datetime = models.DateTimeField(auto_now_add=True)
 
 	def to_dict(self) -> dict:
 		return {
 			'id': self.pk,
-			'author': self.author.user_login,
+			'author': self.author.user_login if self.author else None,
 			'content': self.content,
 			'created_at': self.created_at,
 		}
+
+# Class pour definir la promo
+class SyncConfig(models.Model):
+    pool_year: str = models.CharField(max_length=4, default='2026')
+    pool_month: str = models.CharField(max_length=20, default='september')
+
+    def __str__(self) -> str:
+        return f"{self.pool_month} {self.pool_year}"
