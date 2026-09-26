@@ -8,6 +8,7 @@ from auth42.services.metrics import (
 	compute_presence_metrics,
 	compute_xp_history,
 	get_assigned_tutor,
+	compute_student_rank,
 )
 
 # Class par user se connectant au site
@@ -91,6 +92,30 @@ class Profil(models.Model):
 	def __str__(self) -> str:
 		return self.profil_login
 
+	# Met a jour et persiste le score et niveau de risque en base
+	def update_metrics(self) -> None:
+		progress_data: dict = compute_student_progress(self)
+		self.profil_risk_score, self.profil_risk_level = compute_risk_score(self, progress_data)
+		self.save(update_fields=['profil_risk_score', 'profil_risk_level'])
+
+	# Projets le plus avance dont le slug contient motif_slug
+	def get_max_unfinished_project(self, motif_slug: str) -> str | None:
+		projects: list[Project] = []
+		for p in self.project_set.all():
+			if motif_slug in p.slug:
+				projects.append(p)
+		if not projects:
+			return None
+		projet_max: Project = max(projects, key=lambda p: int(p.slug.split('-')[-1]))
+		return projet_max.name
+
+	# Dernier days en cours : priorite aux C
+	def get_last_project(self) -> str | None:
+		best_c: str | None = self.get_max_unfinished_project('piscine-c-')
+		if best_c is not None:
+			return best_c
+		return self.get_max_unfinished_project('shell')
+
 	def to_dict(self) -> dict:
 		# services metier
 		progress_data: dict 			= compute_student_progress(self)
@@ -98,6 +123,7 @@ class Profil(models.Model):
 		presence_data: dict 			= compute_presence_metrics(self)
 		xp_history: list[dict] 			= compute_xp_history(self)
 		assigned_to: str | None 		= get_assigned_tutor(self)
+		rank: int 						= compute_student_rank(self)
 
 		projets: list[dict] = []
 		rushs: list[dict] = []
@@ -111,7 +137,7 @@ class Profil(models.Model):
 			else:
 				projets.append(p.to_dict())
 		comments: list[dict] = []
-		for c in self.comment_set.all():
+		for c in self.comment_set.order_by('-created_at'):
 			comments.append(c.to_dict())
 		return {
 			'id': self.profil_id,
@@ -123,6 +149,7 @@ class Profil(models.Model):
 			'pool_year': self.profil_pool_year,
 			'pool_month': self.profil_pool_month,
 			'lvl': self.profil_lvl,
+			'rank': rank,
 			'location': self.profil_location,
 			'is_online': self.profil_is_online,
 			'correction_point': self.profil_correction_point,
@@ -139,22 +166,33 @@ class Profil(models.Model):
 			'risk_score': risk_score,
 			'risk_level': risk_level,
 			'xp_history': xp_history,
+			'last_project': self.get_last_project(),
 			'projets': projets,
 			'rushs': rushs,
 			'exams': exams,
 			'comments': comments,
 		}
 
-	# Version allegee pour la liste du dashboard (pas tout le detail)
-	def to_dashboard_dict(self) -> dict:
+	# Version allegee pour la liste du dashboard (cartes / tableau)
+	def to_dashboard_dict(self, rank: int | None = None) -> dict:
 		comments: list[dict] = []
 		for c in self.comment_set.order_by('-created_at')[:3]:
 			comments.append(c.to_dict())
+
 		return {
+			'id': self.profil_id,
 			'login': self.profil_login,
 			'first_name': self.profil_first_name,
 			'last_name': self.profil_last_name,
 			'image_url': self.profil_image_url,
+			'lvl': self.profil_lvl,
+			'rank': rank if rank is not None else compute_student_rank(self),
+			'is_online': self.profil_is_online,
+			'location': self.profil_location,
+			'risk_score': self.profil_risk_score,
+			'risk_level': self.profil_risk_level or 'ok',
+			'assigned_to': get_assigned_tutor(self),
+			'last_project': self.get_last_project(),
 			'comments': comments,
 		}
 
@@ -188,13 +226,22 @@ class Project(models.Model):
 # Class pour les commentaires
 class Comment(models.Model):
 	profil: Profil = models.ForeignKey(Profil, on_delete=models.CASCADE)
-	author: FtUser = models.ForeignKey(FtUser, on_delete=models.CASCADE)
+	author: FtUser | None = models.ForeignKey(FtUser, on_delete=models.SET_NULL, null=True)
 	content: str = models.CharField(max_length=200)
 	created_at: datetime = models.DateTimeField(auto_now_add=True)
 
 	def to_dict(self) -> dict:
 		return {
-			'author': self.author.user_login,
+			'id': self.pk,
+			'author': self.author.user_login if self.author else None,
 			'content': self.content,
 			'created_at': self.created_at,
 		}
+
+# Class pour definir la promo
+class SyncConfig(models.Model):
+    pool_year: str = models.CharField(max_length=4, default='2026')
+    pool_month: str = models.CharField(max_length=20, default='september')
+
+    def __str__(self) -> str:
+        return f"{self.pool_month} {self.pool_year}"

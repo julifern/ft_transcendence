@@ -9,3 +9,5 @@ requests==2.34.2
 sqlparse==0.6.0
 urllib3==2.7.0
 chromadb==0.5.23
+psycopg[binary]==3.2.3
+daphne==4.1.2

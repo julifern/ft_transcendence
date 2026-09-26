@@ -1,23 +1,62 @@
 services:
+  nginx:
+    container_name: nginx
+    build: ./nginx/
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ssl_certs:/etc/nginx/ssl
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - django
+      - react
+    restart: unless-stopped
+    networks:
+      - transcendence-net
+
   django:
     container_name: django
     build: ./backend/
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
     volumes:
       - ./backend:/app
     env_file:
-      - ./backend/.env
+      - .env
     restart: on-failure
-    image: django:latest
+    networks:
+      - transcendence-net
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   react:
     container_name: react
     build: ./frontend/
-    ports:
-      - "5173:5173"
+    expose:
+      - "5173"
     restart: on-failure
-    image: frontend:latest
+    networks:
+      - transcendence-net
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - transcendence-net
 
   ollama:
     container_name: ollama
@@ -27,6 +66,8 @@ services:
     volumes:
       - ${OLLAMA_STORAGE_PATH:-./ai_models}:/root/.ollama
     restart: on-failure
+    networks:
+      - transcendence-net
 
   # Service ephemere qui s'assure que le modele est bien telecharge au demarrage
   ollama-pull:
@@ -38,3 +79,13 @@ services:
       - OLLAMA_HOST=ollama:11434
     entrypoint: ["ollama", "pull", "qwen2.5:3b"]
     restart: "no"
+    networks:
+      - transcendence-net
+
+volumes:
+  ssl_certs:
+  postgres_data:
+
+networks:
+  transcendence-net:
+    driver: bridge

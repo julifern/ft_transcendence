@@ -1,50 +1,33 @@
-import { type profile, type profiles } from './types/ObjStudent.ts'
-import { type Comment } from './types/Comment.ts';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Dropdown } from "antd";
+import { InlineIcon } from '@iconify/react';
+
 import './styles/Dashboard.css'
 import './styles/color.css'
-import { Link } from 'react-router-dom';
-import { Dropdown, type MenuProps } from "antd";
 
-import { InlineIcon } from '@iconify/react';
-import { Papicons } from '@getpapillon/papicons';
+import { type ProfileDashboard } from './types/ObjStudent.ts'
+import { type Comment } from './types/Comment.ts';
+
+import { items } from './components/Commit.tsx';
 import { CommitContent, CommitLeaf, EmptyCommit } from './components/Commit.tsx';
-import { makeItPrety } from './components/Utils.tsx';
-import { useGetProfiles } from './api/Profiles.ts';
-import { useState } from 'react';
+import { isFollowed, makeItPrety } from './components/Utils.tsx';
+import { useGetProfilesDashboard } from './api/ProfilesDashboard.ts';
+import { useGetUser } from './api/User.ts';
+import { BtnAddCommit, BtnVoirIntra } from './components/Button.tsx';
 
 function StudentCardCommit({ comments }: { comments: Comment[]}) {
-  const items: MenuProps['items'] = [
-    {
-      label: "Copier",
-      key: "cop",
-      onClick: () => {alert("cop")},
-      icon: <Papicons name="List" />
-    },
-    {
-      label: "Modifier",
-      key: "mod",
-      onClick: () => {alert("mod")},
-      icon: <Papicons name="PenAlt" />
-    },
-    {
-      label: "Supprimer",
-      key: "sup",
-      danger: true,
-      onClick: () => {alert("sup")},
-      icon: <Papicons name="Trash" />
-    },
-  ];
   return (
     <Dropdown menu={{items}} trigger={["contextMenu"]}>
         <div className="flex flex-row h-fit">
           <CommitLeaf />
-          <CommitContent comment={comments[comments.length - 1]}/>
+          <CommitContent comment={comments[0]}/>
         </div>
     </Dropdown> 
   );
 }
 
-function StudentCard({student}: {student : profile}) {
+function StudentCard({student}: {student : ProfileDashboard}) {
   const haveCommit = student.comments.length != 0;
   return (
     <>
@@ -59,14 +42,18 @@ function StudentCard({student}: {student : profile}) {
               {makeItPrety(student.last_name)} ({student.login})
             </p>
           </div>
-          {/* student={student} */}
           <Link className="flex items-center justify-center rounded-full w-15 h-13.75 shrink-0" style={{backgroundColor: "var(--gray)"}} to={"/profile/" + student.login} ><InlineIcon icon="akar-icons:more-horizontal" /></Link>
         </div>
         {
           haveCommit ?
-            // iter on the first commit of student.
-            <div>
-              <StudentCardCommit comments={student.comments} />
+            <div className="flex flex-col w-full h-full">
+              <div className="flex flex-col w-full h-full">
+                <StudentCardCommit comments={student.comments} />
+              </div>
+              <div className="flex flex-col w-full h-fit justify-end gap-1.5">
+                <BtnAddCommit {...student} />
+                <BtnVoirIntra {...student} />
+              </div>
             </div>
             :
             <EmptyCommit {...student} />
@@ -76,36 +63,46 @@ function StudentCard({student}: {student : profile}) {
   )
 }
 
-function ListStudentsCards({data, inputSearchBar}: {data: profiles, inputSearchBar: string}) {
-  const filterData = data.profils.filter((el) => {
-    if (inputSearchBar === "")
+function ListStudentsCards({inputSearchBar, followedOnly}: {inputSearchBar: string, followedOnly: boolean}) {
+  const api = useGetProfilesDashboard();
+  const title: string = followedOnly ? "Tes suivis" : "Tous"
+  let filterData;
+  if (followedOnly) {
+    const apiUser = useGetUser();
+    if (api.isPending || apiUser.isPending) return <p>Loading...</p>
+    if (api.error) return <p>An error has occurred: {api.error.message}</p>
+    if (apiUser.error) return <p>An error has occurred: {apiUser.error.message}</p>
+    filterData = api.data.profils.filter((el) => {
+    if (isFollowed(el.login, apiUser.data))
       return (el);
-    else 
-      return (el.login.toLocaleLowerCase().includes(inputSearchBar));
     });
+  } else {
+    if (api.isPending) return <p>Loading...</p>
+    if (api.error) return <p>An error has occurred: {api.error.message}</p>
+    filterData = api.data.profils.filter((el) => {
+      if (inputSearchBar === "")
+        return (el);
+      else
+        return (el.login.toLocaleLowerCase().includes(inputSearchBar));
+    });
+  }
+  if (!filterData.length)
+    return (<></>);
   return (
     <>
-      {filterData.map((profil: profile) => (<StudentCard key={profil.id} student={profil} />))}
+      <p className="font-regular text-1xl text-(--text-gray)">{title}</p>
+      <div className="grid grid-cols-1 md:grid-cols-3 mg:grid-cols-6 gap-2.5">
+        {filterData.map((ProfileDashboard: ProfileDashboard) => (<StudentCard key={ProfileDashboard.login} student={ProfileDashboard} />))}
+      </div>
     </>
   );
 }
 
-function StudentsCards({inputSearchBar}: {inputSearchBar: string}) {
-  // const titel: string = isFollowed ? "Tes suivies" : "Tous";
-  const titel: string = false ? "Tes suivies" : "Tous";
-  const api = useGetProfiles();
-  const data: profiles = api.data as profiles;
-  if (api.isPending)
-    return <p>Loading...</p>
-  if (api.error)
-    return <p>An error has occurred: {api.error.message}</p>
+function StudentsCards({inputSearchBar, followedOnly}: {inputSearchBar: string, followedOnly: boolean}) {
   return (
     <>
       <div className="studentsCardFollows flex flex-col gap-2.5">
-        <p className="font-regular text-1xl text-(--text-gray)">{titel}</p>
-        <div className="grid grid-cols-1 md:grid-cols-3 mg:grid-cols-6 gap-2.5">
-            <ListStudentsCards data={data} inputSearchBar={inputSearchBar} />
-        </div>
+        <ListStudentsCards inputSearchBar={inputSearchBar} followedOnly={followedOnly} />
       </div>
     </>
   );
@@ -119,7 +116,8 @@ export function Dashboard() {
         <p className="font-semibold text-2xl pl-3">Students</p>
         <input value={studentsfilter} onChange={(e) => {setstudentsfilter(e.target.value)}} className="dashboardSearchProfile" type="text" placeholder="Rechercher un student" />
       </div>
-      <StudentsCards inputSearchBar={studentsfilter}></StudentsCards>
+      <StudentsCards inputSearchBar={""} followedOnly={true}/>
+      <StudentsCards inputSearchBar={studentsfilter} followedOnly={false}/>
     </>
   )
-}
+} 
