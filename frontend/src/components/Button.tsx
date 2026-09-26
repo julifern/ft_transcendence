@@ -35,7 +35,7 @@ function AddCommitPopupContente({ student, close } : Props) {
       close(); // close popup
       return ;
     }
-    fetch("http://localhost:8000/auth/comment/" + login + "/", {
+    fetch("/auth/comment/" + login + "/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -121,7 +121,7 @@ export function BtnFollow(student: ProfileDashboard) {
   if (api.error) return <p>An error has occurred: {api.error.message}</p>
   const followed = isFollowed(student.login, api.data);
   const handleFollow = async (follow: boolean) => {
-    const res = await fetch(`http://localhost:8000/auth/follow/${student.login}/`, {
+    const res = await fetch(`/auth/follow/${student.login}/`, {
       method: follow ? "POST" : "DELETE",
       credentials: "include",
     });

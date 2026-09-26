@@ -3,7 +3,7 @@ import type { Profile } from '../types/ObjStudent';
 
 export async function getProfile(login: string): Promise<Profile> {
   const res = await fetch(
-    "http://localhost:8000/auth/api/profils/" + login,
+    "/auth/api/profils/" + login,
     {
       credentials: "include",
     }
@@ -24,4 +24,3 @@ export function useGetProfile(login: string) {
     }
   }));
 }
-

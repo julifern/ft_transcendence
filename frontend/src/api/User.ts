@@ -3,7 +3,7 @@ import type { User } from '../types/User';
 
 export async function getUser(): Promise<User> {
   const res = await fetch(
-    "http://localhost:8000/auth/me/",
+    "/auth/me/",
     {
       credentials: "include",
     }

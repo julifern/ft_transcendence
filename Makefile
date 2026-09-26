@@ -1,20 +1,27 @@
 COMPOSE_PATH := ./docker-compose.yml
 
 all: up
+restart: down up
 
-up: $(COMPOSE_PATH)
-	docker compose -f $(COMPOSE_PATH) up --build --remove-orphans
+up:
+	docker compose -f $(COMPOSE_PATH) up --build -d --remove-orphans
 
 down:
-	docker compose -f $(COMPOSE_PATH) down -v
+	docker compose -f $(COMPOSE_PATH) down
 
-clean: down
-	echo supose to remove volumes
-# 	rm -rf $(VOLUME_ROOT_PATH)
+clean:
+	docker compose -f $(COMPOSE_PATH) down -v --remove-orphans	
 
 fclean: clean
-	docker system prune -af
+	docker compose -f $(COMPOSE_PATH) down --rmi local -v --remove-orphans
+
+purge: fclean
+	rm -rf ./ai_models
+	docker system prune -af --volumes
+
+logs:
+	docker compose -f $(COMPOSE_PATH) logs -f
 
 re: fclean up
 
-.PHONY: all up down clean fclean re
+.PHONY: all up down restart clean fclean logs re
