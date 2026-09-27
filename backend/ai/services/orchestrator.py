@@ -2,7 +2,6 @@ from typing import Any
 import json
 import os
 import requests
-from django.conf import settings
 from .tools import TOOLS_REGISTRY, TOOLS_SPEC, format_feedback_action
 
 # ==============================================================================
@@ -16,7 +15,17 @@ ROUTER_SYSTEM_PROMPT: str = f"""
 You are an intent router for a 42 school pedagogical dashboard.
 Analyze the user message, choose the most appropriate tool, and reply ONLY with a valid JSON object matching this structure:
 {{
-    "tool": "search_knowledge_base" | "get_students_by_project" | "get_exam_stats" | "summarize_feedback" | "direct_answer",
+    "tool": (
+        "search_knowledge_base"
+        | "get_students_by_project"
+        | "get_exam_stats"
+        | "get_students_at_risk"
+        | "get_students_low_correction_points"
+        | "get_presence_stats"
+        | "get_students_with_day_gap"
+        | "summarize_feedback"
+        | "direct_answer"
+    ),
     "args": {{}}
 }}
 
@@ -26,6 +35,10 @@ Schema for args:
 - search_knowledge_base: {{"query": "search keywords"}}
 - get_students_by_project: {{"project_slug": "project_name", "valid": true/false/null}}
 - get_exam_stats: {{"exam_slug": "exam_name"}}
+- get_students_at_risk: {{"risk_level": "high" | "medium" | null}}
+- get_students_low_correction_points: {{"threshold": 1}}
+- get_presence_stats: {{"online_only": true/false, "low_attendance": true/false}}
+- get_students_with_day_gap: {{"min_gap": 2}}
 - summarize_feedback: {{"text": "raw feedback text", "target_login": "student_login or null"}}
 - direct_answer: {{}}
 """
@@ -76,13 +89,12 @@ def route_intent(user_query: str) -> dict[str, Any]:
 
     try:
         decision: dict[str, Any] = json.loads(response_text)
-        if "tool" in decision and decision["tool"] in [
-            "search_knowledge_base",
-            "get_students_by_project",
-            "get_exam_stats",
+        tool_name: str | None = decision.get("tool")
+        valid_tools: set[str] = set(TOOLS_REGISTRY.keys()) | {
             "summarize_feedback",
             "direct_answer",
-        ]:
+        }
+        if tool_name in valid_tools:
             return decision
     except json.JSONDecodeError:
         pass
@@ -127,6 +139,13 @@ def handle_database_flow(user_query: str, tool_name: str, args: dict[str, Any]) 
     tool_func = TOOLS_REGISTRY[tool_name]
     db_results: dict[str, Any] = tool_func(**args)
 
+    if "error" in db_results:
+        return {
+            "answer": db_results["error"],
+            "sources": ["PostgreSQL: auth42"],
+            "action": None,
+        }
+
     system_prompt: str = (
         "Tu es l'assistant d'aide au suivi des piscineux à 42. "
         "À partir des données brutes de la base PostgreSQL fournies, formule une réponse "
@@ -145,7 +164,7 @@ def handle_database_flow(user_query: str, tool_name: str, args: dict[str, Any]) 
 
     return {
         "answer": answer or json.dumps(db_results, ensure_ascii=False),
-        "sources": ["PostgreSQL: auth42_project"],
+        "sources": ["PostgreSQL: auth42"],
         "action": None,
     }
 
@@ -189,13 +208,20 @@ def process_ai_query(user_query: str) -> dict[str, Any]:
         query_arg: str = args.get("query", user_query)
         return handle_rag_flow(user_query=user_query, search_query=query_arg)
 
-    if tool in ["get_students_by_project", "get_exam_stats"]:
+    if tool in [
+        "get_students_by_project",
+        "get_exam_stats",
+        "get_students_at_risk",
+        "get_students_low_correction_points",
+        "get_presence_stats",
+        "get_students_with_day_gap",
+    ]:
         return handle_database_flow(user_query=user_query, tool_name=tool, args=args)
 
     if tool == "summarize_feedback":
         return handle_feedback_summary(args=args)
 
-    # réponse directe
+    # Reponse directe si aucune donnee specifique n'est requise
     direct_answer: str = query_ollama([
         {"role": "system", "content": "Tu es l'assistant de bord de la piscine 42. Réponds cordialement et brièvement en français."},
         {"role": "user", "content": user_query},
