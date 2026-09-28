@@ -81,7 +81,7 @@ export function Chat() {
     </div>
       <div className="module flex flex-col w-full h-fit gap-2">
         <div className="flex flex-rows h-full w-full g-3">
-          <DynamicTextArea name="chatInput" str={"Message"} maxLength={-1} onChange={undefined} ></DynamicTextArea>
+          <DynamicTextArea name="chatInput" placeholder={"Message"} defaultValue={""} maxLength={-1} onChange={undefined}/>
           <button onClick={sendMsg} className="w-fit h-fit rounded-full p-3 bg-(--purple)">
             <Papicons className="h-7 w-7 text-white" name="ArrowRight" />
           </button>

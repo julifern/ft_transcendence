@@ -32,7 +32,7 @@ function Summarize() {
       <div className="module flex flex-col w-full h-fit gap-2">
         <BtnIASummarise />
         <div className="w-full h-full rounded-3xl bg-(--gray) p-5">
-          <DynamicTextArea name="summarize" str="text généré par IA" maxLength={-1} onChange={undefined}/>
+          <DynamicTextArea name="summarize" placeholder="text généré par IA" defaultValue={""} maxLength={-1} onChange={undefined}/>
         </div>
       </div>
     </>
@@ -161,7 +161,7 @@ function Description(student: Profile) {
   return (
      <>
       <div className="module">
-        <DynamicTextArea name="Description" maxLength={-1} str="Description..." onChange={undefined}/>
+        <DynamicTextArea name="Description" maxLength={-1} placeholder={"Description..."} defaultValue={""} onChange={undefined}/>
       </div>
      </>
    );
