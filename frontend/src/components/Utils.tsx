@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import type { User } from "../types/User";
 
-export function DynamicTextArea({ str, name, maxLength }: { str: string, name: string, maxLength: number }) {
+export function DynamicTextArea({ str, name, maxLength, onChange }: { str: string, name: string, maxLength: number, onChange: React.ChangeEventHandler<HTMLTextAreaElement> | undefined}) {
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
   // function call after render
@@ -22,7 +22,7 @@ export function DynamicTextArea({ str, name, maxLength }: { str: string, name: s
   }, []);
 
   return (
-    <textarea name={name} className="w-full h-fit" ref={textAreaRef} maxLength={maxLength} placeholder={str}/>
+    <textarea name={name} className="w-full h-fit" ref={textAreaRef} maxLength={maxLength} placeholder={str} onChange={onChange}/>
   );
 }
 

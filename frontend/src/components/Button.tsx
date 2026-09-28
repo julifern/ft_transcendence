@@ -52,7 +52,7 @@ function AddCommitPopupContente({ student, close } : Props) {
         <form action="post" onSubmit={(e) => handleSubmit(e, student.login, close)}>
           <h1>Contenu de votre nouveau commit:</h1>
           <div className="module flex flex-col">
-            <DynamicTextArea name="commitContent" maxLength={100} str="Description (100 char max)" />
+            <DynamicTextArea name="commitContent" maxLength={100} str="Description (100 char max)" onChange={undefined}/>
           </div>
           <button type="submit" className="w-full rounded-full bg-(--purple) text-white">
             <div className="flex justify-center items-center p-2 gap-1">
@@ -164,10 +164,10 @@ function AddChatPopupContente() {
   return (
       <div className="module flex flex-col h-fit bg-(--bg) p-10 gap-2 border-2 border-solid border-(--gray)" style={{borderRadius: "50px"}}>
         <div className="module flex flex-col">
-          <DynamicTextArea name="newChatName" maxLength={30} str="Titre (30 char max)" />
+          <DynamicTextArea name="newChatName" maxLength={30} str="Titre (30 char max)" onChange={undefined}/>
         </div>
         <div className="module flex flex-col">
-          <DynamicTextArea name="newChatName" maxLength={142} str="Description (142 char max)" />
+          <DynamicTextArea name="newChatName" maxLength={142} str="Description (142 char max)" onChange={undefined}/>
         </div>
         <button onClick={() => addChat()} type="button" className="w-full rounded-full bg-(--purple) text-white">
           <div className="flex justify-center items-center p-2 gap-1">
