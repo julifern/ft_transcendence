@@ -25,7 +25,7 @@ export function CommitContent({ comment }: { comment: Comment }) {
       <>
         <div className="flex flex-col w-full h-fit gap-0.75">
           {isNewCommit ? <p className="w-fit h-fit rounded-full pl-3 pr-3 text-white text-[10px] bg-(--purple)">Nouveau</p> : <></>}
-          <h1>
+          <h1 className="w-full overflow-hidden text-ellipsis">
             {comment.content}
           </h1>
           <div className="flex flex-row items-center gap-1 pb-1">
