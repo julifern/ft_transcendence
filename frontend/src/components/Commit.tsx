@@ -56,6 +56,30 @@ export function EmptyCommit(student: ProfileDashboard) {
   );
 }
 
+export function commitModify(id: number, msg: string, login: string) {
+  fetch(`/auth/comment/${id}/`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ content: msg }),
+  }).then().then(() => {
+      queryClient.invalidateQueries({queryKey: ["auth", "api", "profils", login]});
+      queryClient.invalidateQueries({queryKey: ["auth", "api", "dashboard"]});
+    }
+  );
+}
+
+export function commitDelete(id: number, login: string) {
+  fetch(`/auth/comment/${id}/`, {
+    method: "DELETE",
+    credentials: "include",
+  }).then().then(() => {
+      queryClient.invalidateQueries({queryKey: ["auth", "api", "profils", login]});
+      queryClient.invalidateQueries({queryKey: ["auth", "api", "dashboard"]});
+    }
+  );
+}
+
 export function Commit({ comment, login}: {comment: Comment, login: string}) {
   const [commitEditing, setCommitEditing] = useState(false);
   const [editedCommit, setEditedCommit] = useState("");
@@ -63,7 +87,7 @@ export function Commit({ comment, login}: {comment: Comment, login: string}) {
     {
       label: "Copier",
       key: "cop",
-      onClick: () => {commitCopy(comment.id)},
+      onClick: () => {navigator.clipboard.writeText(comment.content)},
       icon: <Papicons name="List" />
     },
     {
@@ -108,55 +132,3 @@ export function Commit({ comment, login}: {comment: Comment, login: string}) {
     </>
   );
 }
-
-
-
-export function commitCopy(id: number) {
-
-}
-
-export function commitModify(id: number, msg: string, login: string) {
-  fetch(`/auth/comment/${id}/`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-    body: JSON.stringify({ content: msg }),
-  }).then().then(() => {
-      queryClient.invalidateQueries({queryKey: ["auth", "api", "profils", login]});
-      queryClient.invalidateQueries({queryKey: ["auth", "api", "dashboard"]});
-    }
-  );
-}
-
-export function commitDelete(id: number, login: string) {
-  fetch(`/auth/comment/${id}/`, {
-    method: "DELETE",
-    credentials: "include",
-  }).then().then(() => {
-      queryClient.invalidateQueries({queryKey: ["auth", "api", "profils", login]});
-      queryClient.invalidateQueries({queryKey: ["auth", "api", "dashboard"]});
-    }
-  );
-}
-
-export const items: MenuProps['items'] = [
-  {
-    label: "Copier",
-    key: "cop",
-    onClick: () => {alert("copy")},
-    icon: <Papicons name="List" />
-  },
-  {
-    label: "Modifier",
-    key: "mod",
-    onClick: () => {alert("mod")},
-    icon: <Papicons name="PenAlt" />
-  },
-  {
-    label: "Supprimer",
-    key: "sup",
-    danger: true,
-    onClick: () => {alert("sup")},
-    icon: <Papicons name="Trash" />
-  },
-];
