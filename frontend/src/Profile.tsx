@@ -1,18 +1,14 @@
 import './styles/Profile.css'
 import { type Profile } from './types/ObjStudent.ts'
-import { type Comment } from './types/Comment.ts';
 import { ErrorPage } from './components/Error.tsx'
 import { BtnAddCommit, BtnFollow, BtnIASummarise, BtnSeeMoreCommit, BtnVoirIntra } from './components/Button.tsx';
 import { DynamicTextArea, makeItPrety } from './components/Utils.tsx';
-import { CommitContent, commitCopy, commitDelete, CommitLeaf, commitModify, EmptyCommit } from './components/Commit.tsx';
+import { Commit, EmptyCommit } from './components/Commit.tsx';
 import { InlineIcon } from '@iconify/react';
 import { GraphXpOverView } from './components/GraphXpOverView.tsx';
 import type { Project } from './types/Project.ts';
-import { Dropdown, type MenuProps } from 'antd';
 import { useParams } from 'react-router-dom';
 import { useGetProfile } from './api/Profile.ts';
-import { Papicons } from '@getpapillon/papicons';
-import { useRef, useState } from 'react';
 
 function XpOverView() {
   return (
@@ -136,59 +132,6 @@ function ProjectOverView(student: Profile) {
           </div>
         </div>
     </div>
-    </>
-  );
-}
-
-function Commit({ comment, login}: {comment: Comment, login: string}) {
-  const [commitEditing, setCommitEditing] = useState(false);
-  const [editedCommit, setEditedCommit] = useState("");
-  const items: MenuProps['items'] = [
-    {
-      label: "Copier",
-      key: "cop",
-      onClick: () => {commitCopy(comment.id)},
-      icon: <Papicons name="List" />
-    },
-    {
-      label: "Modifier",
-      key: "mod",
-      onClick: () => {setCommitEditing(!commitEditing)},
-      icon: <Papicons name="PenAlt" />
-    },
-    {
-      label: "Supprimer",
-      key: "sup",
-      danger: true,
-      onClick: () => {commitDelete(comment.id, login)},
-      icon: <Papicons name="Trash" />
-    },
-  ];
-  function sendEditedCommit() {
-    setCommitEditing(!commitEditing);
-    commitModify(comment.id, editedCommit, login);
-  }
-  return (
-    <>
-      {
-        commitEditing ?
-          <>
-            <div className="flex p-3">
-              <DynamicTextArea str={"commit editing"} name="EditCommit" maxLength={100} onChange={(e) => {setEditedCommit(e.target.value);}}/>
-            </div>
-            <div className="flex flex-rows gap-2 pb-2">
-              <button onClick={() => setCommitEditing(!commitEditing)} className="w-full rounded-full bg-(--gray) text-black">Annuler</button>
-              <button onClick={() => sendEditedCommit()} className="w-full rounded-full bg-(--purple) text-white">Modifier</button>
-            </div>
-          </>
-        :
-          <Dropdown menu={{items}} trigger={["contextMenu"]}>
-            <div className="flex flex-row h-fit">
-              <CommitLeaf />
-              <CommitContent comment={comment}/>
-            </div>
-          </Dropdown>
-      }
     </>
   );
 }
