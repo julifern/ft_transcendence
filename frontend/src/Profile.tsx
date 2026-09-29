@@ -1,15 +1,12 @@
 import './styles/Profile.css'
 import { type Profile } from './types/ObjStudent.ts'
-import { type Comment } from './types/Comment.ts';
 import { ErrorPage } from './components/Error.tsx'
 import { BtnAddCommit, BtnFollow, BtnIASummarise, BtnSeeMoreCommit, BtnVoirIntra } from './components/Button.tsx';
 import { DynamicTextArea, makeItPrety } from './components/Utils.tsx';
-import { CommitContent, CommitLeaf, EmptyCommit } from './components/Commit.tsx';
+import { Commit, EmptyCommit } from './components/Commit.tsx';
 import { InlineIcon } from '@iconify/react';
 import { GraphXpOverView } from './components/GraphXpOverView.tsx';
 import type { Project } from './types/Project.ts';
-import { Dropdown } from 'antd';
-import { items } from './components/Commit.tsx';
 import { useParams } from 'react-router-dom';
 import { useGetProfile } from './api/Profile.ts';
 
@@ -35,7 +32,7 @@ function Summarize() {
       <div className="module flex flex-col w-full h-fit gap-2">
         <BtnIASummarise />
         <div className="w-full h-full rounded-3xl bg-(--gray) p-5">
-          <DynamicTextArea name="summarize" str="text généré par IA" maxLength={-1} />
+          <DynamicTextArea name="summarize" placeholder="text généré par IA" defaultValue={""} maxLength={-1} onChange={undefined}/>
         </div>
       </div>
     </>
@@ -139,19 +136,6 @@ function ProjectOverView(student: Profile) {
   );
 }
 
-function Commit({ comment }: {comment: Comment}) {
-  return (
-    <>
-      <Dropdown menu={{items}} trigger={["contextMenu"]}>
-        <div className="flex flex-row h-fit">
-          <CommitLeaf />
-          <CommitContent comment={comment}/>
-        </div>
-      </Dropdown>
-    </>
-  );
-}
-
 function CommitHistory(student: Profile) {
   const haveCommit = student.comments.length != 0;
   return (
@@ -159,7 +143,7 @@ function CommitHistory(student: Profile) {
       <div className="module flex flex-col w-full h-fit">
         {haveCommit ?
           <>
-            {student.comments.map((comment, index) => <Commit key={index} comment={comment}/>)}
+            {student.comments.map((comment, index) => <Commit key={index} comment={comment} login={student.login}/>)}
             <div className="flex flex-col lg:flex-row gap-2">
               <BtnAddCommit {...student} />
               <BtnSeeMoreCommit />
@@ -177,7 +161,7 @@ function Description(student: Profile) {
   return (
      <>
       <div className="module">
-        <DynamicTextArea name="Description" maxLength={-1} str="Description..."/>
+        <DynamicTextArea name="Description" maxLength={-1} placeholder={"Description..."} defaultValue={""} onChange={undefined}/>
       </div>
      </>
    );

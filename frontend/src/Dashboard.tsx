@@ -1,31 +1,17 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Dropdown } from "antd";
 import { InlineIcon } from '@iconify/react';
 
 import './styles/Dashboard.css'
 import './styles/color.css'
 
 import { type ProfileDashboard } from './types/ObjStudent.ts'
-import { type Comment } from './types/Comment.ts';
 
-import { items } from './components/Commit.tsx';
-import { CommitContent, CommitLeaf, EmptyCommit } from './components/Commit.tsx';
+import { Commit, EmptyCommit } from './components/Commit.tsx';
 import { isFollowed, makeItPrety } from './components/Utils.tsx';
 import { useGetProfilesDashboard } from './api/ProfilesDashboard.ts';
 import { useGetUser } from './api/User.ts';
 import { BtnAddCommit, BtnVoirIntra } from './components/Button.tsx';
-
-function StudentCardCommit({ comments }: { comments: Comment[]}) {
-  return (
-    <Dropdown menu={{items}} trigger={["contextMenu"]}>
-        <div className="flex flex-row h-fit">
-          <CommitLeaf />
-          <CommitContent comment={comments[0]}/>
-        </div>
-    </Dropdown> 
-  );
-}
 
 function StudentCard({student}: {student : ProfileDashboard}) {
   const haveCommit = student.comments.length != 0;
@@ -46,15 +32,13 @@ function StudentCard({student}: {student : ProfileDashboard}) {
         </div>
         {
           haveCommit ?
-            <div className="flex flex-col w-full h-full">
-              <div className="flex flex-col w-full h-full">
-                <StudentCardCommit comments={student.comments} />
-              </div>
+            <>
+              <Commit comment={student.comments[0]} login={student.login}/>
               <div className="flex flex-col w-full h-fit justify-end gap-1.5">
                 <BtnAddCommit {...student} />
                 <BtnVoirIntra {...student} />
               </div>
-            </div>
+            </>
             :
             <EmptyCommit {...student} />
         }
