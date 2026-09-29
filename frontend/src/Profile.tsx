@@ -2,7 +2,7 @@ import './styles/Profile.css'
 import { type Profile } from './types/ObjStudent.ts'
 import { ErrorPage } from './components/Error.tsx'
 import { BtnAddCommit, BtnFollow, BtnIASummarise, BtnSeeMoreCommit, BtnVoirIntra } from './components/Button.tsx';
-import { DynamicTextArea, makeItPrety } from './components/Utils.tsx';
+import { DynamicTextArea, getRiskLevelColor, makeItPrety } from './components/Utils.tsx';
 import { Commit, EmptyCommit } from './components/Commit.tsx';
 import { InlineIcon } from '@iconify/react';
 import { GraphXpOverView } from './components/GraphXpOverView.tsx';
@@ -128,8 +128,8 @@ function ProjectOverView(student: Profile) {
             <ProjectOverViewText descriptor="Enregistré à:" str={getProject(student.projets, "in_progress").join(", ")}/>
             <ProjectOverViewText descriptor="Fait corriger:" str={getProject(student.projets, "waiting_for_correction").join(", ")}/>
             <ProjectOverViewText descriptor="Point d'evaluation:" str={student.correction_point.toString() + "pts"}/>
-            <ProjectOverViewText descriptor="Niveaux:" str={student.lvl.toString()}/>
-            <ProjectOverViewText descriptor="Classement:" str="TODO"/>
+            <ProjectOverViewText descriptor="Niveaux:" str={student.lvl.toPrecision(3).toString()}/>
+            <ProjectOverViewText descriptor="Classement:" str={student.rank.toString()}/>
           </div>
         </div>
     </div>
@@ -176,6 +176,9 @@ function StudentProfileTop(student: Profile) {
         <div className="flex flex-col items-center justify-center">
           <h1 className="text-3xl font-semibold">{makeItPrety(student.first_name)} {makeItPrety(student.last_name)}</h1>
           <p className="text-2xl font-normal text-(--text-gray)" >{student.login}</p>
+          <p className={"rounded-full border border-solid pl-1.5 pr-1.5 pt-1 pb-1 " + getRiskLevelColor(student.risk_level)}>
+            {student.risk_level}
+          </p>
         </div>
       </div>
     </>

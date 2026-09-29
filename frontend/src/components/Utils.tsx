@@ -38,6 +38,22 @@ export function makeItPrety(str: string) : string {
   return (str.charAt(0).toUpperCase() + str.slice(1).toLowerCase());
 }
 
+export function getRiskLevelColor(risk_level: string) {
+  let risk_level_color: string = "";
+  switch (risk_level) {
+    case "ok":
+      risk_level_color = " text-(--green) ";
+      break ;
+    case "warning":
+      risk_level_color = " text-(--yellow) ";
+      break ;
+    case "critical":
+      risk_level_color = " text-(--red) ";
+      break ;
+  }
+  return (risk_level_color);
+}
+
 export function slugify(str: string) : string {
   return (str
     .toLowerCase()

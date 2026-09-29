@@ -8,7 +8,7 @@ import './styles/color.css'
 import { type ProfileDashboard } from './types/ObjStudent.ts'
 
 import { Commit, EmptyCommit } from './components/Commit.tsx';
-import { isFollowed, makeItPrety } from './components/Utils.tsx';
+import { getRiskLevelColor, isFollowed, makeItPrety } from './components/Utils.tsx';
 import { useGetProfilesDashboard } from './api/ProfilesDashboard.ts';
 import { useGetUser } from './api/User.ts';
 import { BtnAddCommit, BtnVoirIntra } from './components/Button.tsx';
@@ -28,6 +28,9 @@ function StudentCard({student}: {student : ProfileDashboard}) {
               {makeItPrety(student.last_name)} ({student.login})
             </p>
           </div>
+          <p className={"rounded-full border border-solid pl-1.5 pr-1.5 pt-1 pb-1 " + getRiskLevelColor(student.risk_level)}>
+            {student.risk_level}
+          </p>
           <Link className="flex items-center justify-center rounded-full w-15 h-13.75 shrink-0" style={{backgroundColor: "var(--gray)"}} to={"/profile/" + student.login} ><InlineIcon icon="akar-icons:more-horizontal" /></Link>
         </div>
         {
@@ -75,7 +78,7 @@ function ListStudentsCards({inputSearchBar, followedOnly}: {inputSearchBar: stri
   return (
     <>
       <p className="font-regular text-1xl text-(--text-gray)">{title}</p>
-      <div className="grid grid-cols-1 md:grid-cols-3 mg:grid-cols-6 gap-2.5">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
         {filterData.map((ProfileDashboard: ProfileDashboard) => (<StudentCard key={ProfileDashboard.login} student={ProfileDashboard} />))}
       </div>
     </>

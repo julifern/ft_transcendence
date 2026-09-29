@@ -7,13 +7,13 @@ export interface ProfileDashboard {
   first_name: string,
   last_name: string,
   image_url: string,
+  risk_level: string,
   comments: Comment[],
 }
 
 export interface ProfilesDashboard {
   profils: ProfileDashboard[],
 }
-
 
 export interface ProfileBase {
   id: number,
@@ -28,6 +28,7 @@ export interface Profile extends ProfileBase {
   pool_year: string,
   pool_month: string,
   lvl: number,
+  rank: number,
   location: string,
   is_online: boolean,
   correction_point: number,
