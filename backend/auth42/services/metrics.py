@@ -1,6 +1,7 @@
 import calendar
 from datetime import date, datetime, timezone
 from typing import Any
+from django.db.models import Avg
 
 # ——— CONFIGURATION DE LA PROGRESSION —————————————————————————————————————————————————————————————————————— #
 
@@ -187,30 +188,84 @@ def compute_presence_metrics(profil: Any) -> dict:
 		'preferred_slot': preferred,
 	}
 
-# Calcule l'historique d'XP de la semaine pour le graphique front
-def compute_xp_history(profil: Any) -> list[dict]:
+# Calcule l'historique d'XP sur les 4 semaines de piscine pour le graphique front
+def compute_xp_history(profil: Any) -> list[list[dict]]:
 	current_lvl: float = float(profil.profil_lvl or 0.0)
-	days: list[str] = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"]
-	history: list[dict] = []
-	step: float = current_lvl / max(1, len(days))
+	ProfilModel = profil.__class__
 
-	for i, day in enumerate(days):
-		student_xp: float = round(step * (i + 1), 2)
-		promo_avg: float = round(0.35 * (i + 1), 2)
-		history.append({
-			'day': day,
-			'xp': student_xp,
-			'average': promo_avg,
-		})
+	# 1. Vraie moyenne de la promotion calculee en base PostgreSQL
+	avg_res = ProfilModel.objects.filter(profil_lvl__isnull=False).aggregate(Avg('profil_lvl'))
+	promo_avg_total: float = float(avg_res.get('profil_lvl__avg') or 3.2)
 
-	return history
+	# 2. Progression type par fin de semaine (S1: ~18%, S2: ~42%, S3: ~70%, S4: 100%)
+	week_ratios: list[tuple[float, float]] = [
+		(0.0, 0.18),
+		(0.18, 0.42),
+		(0.42, 0.70),
+		(0.70, 1.0),
+	]
+
+	days_names: list[str] = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"]
+	weeks_history: list[list[dict]] = []
+
+	for start_ratio, end_ratio in week_ratios:
+		week_days: list[dict] = []
+		student_start: float = current_lvl * start_ratio
+		student_end: float = current_lvl * end_ratio
+
+		promo_start: float = promo_avg_total * start_ratio
+		promo_end: float = promo_avg_total * end_ratio
+
+		for i, day in enumerate(days_names):
+			fraction: float = (i + 1) / 7.0
+			s_xp: float = round(student_start + (student_end - student_start) * fraction, 2)
+			p_xp: float = round(promo_start + (promo_end - promo_start) * fraction, 2)
+
+			week_days.append({
+				'name': day,
+				'day': day.capitalize(),
+				'studentXp': s_xp,
+				'averageXp': p_xp,
+				'xpMoyenne': p_xp,
+				'xp': s_xp,
+				'average': p_xp,
+			})
+		weeks_history.append(week_days)
+
+	return weeks_history
 
 # Recupere le login du premier tuteur qui suit cet etudiant via la ManyToMany
 def get_assigned_tutor(profil: Any) -> str | None:
-	follower = profil.ftuser_set.first()
-	return follower.user_login if follower else None
+    followers = list(profil.ftuser_set.all())
+    return followers[0].user_login if len(followers) > 0 else None
 
-# Calcule le score de risque (0 a 100) et le niveau
+# Calcule les heures depuis la derniere activite sans casser le cache prefetch
+def compute_last_push_hours(profil: Any) -> int:
+	projects = profil.project_set.all()
+	now: datetime = datetime.now(timezone.utc)
+	latest_dt: datetime | None = None
+
+	for p in projects:
+		dt = getattr(p, 'updated_at', None) or getattr(p, 'marked_at', None)
+		if dt:
+			if dt.tzinfo is None:
+				dt = dt.replace(tzinfo=timezone.utc)
+			if latest_dt is None or dt > latest_dt:
+				latest_dt = dt
+
+	if latest_dt:
+		delta = now - latest_dt
+		return max(0, int(delta.total_seconds() // 3600))
+
+	# Secours : analyse en memoire Python (0 requete SQL)
+	if profil.profil_is_online:
+		return 1
+	if any(p.status == 'in_progress' for p in projects):
+		return 6
+	return 24
+
+
+# Calcule le score de risque (0 a 100) et le niveau avec verification stricte des examens
 def compute_risk_score(profil: Any, progress: dict) -> tuple[int, str]:
 	score: int = 0
 
@@ -223,11 +278,14 @@ def compute_risk_score(profil: Any, progress: dict) -> tuple[int, str]:
 	elif gap == 1:
 		score += 10
 
-	# 2. Resultats aux examens (30 pts max)
-	exams: list = [p for p in profil.project_set.all() if p.get_category() == 'Exams']
-	if exams:
-		last_exam = exams[-1]
-		note: int = last_exam.note or 0
+	# 2. Resultats aux examens (30 pts max) - Uniquement sur examens rellement notes
+	graded_exams = sorted(
+		[p for p in profil.project_set.all() if p.get_category() == 'Exams' and p.note is not None],
+		key=lambda p: p.slug
+	)
+	if graded_exams:
+		last_exam = graded_exams[-1]
+		note: int = int(last_exam.note)
 		if note == 0:
 			score += 30
 		elif note < 50:
@@ -243,8 +301,8 @@ def compute_risk_score(profil: Any, progress: dict) -> tuple[int, str]:
 		score += 10
 
 	# 4. Points de correction (10 pts max)
-	pts: int = profil.profil_correction_point or 0
-	if pts == 0:
+	pts: int = profil.profil_correction_point if profil.profil_correction_point is not None else 5
+	if pts <= 0:
 		score += 10
 	elif pts == 1:
 		score += 5

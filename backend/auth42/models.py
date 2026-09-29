@@ -119,9 +119,14 @@ class Profil(models.Model):
 	def to_dict(self) -> dict:
 		# services metier
 		progress_data: dict 			= compute_student_progress(self)
+
+		# Si le score n'a jamais ete calcule en base, on le calcule
+		if self.profil_risk_score is None:
+			self.update_metrics()
+
 		risk_score, risk_level 			= compute_risk_score(self, progress_data)
 		presence_data: dict 			= compute_presence_metrics(self)
-		xp_history: list[dict] 			= compute_xp_history(self)
+		xp_history: list[list[dict]]    = compute_xp_history(self)
 		assigned_to: str | None 		= get_assigned_tutor(self)
 		rank: int 						= compute_student_rank(self)
 
@@ -173,11 +178,15 @@ class Profil(models.Model):
 			'comments': comments,
 		}
 
-	# Version allegee pour la liste du dashboard (cartes / tableau)
+# Version allegee pour la liste du dashboard (cartes / tableau)
 	def to_dashboard_dict(self, rank: int | None = None) -> dict:
 		comments: list[dict] = []
 		for c in self.comment_set.order_by('-created_at')[:3]:
 			comments.append(c.to_dict())
+
+		# Calcul dynamique identique a to_dict()
+		progress_data: dict = compute_student_progress(self)
+		risk_score, risk_level = compute_risk_score(self, progress_data)
 
 		return {
 			'id': self.profil_id,
@@ -189,8 +198,8 @@ class Profil(models.Model):
 			'rank': rank if rank is not None else compute_student_rank(self),
 			'is_online': self.profil_is_online,
 			'location': self.profil_location,
-			'risk_score': self.profil_risk_score,
-			'risk_level': self.profil_risk_level or 'ok',
+			'risk_score': risk_score,
+			'risk_level': risk_level,
 			'assigned_to': get_assigned_tutor(self),
 			'last_project': self.get_last_project(),
 			'comments': comments,
