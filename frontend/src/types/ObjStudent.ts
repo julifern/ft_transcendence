@@ -1,16 +1,17 @@
 import type { Comment } from "./Comment.tsx";
 import type { Project } from "./Project.ts";
+import type { XpHistory } from "./XpHistory.ts";
 
 export interface ProfileDashboard {
   login: string,
   first_name: string,
   last_name: string,
   image_url: string,
-  comments: Comment[];
+  comments: Comment[],
 }
 
 export interface ProfilesDashboard {
-  profils: ProfileDashboard[];
+  profils: ProfileDashboard[],
 }
 
 
@@ -31,27 +32,27 @@ export interface Profile extends ProfileBase {
   is_online: boolean,
   correction_point: number,
     soft_skills: {
-    timidity: string | null
-    stress: string | null
-    peer_help: string | null
-    self_research: string | null
-    perseverance: string | null
-  }
+    timidity: string | null,
+    stress: string | null,
+    peer_help: string | null,
+    self_research: string | null,
+    perseverance: string | null,
+  },
   presence: {
-    total_hours: string | null
-    daily_average_hours: string | null
+    total_hours: string | null,
+    daily_average_hours: string | null,
     time_slots: {
-      morning_hours: string | null
-      afternoon_hours: string | null
-      night_hours: string | null
+      morning_hours: string | null,
+      afternoon_hours: string | null,
+      night_hours: string | null,
     }
-    preferred_slot: string
+    preferred_slot: string,
   }
-  risk_score: string | null
-  risk_level: string
+  risk_score: string | null,
+  risk_level: string,
+  xp_history: XpHistory[],
   projets: Project[],
   rushs: Project[],
   exams: Project[],
   comments: Comment[],
-
 }

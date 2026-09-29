@@ -9,8 +9,9 @@ import { GraphXpOverView } from './components/GraphXpOverView.tsx';
 import type { Project } from './types/Project.ts';
 import { useParams } from 'react-router-dom';
 import { useGetProfile } from './api/Profile.ts';
+import type { XpHistory } from './types/XpHistory.ts';
 
-function XpOverView() {
+function XpOverView({ xpHistory }: { xpHistory: XpHistory[] }) {
   return (
     <>
       <div className="module flex flex-col w-full h-fit gap-2">
@@ -19,7 +20,7 @@ function XpOverView() {
           <h1>XP Overview</h1>
         </div>
         <div className="flex -ml-10 h-50">
-          <GraphXpOverView />
+          <GraphXpOverView xpHistory={xpHistory}/>
         </div>
       </div>
     </>
@@ -206,7 +207,7 @@ export function Profile() {
           <Description {...student} />
           <CommitHistory {...student} />
           <ProjectOverView {...student} />
-          <XpOverView />
+          <XpOverView xpHistory={student.xp_history}/>
           <Summarize />
         </div>
       </>
