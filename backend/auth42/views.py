@@ -360,8 +360,10 @@ def dashboard(request: HttpRequest) -> JsonResponse:
 	if not is_logged_in(request):
 		return JsonResponse({'authenticated': False}, status=401)
 
-	# Tri par niveau decroissant (les nulls a la fin)
-	profils_qs = Profil.objects.all().order_by(F('profil_lvl').desc(nulls_last=True))
+	# Tri par niveau decroissant avec prefetch des relations pour la rapidite
+	profils_qs = Profil.objects.prefetch_related(
+		'project_set', 'comment_set', 'ftuser_set'
+	).order_by(F('profil_lvl').desc(nulls_last=True))
 
 	profils: list[dict] = []
 	for rank, profil in enumerate(profils_qs, start=1):

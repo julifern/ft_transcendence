@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import type { User } from "../types/User";
 
-export function DynamicTextArea({ str, name, maxLength }: { str: string, name: string, maxLength: number }) {
+export function DynamicTextArea({ placeholder, defaultValue, name, maxLength, onChange }: { placeholder: string, defaultValue: string, name: string, maxLength: number, onChange: React.ChangeEventHandler<HTMLTextAreaElement> | undefined}) {
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
   // function call after render
@@ -22,7 +22,7 @@ export function DynamicTextArea({ str, name, maxLength }: { str: string, name: s
   }, []);
 
   return (
-    <textarea name={name} className="w-full h-fit" ref={textAreaRef} maxLength={maxLength} placeholder={str}/>
+    <textarea name={name} className="w-full h-fit" ref={textAreaRef} maxLength={maxLength} placeholder={placeholder} onChange={onChange} defaultValue={defaultValue}/>
   );
 }
 
@@ -36,6 +36,22 @@ export function isFollowed(login: string, user: User) : boolean {
 
 export function makeItPrety(str: string) : string {
   return (str.charAt(0).toUpperCase() + str.slice(1).toLowerCase());
+}
+
+export function getRiskLevelColor(risk_level: string) {
+  let risk_level_color: string = "";
+  switch (risk_level) {
+    case "ok":
+      risk_level_color = " text-(--green) ";
+      break ;
+    case "warning":
+      risk_level_color = " text-(--yellow) ";
+      break ;
+    case "critical":
+      risk_level_color = " text-(--red) ";
+      break ;
+  }
+  return (risk_level_color);
 }
 
 export function slugify(str: string) : string {
