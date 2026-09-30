@@ -39,19 +39,16 @@ export function makeItPrety(str: string) : string {
 }
 
 export function getRiskLevelColor(risk_level: string) {
-  let risk_level_color: string = "";
   switch (risk_level) {
     case "ok":
-      risk_level_color = " text-(--green) ";
-      break ;
+      return ("--green");
     case "warning":
-      risk_level_color = " text-(--yellow) ";
-      break ;
+      return ("--yellow");
     case "critical":
-      risk_level_color = " text-(--red) ";
-      break ;
+      return ("--red");
+    default:
+      return ("--purple")
   }
-  return (risk_level_color);
 }
 
 export function slugify(str: string) : string {

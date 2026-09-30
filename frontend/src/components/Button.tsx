@@ -39,7 +39,7 @@ function AddCommitPopupContente({ student, close } : Props) {
       close(); // close popup
       queryClient.invalidateQueries({queryKey: ["auth", "api", "profils", login]});
       queryClient.invalidateQueries({queryKey: ["auth", "api", "dashboard"]});
-    });
+    });43
   }
   return (
     <>

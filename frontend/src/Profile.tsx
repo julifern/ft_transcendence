@@ -190,7 +190,7 @@ function StudentProfileTop(student: Profile) {
         <div className="flex flex-col items-center justify-center">
           <h1 className="text-3xl font-semibold">{makeItPrety(student.first_name)} {makeItPrety(student.last_name)}</h1>
           <p className="text-2xl font-normal text-(--text-gray)" >{student.login}</p>
-          <p className={"rounded-full border border-solid pl-1.5 pr-1.5 pt-1 pb-1 " + getRiskLevelColor(student.risk_level)}>
+          <p className={`rounded-full border border-solid pl-1.5 pr-1.5 pt-1 pb-1  text-(${getRiskLevelColor(student.risk_level)})`}>
             {student.risk_level}
           </p>
         </div>
