@@ -10,8 +10,15 @@ import type { Project } from './types/Project.ts';
 import { useParams } from 'react-router-dom';
 import { useGetProfile } from './api/Profile.ts';
 import type { XpHistory } from './types/XpHistory.ts';
+import { useState } from 'react';
 
-function XpOverView({ xpHistory }: { xpHistory: XpHistory[] }) {
+function XpOverView({ xpHistory }: { xpHistory: XpHistory[][] }) {
+  const [week, setWeek] = useState(0);
+  function getButtonColor(index: number) {
+    if (index === week)
+      return (" bg-(--purple) border-2 border-(--bright-purple) ");
+    return (" bg-(--bright-purple) ");
+  }
   return (
     <>
       <div className="module flex flex-col w-full h-fit gap-2">
@@ -19,8 +26,15 @@ function XpOverView({ xpHistory }: { xpHistory: XpHistory[] }) {
           <InlineIcon className="h-5 w-5" icon="lucide:chart-line" />
           <h1>XP Overview</h1>
         </div>
+        <div className="flex flex-row justify-around gap-5">
+          <button className={`${getButtonColor(0)} p-1.5 text-white rounded-full w-full`} onClick={() => {setWeek(0)}}>1</button>
+          <button className={`${getButtonColor(1)} p-1.5 text-white rounded-full w-full`} onClick={() => {setWeek(1)}}>2</button>
+          <button className={`${getButtonColor(2)} p-1.5 text-white rounded-full w-full`} onClick={() => {setWeek(2)}}>3</button>
+          <button className={`${getButtonColor(3)} p-1.5 text-white rounded-full w-full`} onClick={() => {setWeek(3)}}>4</button>
+          <button className={`${getButtonColor(4)} p-1.5 text-white rounded-full w-full`} onClick={() => {setWeek(4)}}>all</button>
+        </div>
         <div className="flex -ml-10 h-50">
-          <GraphXpOverView xpHistory={xpHistory}/>
+          <GraphXpOverView xpHistory={xpHistory} week={week}/>
         </div>
       </div>
     </>

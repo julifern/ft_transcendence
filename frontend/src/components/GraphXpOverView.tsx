@@ -3,11 +3,16 @@
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import type { XpHistory } from "../types/XpHistory";
 
-export function GraphXpOverView({ xpHistory }: { xpHistory: XpHistory[] }) {
+export function GraphXpOverView({ xpHistory, week }: { xpHistory: XpHistory[][], week: number }) {
+  let xpHistoryDisplay;
+  if (week <= 3)
+    xpHistoryDisplay = xpHistory[week];
+  else
+    xpHistoryDisplay = xpHistory.flat();
   return (
     <>
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart responsive data={xpHistory}>
+        <BarChart responsive data={xpHistoryDisplay}>
           <YAxis />
           <XAxis dataKey={"day"}/>
           <CartesianGrid />
