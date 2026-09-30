@@ -14,25 +14,13 @@ function ButtonNavbar({ iconName, buttonText, path}: { iconName: string, buttonT
   );
 }
 
-function MainButtonNavbar({ iconName, buttonText, path}: { iconName: string, buttonText: string, path: string}) {
-  return (
-    <>
-      <Link to={path} className="flex w-full justify-center">
-        <div className="flex flex-col justify-center w-fit pr-3 pl-3 pt-0.5 pb-0.5 items-center bg-(--purple) rounded-full">
-          <Papicons className="text-white" name={iconName} />
-          <p className="text-white">{buttonText}</p>
-        </div>
-      </Link>
-    </>
-  );
-}
-
 function NavBarContente() {
   return (
     <div className="flex flex-rows w-full justify-around">
       <ButtonNavbar iconName={"grid"} buttonText={"Dashboard"} path="/" />
       <ButtonNavbar iconName={"textBubble"} buttonText={"Chats"} path="/chats" />
-      <MainButtonNavbar iconName={"user"} buttonText={"Account"} path="/account" />
+      <ButtonNavbar iconName={"gallery"} buttonText={"trombi"} path="/trombi" />
+      <ButtonNavbar iconName={"user"} buttonText={"Account"} path="/account" />
     </div>
   );
 }
