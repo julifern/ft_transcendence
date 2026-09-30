@@ -114,7 +114,7 @@ export function Commit({ comment, login}: {comment: Comment, login: string}) {
         commitEditing ?
           <>
             <div className="flex p-3">
-              <DynamicTextArea placeholder={"Entre votre message..."} defaultValue={comment.content} name="EditCommit" maxLength={100} onChange={(e) => {setEditedCommit(e.target.value);}} />
+              <DynamicTextArea placeholder={"Entre votre message..."} defaultValue={comment.content} maxLength={100} onChange={(e) => {setEditedCommit(e.target.value);}} />
             </div>
             <div className="flex flex-rows gap-2 pb-2">
               <button onClick={() => setCommitEditing(!commitEditing)} className="w-full rounded-full bg-(--gray) text-black">Annuler</button>
