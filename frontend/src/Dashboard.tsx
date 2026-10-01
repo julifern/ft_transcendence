@@ -28,7 +28,7 @@ function StudentCard({student}: {student : ProfileDashboard}) {
               {makeItPrety(student.last_name)} ({student.login})
             </p>
           </div>
-          <p className={`rounded-full border border-solid pl-1.5 pr-1.5 pt-1 pb-1 text-(${getRiskLevelColor(student.risk_level)})`}>
+          <p className={`rounded-full border border-solid pl-1.5 pr-1.5 pt-1 pb-1 ${getRiskLevelColor(student.risk_level)}`}>
             {student.risk_level}
           </p>
           <Link className="flex items-center justify-center rounded-full w-15 h-13.75 shrink-0" style={{backgroundColor: "var(--gray)"}} to={"/profile/" + student.login} ><InlineIcon icon="akar-icons:more-horizontal" /></Link>

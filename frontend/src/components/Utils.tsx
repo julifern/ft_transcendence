@@ -38,16 +38,29 @@ export function makeItPrety(str: string) : string {
   return (str.charAt(0).toUpperCase() + str.slice(1).toLowerCase());
 }
 
+export function getRiskLevelColorBg(risk_level: string) {
+  switch (risk_level) {
+    case "ok":
+      return (" bg-(--green) ");
+    case "warning":
+      return (" bg-(--yellow) ");
+    case "critical":
+      return (" bg-(--red) ");
+    default:
+      return (" bg-(--purple) ")
+  }
+}
+
 export function getRiskLevelColor(risk_level: string) {
   switch (risk_level) {
     case "ok":
-      return ("--green");
+      return (" text-(--green) ");
     case "warning":
-      return ("--yellow");
+      return (" text-(--yellow) ");
     case "critical":
-      return ("--red");
+      return (" text-(--red) ");
     default:
-      return ("--purple")
+      return (" text-(--purple) ")
   }
 }
 
