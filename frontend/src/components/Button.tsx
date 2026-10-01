@@ -39,7 +39,7 @@ function AddCommitPopupContente({ student, close } : Props) {
       close(); // close popup
       queryClient.invalidateQueries({queryKey: ["auth", "api", "profils", login]});
       queryClient.invalidateQueries({queryKey: ["auth", "api", "dashboard"]});
-    });43
+    });
   }
   return (
     <>
@@ -131,23 +131,6 @@ export function BtnFollow(student: ProfileDashboard) {
       login={student.login}
       handlefunction={() => handleFollow(!followed)}
     />
-  );
-}
-
-function iASummarise() {
-  alert("faire un resumer du profile avec l'ia");
-}
-
-export function BtnIASummarise() {
-  return (
-    <>
-      <button onClick={() => iASummarise()} type="button" className="w-full rounded-full bg-(--purple) text-white">
-        <div className="flex justify-center items-center p-2 gap-1">
-          <Papicons name="List" />
-          <p>Faire un résumé avec l'IA</p>
-        </div>
-      </button>
-    </>
   );
 }
 

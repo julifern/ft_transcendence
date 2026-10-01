@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import type { Profile } from '../types/ObjStudent';
 
-export async function getProfile(login: string): Promise<Profile> {
+async function getProfile(login: string): Promise<Profile> {
   const res = await fetch(
     "/auth/api/profils/" + login,
     {

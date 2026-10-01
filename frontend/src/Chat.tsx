@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { ErrorPage } from "./components/Error";
 import { DynamicTextArea } from "./components/Utils";
 import "./styles/Chats.css"
+import { ModuleMessage } from "./components/Chat";
 
 function TopBarChat({ title }: { title: string}) {
   return (
@@ -32,24 +33,6 @@ function ChatHeader({title, description}: {title: string, description: string}) 
         <p className="text-(--text-gray)">
           {description}
         </p>
-      </div>
-    </>
-  );
-}
-
-function ModuleMessage({nickname, msg, isSender}: {nickname: string, msg: string, isSender: boolean}) {
-  const isSenderCssRenderModule: string = isSender ? " moduleMessage moduleSenderMessage " : " moduleMessage moduleReceiverMessage ";
-  const msgPosition: string = isSender ? " justify-end " : " justify-start "  
-  return (
-    <>
-      <div className={"flex " + msgPosition}>
-        <div className={isSenderCssRenderModule +" flex flex-col"}>
-          <div className={"flex " + msgPosition}>
-            <p className="font-bold">{nickname}</p>
-          </div>
-          <div className="bg-[#E6E6E6] w-ful h-0.5"></div>
-          <p>{msg}</p>
-        </div>
       </div>
     </>
   );

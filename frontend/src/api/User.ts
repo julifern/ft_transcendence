@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import type { User } from '../types/User';
 
-export async function getUser(): Promise<User> {
+async function getUser(): Promise<User> {
   const res = await fetch(
     "/auth/me/",
     {
