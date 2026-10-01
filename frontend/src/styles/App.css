@@ -8,8 +8,7 @@ body {
   display: flex;
   flex-flow: column;
   gap: 16px;
-  padding-left: 20px;
-  padding-right: 20px;
+  padding: 20px;
   width: 100%;
   height: 100%;
 }

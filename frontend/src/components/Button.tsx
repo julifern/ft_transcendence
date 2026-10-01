@@ -20,42 +20,39 @@ export function BtnVoirIntra(student: ProfileDashboard) {
   )
 }
 
-type Props = {
-  student: ProfileDashboard;
-  close: () => void;
-};
-
-function AddCommitPopupContente({ student, close } : Props) {
-  const [commitContent, setCommitContent] = useState("");
-  function handleSubmit(e: React.SubmitEvent<HTMLFormElement>, login: string, close: () => void) {
-    // Prevent the browser from reloading the page
-    e.preventDefault();
+export function SendCommit({login, commitContent, close}: {login: string, commitContent: string, close: (() => void) | undefined}) {
+  function handleSubmit(close: (() => void) | undefined) {
     fetch("/auth/comment/" + login + "/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
       body: JSON.stringify({ content: commitContent }),
     }).then(res => res.json()).then(() => {
-      close(); // close popup
+      if (close) close(); // close popup
       queryClient.invalidateQueries({queryKey: ["auth", "api", "profils", login]});
       queryClient.invalidateQueries({queryKey: ["auth", "api", "dashboard"]});
     });
   }
   return (
+    <button onClick={() => handleSubmit(close)} className="w-full rounded-full bg-(--purple) text-white">
+      <div className="flex justify-center items-center p-2 gap-1">
+        <InlineIcon icon="fa:paper-plane" />
+        <p>Envoyer le commit</p>
+      </div>
+    </button>
+  );
+}
+
+function AddCommitPopupContente({ login, close } : { login: string, close: () => void }) {
+  const [commitContent, setCommitContent] = useState("");
+  return (
     <>
       <div className="module flex flex-col h-fit bg-(--bg) p-10 gap-2 border-2 border-solid border-(--gray)" style={{borderRadius: "50px"}}>
-        <form action="post" onSubmit={(e) => handleSubmit(e, student.login, close)}>
-          <h1>Contenu de votre nouveau commit:</h1>
-          <div className="module flex flex-col">
-            <DynamicTextArea maxLength={100} placeholder={"Description (100 char max)"} defaultValue={""} onChange={(e) => { setCommitContent(e.target.value); }} />
-          </div>
-          <button type="submit" className="w-full rounded-full bg-(--purple) text-white">
-            <div className="flex justify-center items-center p-2 gap-1">
-              <InlineIcon icon="fa:paper-plane" />
-              <p>Envoyer le commit</p>
-            </div>
-          </button>
-        </form>
+        <h1>Contenu de votre nouveau commit:</h1>
+        <div className="module flex flex-col">
+          <DynamicTextArea maxLength={100} placeholder={"Description (100 char max)"} defaultValue={""} onChange={(e) => { setCommitContent(e.target.value); }} />
+        </div>
+        <SendCommit login={login} commitContent={commitContent} close={close}/>
       </div>
     </>
   );
@@ -74,7 +71,7 @@ export function BtnAddCommit(student: ProfileDashboard) {
           </button>
         }
         modal nested>
-      { close => (<AddCommitPopupContente student={student} close={close} />)}
+      { close => (<AddCommitPopupContente login={student.login} close={close} />)}
       </Popup>
     </>
   )
