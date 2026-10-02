@@ -3,6 +3,7 @@ import type { MyreAnswer } from "./types/Ai";
 import { DynamicTextArea } from "./components/Utils";
 import { Papicons } from "@getpapillon/papicons";
 import { ModuleMessage } from "./components/Chat";
+import { SendCommit } from "./components/Button";
 
 function formatMyreOutput(apiResult: MyreAnswer) : string {
   let result: string = apiResult.answer;
@@ -15,17 +16,25 @@ function formatMyreOutput(apiResult: MyreAnswer) : string {
   return (result);
 }
 
+function MyreAction({apiResult}: {apiResult: MyreAnswer}) {
+  const [commitSended, setCommitSended] = useState(false);
+  if (apiResult.action?.action_type !== "add_comment")
+    return (null);
+  return (
+    <div className="relative overflow-hidden">
+      <div className={`justify-end items-end transition-all duration-500 ease-in-out ${commitSended ? "opacity-0 translate-y-2 pointer-events-none" : "opacity-100 translate-y-0"}`}>
+        <SendCommit login={apiResult.action.target_login} onChange={() => setCommitSended(true)} commitContent={apiResult.action.suggested_text} close={undefined}/>
+      </div>
+    </div>
+  );
+}
+
 function MyreAnswer({ apiResult, setCanAskQuestion }: { apiResult: MyreAnswer, setCanAskQuestion: Dispatch<SetStateAction<boolean>>}) {
   return (
     <div className="flex flex-col gap-2">
       <ModuleMessage nickname={undefined} msg={apiResult.query} isSender={true} />
       <ModuleMessage nickname={undefined} msg={formatMyreOutput(apiResult)} isSender={false} />
-      {
-        apiResult.action?.action_type === "add_comment" ?
-          <></>
-        :
-          <></>
-      }
+      <MyreAction apiResult={apiResult}/>
       <button className="w-full bg-(--purple) rounded-full" onClick={() => setCanAskQuestion(true)}>
         <h1 className="text-white text-xl">
           Supprimer le chat

@@ -20,7 +20,7 @@ export function BtnVoirIntra(student: ProfileDashboard) {
   )
 }
 
-export function SendCommit({login, commitContent, close}: {login: string, commitContent: string, close: (() => void) | undefined}) {
+export function SendCommit({login, commitContent, onChange, close}: {login: string, commitContent: string, onChange: (() => void) | undefined, close: (() => void) | undefined}) {
   function handleSubmit(close: (() => void) | undefined) {
     fetch("/auth/comment/" + login + "/", {
       method: "POST",
@@ -29,6 +29,7 @@ export function SendCommit({login, commitContent, close}: {login: string, commit
       body: JSON.stringify({ content: commitContent }),
     }).then(res => res.json()).then(() => {
       if (close) close(); // close popup
+      if (onChange) onChange();
       queryClient.invalidateQueries({queryKey: ["auth", "api", "profils", login]});
       queryClient.invalidateQueries({queryKey: ["auth", "api", "dashboard"]});
     });
