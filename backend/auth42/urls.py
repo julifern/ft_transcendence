@@ -15,4 +15,5 @@ urlpatterns = [
 	path('comment/<int:comment_id>/', views.manage_comment, name='manage_comment'), # avant <str:login> : <int:> ne matche que des chiffres
 	path('comment/<str:login>/', views.add_comment, name='add_comment'),
 	path('follow/<str:profil_login>/', views.follow, name='follow'),
+	path('description/<str:profil_login>/', views.update_description, name='update_description')
 ]

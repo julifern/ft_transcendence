@@ -69,6 +69,7 @@ class Profil(models.Model):
 	profil_location: str				= models.CharField(max_length=20, blank=True)
 	profil_correction_point: int | None	= models.IntegerField(null=True)
 	profil_is_online: bool 				= models.BooleanField(default=False)
+	profil_description: str				= models.CharField(max_length=500, blank=True)
 
 	# soft_skills
 	profil_timidity: int | None 		= models.IntegerField(null=True)
@@ -158,6 +159,7 @@ class Profil(models.Model):
 			'location': self.profil_location,
 			'is_online': self.profil_is_online,
 			'correction_point': self.profil_correction_point,
+			'description': self.profil_description,
 			'assigned_to': assigned_to,
 			'progress': progress_data,
 			'soft_skills': {

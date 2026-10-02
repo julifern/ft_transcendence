@@ -11,6 +11,7 @@
 | `POST /auth/comment/<login>/` | ajouter un commentaire sur un piscineux |
 | `PATCH`/`DELETE /auth/comment/<comment_id>/` | modifier / supprimer un de ses propres commentaires |
 | `POST`/`DELETE /auth/follow/<login>/` | suivre / ne plus suivre un piscineux |
+| `PATCH /auth/description/<login>/` | modifier la description d'un piscineux |
 
 ## Se connecter
 Rediriger vers : `http://localhost:8000/auth/login/`
@@ -192,6 +193,32 @@ fetch("http://localhost:8000/auth/follow/nvieille/", {
 
 La liste à jour des suivis se lit dans `followed` via `GET /auth/me/`.
 
+## Modifier la description d'un piscineux
+
+`PATCH http://localhost:8000/auth/description/<login>/` (faut être connecté)
+
+Body JSON attendu :
+```json
+{ "description": "Le texte de la description" }
+```
+
+Une chaîne vide (`""`) est acceptée (efface la description). N'importe quel tuteur connecté peut modifier la description d'un piscineux.
+
+Réponses : `200` `{"message": "Description updated."}` · `401` pas connecté · `400` clé `description` manquante · `404` login inconnu · `405` autre méthode que `PATCH`.
+
+```js
+fetch("http://localhost:8000/auth/description/nvieille/", {
+  method: "PATCH",
+  headers: { "Content-Type": "application/json" },
+  credentials: "include",
+  body: JSON.stringify({ description: "Progresse bien, à l'aise sur les C" }),
+})
+  .then(res => res.json())
+  .then(data => console.log(data));
+```
+
+La description à jour se lit dans `description` via `GET /auth/api/profils/<login>/`.
+
 ## Détail des champs
 
 ### User
@@ -222,6 +249,7 @@ La liste à jour des suivis se lit dans `followed` via `GET /auth/me/`.
 | `location` | string | oui | `""` | ex: `"2B7"`, ou `""` si pas connecté à un poste |
 | `is_online` | boolean | non | `false` | `true` ou `false` — pas encore alimenté (aucun mécanisme de connexion piscineux au site pour l'instant), toujours `false` actuellement |
 | `correction_point` | integer ou `null` | oui | — | entier, peut être négatif |
+| `description` | string | oui | `""` | texte libre saisi par un tuteur, modifiable via `PATCH /auth/description/<login>/` |
 | `soft_skills` | object | non | — | voir section `SoftSkills` |
 | `presence` | object | non | — | voir section `Presence` |
 | `risk_score` | integer ou `null` | oui | — |  |
