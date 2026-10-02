@@ -33,7 +33,9 @@ function MyreAnswer({ apiResult, setCanAskQuestion }: { apiResult: MyreAnswer, s
   return (
     <div className="flex flex-col gap-2">
       <ModuleMessage nickname={undefined} msg={apiResult.query} isSender={true} />
-      <ModuleMessage nickname={undefined} msg={formatMyreOutput(apiResult)} isSender={false} />
+      <div className="typewriter">
+        <ModuleMessage nickname={undefined} msg={formatMyreOutput(apiResult)} isSender={false} />
+      </div>
       <MyreAction apiResult={apiResult}/>
       <button className="w-full bg-(--purple) rounded-full" onClick={() => setCanAskQuestion(true)}>
         <h1 className="text-white text-xl">

@@ -20,7 +20,7 @@ export function ModuleMessage({nickname, msg, isSender}: {nickname: string | und
       <div className={"flex " + msgPosition}>
         <div className={isSenderCssRenderModule +" flex flex-col"}>
           { nickname === undefined ? <></> : <ModuleMessageNickName nickname={nickname} msgPosition={msgPosition}/> }
-          <p style={{whiteSpace: "pre-line"}}>{msg}</p>
+          <h1>{msg}</h1>
         </div>
       </div>
     </>
