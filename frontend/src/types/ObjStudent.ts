@@ -32,7 +32,8 @@ export interface Profile extends ProfileBase {
   location: string,
   is_online: boolean,
   correction_point: number,
-    soft_skills: {
+  description: string;
+  soft_skills: {
     timidity: string | null,
     stress: string | null,
     peer_help: string | null,

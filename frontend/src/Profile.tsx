@@ -173,10 +173,19 @@ function CommitHistory(student: Profile) {
 }
 
 function Description(student: Profile) {
+  const [description, setDescription] = useState(student.description);
+  function sendDescription(login: string, msg: string) {
+    fetch(`/auth/description/${login}/`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ description: msg }),
+    }).then().then();
+  }
   return (
      <>
       <div className="module">
-        <DynamicTextArea maxLength={-1} placeholder={"Description..."} defaultValue={""} onChange={undefined}/>
+        <DynamicTextArea maxLength={-1} placeholder={"Description..."} defaultValue={student.description} onChange={(e) => {setDescription(e.target.value); sendDescription(student.login, description)}}/>
       </div>
      </>
    );
