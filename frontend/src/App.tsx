@@ -6,29 +6,22 @@ import { ErrorPage } from './components/Error.tsx';
 import { LoginPage } from './LoginPage.tsx';
 import { DashboardChats } from './DashboardChats.tsx';
 import { Chat } from './Chat.tsx';
-
-function NavBar() {
-  return (
-    <>
-      <div style={{display: "flex", justifyContent: "center"}}>
-        <p>Nav Bar</p>
-      </div>
-    </>
-  )
-}
+import { NavBar } from './NavBar.tsx';
+import { Trombi } from './Trombi.tsx';
 
 function App() {
   return (
     <>
-      <NavBar></NavBar>
       <Routes>
         <Route path="/" element={<Dashboard/>} />
         <Route path="/profile/:login" element={<Profile />} />
+        <Route path="/trombi" element={<Trombi />} />
         <Route path="/login" element={<LoginPage />}/>
         <Route path="/chats" element={<DashboardChats />}/>
         <Route path="/chat/:title" element={<Chat />}/>
         <Route path="*" element={<ErrorPage />} />
       </Routes>
+      <NavBar />
     </>
   );
 }

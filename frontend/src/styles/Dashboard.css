@@ -25,6 +25,11 @@
   border: 2px solid var(--purple);
 }
 
+.studentCardTrombi {
+  background-size: cover;
+  background-position: 50%, 50%;
+}
+
 /* dashboard */
 
 .dashboardSearch {

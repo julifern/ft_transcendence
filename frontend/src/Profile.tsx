@@ -1,19 +1,24 @@
 import './styles/Profile.css'
 import { type Profile } from './types/ObjStudent.ts'
-import { type Comment } from './types/Comment.ts';
 import { ErrorPage } from './components/Error.tsx'
 import { BtnAddCommit, BtnFollow, BtnIASummarise, BtnSeeMoreCommit, BtnVoirIntra } from './components/Button.tsx';
-import { DynamicTextArea, makeItPrety } from './components/Utils.tsx';
-import { CommitContent, CommitLeaf, EmptyCommit } from './components/Commit.tsx';
+import { DynamicTextArea, getRiskLevelColor, makeItPrety } from './components/Utils.tsx';
+import { Commit, EmptyCommit } from './components/Commit.tsx';
 import { InlineIcon } from '@iconify/react';
 import { GraphXpOverView } from './components/GraphXpOverView.tsx';
 import type { Project } from './types/Project.ts';
-import { Dropdown } from 'antd';
-import { items } from './components/Commit.tsx';
 import { useParams } from 'react-router-dom';
 import { useGetProfile } from './api/Profile.ts';
+import type { XpHistory } from './types/XpHistory.ts';
+import { useState } from 'react';
 
-function XpOverView() {
+function XpOverView({ xpHistory }: { xpHistory: XpHistory[][] }) {
+  const [week, setWeek] = useState(0);
+  function getButtonColor(index: number) {
+    if (index === week)
+      return (" bg-(--purple) border-2 border-(--bright-purple) ");
+    return (" bg-(--bright-purple) ");
+  }
   return (
     <>
       <div className="module flex flex-col w-full h-fit gap-2">
@@ -21,8 +26,15 @@ function XpOverView() {
           <InlineIcon className="h-5 w-5" icon="lucide:chart-line" />
           <h1>XP Overview</h1>
         </div>
+        <div className="flex flex-row justify-around gap-5">
+          <button className={`${getButtonColor(0)} p-1.5 text-white rounded-full w-full`} onClick={() => {setWeek(0)}}>1</button>
+          <button className={`${getButtonColor(1)} p-1.5 text-white rounded-full w-full`} onClick={() => {setWeek(1)}}>2</button>
+          <button className={`${getButtonColor(2)} p-1.5 text-white rounded-full w-full`} onClick={() => {setWeek(2)}}>3</button>
+          <button className={`${getButtonColor(3)} p-1.5 text-white rounded-full w-full`} onClick={() => {setWeek(3)}}>4</button>
+          <button className={`${getButtonColor(4)} p-1.5 text-white rounded-full w-full`} onClick={() => {setWeek(4)}}>all</button>
+        </div>
         <div className="flex -ml-10 h-50">
-          <GraphXpOverView />
+          <GraphXpOverView xpHistory={xpHistory} week={week}/>
         </div>
       </div>
     </>
@@ -35,7 +47,7 @@ function Summarize() {
       <div className="module flex flex-col w-full h-fit gap-2">
         <BtnIASummarise />
         <div className="w-full h-full rounded-3xl bg-(--gray) p-5">
-          <DynamicTextArea name="summarize" str="text généré par IA" maxLength={-1} />
+          <DynamicTextArea placeholder="text généré par IA" defaultValue={""} maxLength={-1} onChange={undefined}/>
         </div>
       </div>
     </>
@@ -130,24 +142,11 @@ function ProjectOverView(student: Profile) {
             <ProjectOverViewText descriptor="Enregistré à:" str={getProject(student.projets, "in_progress").join(", ")}/>
             <ProjectOverViewText descriptor="Fait corriger:" str={getProject(student.projets, "waiting_for_correction").join(", ")}/>
             <ProjectOverViewText descriptor="Point d'evaluation:" str={student.correction_point.toString() + "pts"}/>
-            <ProjectOverViewText descriptor="Niveaux:" str={student.lvl.toString()}/>
-            <ProjectOverViewText descriptor="Classement:" str="TODO"/>
+            <ProjectOverViewText descriptor="Niveaux:" str={student.lvl.toPrecision(3).toString()}/>
+            <ProjectOverViewText descriptor="Classement:" str={student.rank.toString()}/>
           </div>
         </div>
     </div>
-    </>
-  );
-}
-
-function Commit({ comment }: {comment: Comment}) {
-  return (
-    <>
-      <Dropdown menu={{items}} trigger={["contextMenu"]}>
-        <div className="flex flex-row h-fit">
-          <CommitLeaf />
-          <CommitContent comment={comment}/>
-        </div>
-      </Dropdown>
     </>
   );
 }
@@ -159,7 +158,7 @@ function CommitHistory(student: Profile) {
       <div className="module flex flex-col w-full h-fit">
         {haveCommit ?
           <>
-            {student.comments.map((comment, index) => <Commit key={index} comment={comment}/>)}
+            {student.comments.map((comment, index) => <Commit key={index} comment={comment} login={student.login}/>)}
             <div className="flex flex-col lg:flex-row gap-2">
               <BtnAddCommit {...student} />
               <BtnSeeMoreCommit />
@@ -177,7 +176,7 @@ function Description(student: Profile) {
   return (
      <>
       <div className="module">
-        <DynamicTextArea name="Description" maxLength={-1} str="Description..."/>
+        <DynamicTextArea maxLength={-1} placeholder={"Description..."} defaultValue={""} onChange={undefined}/>
       </div>
      </>
    );
@@ -191,6 +190,9 @@ function StudentProfileTop(student: Profile) {
         <div className="flex flex-col items-center justify-center">
           <h1 className="text-3xl font-semibold">{makeItPrety(student.first_name)} {makeItPrety(student.last_name)}</h1>
           <p className="text-2xl font-normal text-(--text-gray)" >{student.login}</p>
+          <p className={`rounded-full border border-solid pl-1.5 pr-1.5 pt-1 pb-1 ${getRiskLevelColor(student.risk_level)}`}>
+            {student.risk_level}
+          </p>
         </div>
       </div>
     </>
@@ -222,7 +224,7 @@ export function Profile() {
           <Description {...student} />
           <CommitHistory {...student} />
           <ProjectOverView {...student} />
-          <XpOverView />
+          <XpOverView xpHistory={student.xp_history}/>
           <Summarize />
         </div>
       </>
