@@ -339,8 +339,26 @@ def follow(request: HttpRequest, profil_login: str) -> JsonResponse:
 	user.user_followed.remove(profil)
 	return JsonResponse({'message': 'Followed deleted.'})
 	
+# Modification de la description d'un profil par un user
+@csrf_exempt # Flag pour contrer la securite CSRF
+def update_description(request: HttpRequest, profil_login: str) -> JsonResponse:
+	if not is_logged_in(request):
+		return JsonResponse({'authenticated': False}, status=401)
 	
-	
+	if not request.method == 'PATCH':
+		return JsonResponse({'error': 'method not allowed'}, status=405)
+
+	profil: Profil | None = Profil.objects.filter(profil_login = profil_login).first()
+	if not profil:
+		return JsonResponse({'error': 'profil not found'}, status=404)
+
+	data: dict = json.loads(request.body)
+	if 'description' not in data:
+		return JsonResponse({'error': 'description required'}, status=400)
+	profil.profil_description = data.get('description') or ''
+	profil.save()
+
+	return JsonResponse({'message': 'Description updated.'})
 
 # ——— ENVOI AU FRONT ————————————————————————————————————————————————————————————————————————————————————————————— #
 # Vues qui renvoient des donnees au front (lecture seule)
