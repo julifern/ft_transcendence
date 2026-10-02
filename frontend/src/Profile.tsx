@@ -82,7 +82,7 @@ function ProjectOverViewGrade({projects, name, nb_total_projects}: {projects: Pr
               <ProjectOverViewSubmodule
                 key={i}
                 str={name + i}
-                grade={projects[projects.length - i - 1].note}
+                grade={projects[i].note}
               />
             );
           }
@@ -127,10 +127,10 @@ function ProjectOverView(student: Profile) {
     <>
       <div className="module flex flex-col w-full h-fit gap-2">
         <div className="flex flex-col w-full h-fit gap-3">
-          <div className="grid grid-flow-col grid-rows-1 md:grid-rows-2 2xl:grid-rows-1 gap-2">
+          <div className="grid grid-flow-cols grid-cols-4 gap-2">
             <ProjectOverViewGrade projects={student.exams} name="Exam" nb_total_projects={4} />
           </div>
-          <div className="grid grid-flow-col grid-rows-1 md:grid-rows-2 2xl:grid-rows-1 gap-2">
+          <div className="grid grid-flow-cols grid-cols-4 gap-2">
             <ProjectOverViewGrade projects={student.rushs} name="Rush" nb_total_projects={4} />
           </div>
         </div>
