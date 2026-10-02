@@ -142,6 +142,7 @@ class Profil(models.Model):
 				exams.append(p.to_dict())
 			else:
 				projets.append(p.to_dict())
+		exams.sort(key=lambda d: d['slug'])
 		comments: list[dict] = []
 		for c in self.comment_set.order_by('-created_at'):
 			comments.append(c.to_dict())
