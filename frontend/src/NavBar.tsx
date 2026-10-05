@@ -30,7 +30,7 @@ export function NavBar() {
   return (
     <>
       <div className="flex justify-center items-center fixed bottom-0 left-0 right-0">
-        <div className="semiCircle flex flex-col justify-center items-center border-2 border-(--border)">
+        <div className="semiCircle rounded-t-2xl flex flex-col justify-center items-center border-2 border-(--border)">
           <button onClick={() => {setDisplayNavBar(!displayNavBar)}}>
             <Papicons className="text-(--text-gray)" name={displayNavBar ? "ChevronDown" : "ChevronUp"} />
           </button>

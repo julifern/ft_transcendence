@@ -22,7 +22,6 @@
 .studentCardPp {
   background-size: cover;
   background-position: 50%, 50%;
-  border: 2px solid var(--purple);
 }
 
 .studentCardTrombi {

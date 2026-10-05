@@ -185,8 +185,14 @@ function Description(student: Profile) {
 function StudentProfileTop(student: Profile) {
   return (
     <>
-      <div className="flex flex-col items-center justify-center gap-2">
-        <div className="studentCardPp bg-image-item profile-image rounded-full user-image w-45 h-43.75" style={{backgroundImage: "url(" + student.image_url + ")"}}></div>
+      <div className="absolute w-full top-0 left-0 right-0 h-50 blur-lg z-1">
+        <div className="studentCardPp w-full h-full" style={{ backgroundImage: `url(${student.image_url})` }}/>
+      </div>
+      <div className="absolute w-full top-0 left-0 right-0 h-60 z-10">
+        <div className="w-full h-full bg-linear-to-b from-transparent via-white/50 to-(--bg)" />
+      </div>
+      <div className="flex flex-col items-center justify-center gap-2 z-20">
+        <div className="studentCardPp border border-(--purple) bg-image-item profile-image rounded-full user-image w-45 h-43.75" style={{backgroundImage: "url(" + student.image_url + ")"}}></div>
         <div className="flex flex-col items-center justify-center">
           <h1 className="text-3xl font-semibold">{makeItPrety(student.first_name)} {makeItPrety(student.last_name)}</h1>
           <p className="text-2xl font-normal text-(--text-gray)" >{student.login}</p>
@@ -216,17 +222,17 @@ export function Profile() {
   return (
     <>
       <StudentProfileTop {...student} />
-        <div className="flex flex-row w-full h-fit gap-1.5">
-          <BtnVoirIntra {...student} />
-          <BtnFollow {...student} />
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2.5">
-          <Description {...student} />
-          <CommitHistory {...student} />
-          <ProjectOverView {...student} />
-          <XpOverView xpHistory={student.xp_history}/>
-          <Summarize />
-        </div>
-      </>
+      <div className="flex flex-row w-full h-fit gap-1.5">
+        <BtnVoirIntra {...student} />
+        <BtnFollow {...student} />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2.5">
+        <Description {...student} />
+        <CommitHistory {...student} />
+        <ProjectOverView {...student} />
+        {/* <XpOverView xpHistory={student.xp_history}/> */}
+        <Summarize />
+      </div>
+    </>
   );
 }
