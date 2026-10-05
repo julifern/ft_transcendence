@@ -188,51 +188,36 @@ def compute_presence_metrics(profil: Any) -> dict:
 		'preferred_slot': preferred,
 	}
 
-# Calcule l'historique d'XP sur les 4 semaines de piscine pour le graphique front
-def compute_xp_history(profil: Any) -> list[list[dict]]:
-	current_lvl: float = float(profil.profil_lvl or 0.0)
-	ProfilModel = profil.__class__
+# Calcule l'historique du niveau de l'eleve et la moyenne du groupe
+def compute_xp_history(profil) -> list[dict]:
+	# Import local pour eviter l'import circulaire
+	from auth42.models import DailyXp
 
-	# 1. Vraie moyenne de la promotion calculee en base PostgreSQL
-	avg_res = ProfilModel.objects.filter(profil_lvl__isnull=False).aggregate(Avg('profil_lvl'))
-	promo_avg_total: float = float(avg_res.get('profil_lvl__avg') or 3.2)
+	history = []
 
-	# 2. Progression type par fin de semaine (S1: ~18%, S2: ~42%, S3: ~70%, S4: 100%)
-	week_ratios: list[tuple[float, float]] = [
-		(0.0, 0.18),
-		(0.18, 0.42),
-		(0.42, 0.70),
-		(0.70, 1.0),
-	]
+	# 1. Lecture des releves du profil tries par date
+	records = DailyXp.objects.filter(profil=profil).order_by('date')
+	if not records.exists():
+		return history
 
-	days_names: list[str] = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"]
-	weeks_history: list[list[dict]] = []
+	# 2. Calcul d'xp moyenne de la piscine
+	daily_averages = dict(
+		DailyXp.objects.values('date')
+		.annotate(avg_level=Avg('level'))
+		.values_list('date', 'avg_level')
+	)
 
-	for start_ratio, end_ratio in week_ratios:
-		week_days: list[dict] = []
-		student_start: float = current_lvl * start_ratio
-		student_end: float = current_lvl * end_ratio
+	for record in records:
+		raw_avg = daily_averages.get(record.date, 0.0)
+		pool_avg = round(raw_avg or 0.0, 2)
 
-		promo_start: float = promo_avg_total * start_ratio
-		promo_end: float = promo_avg_total * end_ratio
+		history.append({
+			"day": record.date.strftime("%a %d"),
+			"xp": round(record.level, 2),
+			"average": pool_avg,
+		})
 
-		for i, day in enumerate(days_names):
-			fraction: float = (i + 1) / 7.0
-			s_xp: float = round(student_start + (student_end - student_start) * fraction, 2)
-			p_xp: float = round(promo_start + (promo_end - promo_start) * fraction, 2)
-
-			week_days.append({
-				'name': day,
-				'day': day.capitalize(),
-				'studentXp': s_xp,
-				'averageXp': p_xp,
-				'xpMoyenne': p_xp,
-				'xp': s_xp,
-				'average': p_xp,
-			})
-		weeks_history.append(week_days)
-
-	return weeks_history
+	return history
 
 # Recupere le login du premier tuteur qui suit cet etudiant via la ManyToMany
 def get_assigned_tutor(profil: Any) -> str | None:

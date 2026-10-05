@@ -1,5 +1,5 @@
 from django.db import models
-from datetime import datetime
+from datetime import datetime, date
 
 # Import des services metier
 from auth42.services.metrics import (
@@ -257,3 +257,12 @@ class SyncConfig(models.Model):
 
     def __str__(self) -> str:
         return f"{self.pool_month} {self.pool_year}"
+
+# Releve quotidien du niveau d'un etudiant
+class DailyXp(models.Model):
+	profil: Profil = models.ForeignKey(Profil, on_delete=models.CASCADE, related_name='daily_xp')
+	date: date = models.DateField(default=date.today)
+	level: float = models.FloatField(default=0.0)
+
+	def __str__(self) -> str:
+		return f"{self.profil.profil_login} - {self.date} (lvl {self.level})"
