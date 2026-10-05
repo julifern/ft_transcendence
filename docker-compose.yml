@@ -30,6 +30,18 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+  
+  sync-worker:
+    build: 
+      context: ./backend
+    command: python manage.py sync_loop
+    env_file:
+      - .env
+    restart: unless-stopped
+    networks:
+      - transcendence-net
+    depends_on:
+      - postgres
 
   react:
     container_name: react
