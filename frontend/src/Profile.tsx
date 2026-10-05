@@ -11,6 +11,7 @@ import { useParams } from 'react-router-dom';
 import { useGetProfile } from './api/Profile.ts';
 import type { XpHistory } from './types/XpHistory.ts';
 import { useState } from 'react';
+import { Papicons } from '@getpapillon/papicons';
 
 function XpOverView({ xpHistory }: { xpHistory: XpHistory[][] }) {
   const [week, setWeek] = useState(0);
@@ -54,18 +55,19 @@ function Summarize() {
   );
 }
 
-function ProjectOverViewSubmodule({ str, grade}: {str: string, grade: number | null}) {
+function ProjectOverViewSubmodule({ str, grade, valid}: {str: string, grade: number | null, valid: boolean}) {
   let strGrade;
+  const noteColor: string = valid ? " bg-(--purple) " : " bg-(--bright-purple) "
   if (grade !== null)
     strGrade = grade.toString() + '%';
   else
     strGrade = "...";
   return (
     <>
-      <div className="w-full h-fit rounded-xl bg-(--gray) text-(--text-gray) pl-2 pr-2 pb-1 pt-1">
+      <div className={`w-20 h-fit rounded-xl bg-(--gray) text-(--text-gray) pl-2 pr-2 pb-1 pt-1`}>
         <div className="flex flex-col items-center gap-1">
           <p className="text-xs">{str}</p>
-          <p className="bg-(--purple) text-white rounded-full pl-3 pr-3">{strGrade}</p>
+          <p className={`${noteColor} text-white rounded-full pl-3 pr-3`}>{strGrade}</p>
         </div>
       </div>
     </>
@@ -83,6 +85,7 @@ function ProjectOverViewGrade({projects, name, nb_total_projects}: {projects: Pr
                 key={i}
                 str={name + i}
                 grade={projects[i].note}
+                valid={projects[i].valid}
               />
             );
           }
@@ -91,6 +94,7 @@ function ProjectOverViewGrade({projects, name, nb_total_projects}: {projects: Pr
               key={i}
               str={name + i}
               grade={null}
+              valid={false}
             />
           );
         })
@@ -205,6 +209,26 @@ function StudentProfileTop(student: Profile) {
   );
 }
 
+function ListProject({ project }  : { project: Project }) {
+  const noteColor: string = project.valid ? " text-(--green) " : " text-(--red) ";
+  const iconName: string = project.valid ? "Check" : "Cross";
+  return (
+    <div className="flex flex-rows w-full h-fit">
+      <h1 className="w-full">{project.name.substring(10)}</h1>
+      <p className={`${noteColor}`}>{project.note}</p>
+      <Papicons className={`${noteColor}`} name={`${iconName}`} />
+    </div>
+  );
+}
+
+function ProjectList({ student }: {student: Profile}) {
+  return (
+    <div className="module flex flex-wrap h-fit gap-3">
+      {student.projets.map((project) => <ProjectOverViewSubmodule key={project.name} str={project.name.substring(10)} grade={project.note} valid={project.valid}/>)}
+    </div>
+  );
+}
+
 export function Profile() {
   const params = useParams();
   if (params.login == undefined)
@@ -229,6 +253,7 @@ export function Profile() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2.5">
         <Description {...student} />
         <CommitHistory {...student} />
+        <ProjectList student={student}/>
         <ProjectOverView {...student} />
         {/* <XpOverView xpHistory={student.xp_history}/> */}
         <Summarize />
