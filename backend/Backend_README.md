@@ -299,3 +299,57 @@ La description à jour se lit dans `description` via `GET /auth/api/profils/<log
 | `author` | string ou `null` | oui | — | login 42, texte libre — `null` si le tuteur auteur a depuis été supprimé |
 | `content` | string | non | — | texte libre, 200 caractères max |
 | `created_at` | string | non | — | ex: `"2026-09-10T16:30:32.843808+00:00"` |
+
+
+---
+
+## Gestion multi-promotions & Moteur Piscine (Mise à jour)
+
+### Endpoints ajoutés et modifiés
+
+#### 1. Lister les promotions disponibles
+`GET http://localhost:8000/auth/api/pools/` *(authentification requise)*
+
+Renvoie la liste des promotions uniques enregistrées en base :
+
+```json
+{
+  "available_pools": [
+    { "year": "2026", "month": "september" },
+    { "year": "2025", "month": "august" },
+    { "year": "4242", "month": "july" }
+  ]
+}
+```
+
+#### 2. Filtrer le Dashboard par promotion
+`GET http://localhost:8000/auth/api/dashboard/?year=<year>&month=<month>` *(authentification requise)*
+
+* **Sans paramètres :** Renvoie l'ensemble des profils enregistrés en base (comportement par défaut).
+* **Avec paramètres :** Isole uniquement les profils de la promotion demandée et recalcule le `rank` de 1 à N spécifiquement pour ce groupe.
+
+Exemple : `GET http://localhost:8000/auth/api/dashboard/?year=2025&month=august`
+
+---
+
+### Évolutions des données renvoyées
+
+* **Historique XP (`xp_history`) :**
+  Dans le profil complet (`/auth/api/profils/<login>/`), le tableau `xp_history` est désormais structuré sous forme d'une liste de 4 sous-listes (représentant les 4 semaines de la Piscine). Chaque élément contient `{ "day": str, "xp": float, "average": float }`.
+* **Score et niveau de risque (`risk_score`, `risk_level`) :**
+  * **Piscine en cours :** Calculé en temps réel selon la courbe de progression `EXPECTED_PACE`, l'inactivité récente, les notes d'examens, le solde de points de correction et l'inscription/participation aux Rushs (dès les semaines 2 et 3).
+  * **Piscine terminée (> 25 jours) :** Bascule automatique en mode bilan (analyse globale sur l'avancement final, les heures totales, la présence aux examens et les Rushs effectués).
+
+---
+
+### Commandes utiles pour le développement (`seed_piscine`)
+
+Un outil de génération de données factices est disponible pour tester l'interface avec plusieurs promotions :
+
+```bash
+# Générer 50 profils factices pour août 2025
+docker compose exec django python manage.py seed_piscine --generate 50 --year 2025 --month august
+
+# Générer 30 profils factices pour juillet 4242
+docker compose exec django python manage.py seed_piscine --generate 30 --year 4242 --month july
+```
