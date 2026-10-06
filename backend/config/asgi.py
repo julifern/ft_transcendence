@@ -13,7 +13,6 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 import auth42.routing
 
-
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 
 application = ProtocolTypeRouter({

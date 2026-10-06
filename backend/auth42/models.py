@@ -266,3 +266,11 @@ class DailyXp(models.Model):
 
 	def __str__(self) -> str:
 		return f"{self.profil.profil_login} - {self.date} (lvl {self.level})"
+
+"""
+class Message(models.Model):
+	text = models.TextField()
+	user = models.ForeignKey(FtUser, on_delete=models.CASCADE)
+	group = models.TextField()
+	time = models.DateTimeField(auto_now_add=True)
+"""

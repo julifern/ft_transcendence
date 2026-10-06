@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { ErrorPage } from "./components/Error";
 import { DynamicTextArea } from "./components/Utils";
 import "./styles/Chats.css"
+import {useState, useEffect, useRef} from 'react';
 
 function TopBarChat({ title }: { title: string}) {
   return (
@@ -55,17 +56,55 @@ function ModuleMessage({nickname, msg, isSender}: {nickname: string, msg: string
   );
 }
 
-function sendMsg() {
-  alert("try to send msg the message: ");
+function sendMsg(text: string, ws: WebSocket) {
+  ws.send(
+    JSON.stringify({
+      message: text,
+    })
+  );
 }
 
 export function Chat() {
   const params = useParams();
   // const location = useLocation();
+  const [msg, setMsg] = useState("");
   
   if (params.title == undefined)
     return (<><ErrorPage /></>);
   const title: string = params.title;
+
+  const socket = useRef<WebSocket | null>(null);
+
+  useEffect(() => {
+    if (!params.title)
+      return;
+    const ws = new WebSocket(
+      `wss://${window.location.host}/ws/chat/${title}/`
+    );
+    socket.current = ws;
+
+    ws.onopen = () => {
+      console.log("WebSocket Opened");
+    };
+
+    ws.onclose = (event: Event) => {
+      console.log("WebSocket Closed:", event.code, event.reason);
+    };
+
+    ws.onerror = (event: Event) => {
+      console.log("Error:", event);
+    };
+
+    ws.onmessage = (event: Event) => {
+      const data = JSON.parse(event.data);
+      console.log("Message:", data);
+    };
+
+    return () => {
+      ws.close();
+    };
+  }, []);
+
   return (
     <>
     <div className="flex flex-col">
@@ -81,8 +120,8 @@ export function Chat() {
     </div>
       <div className="module flex flex-col w-full h-fit gap-2">
         <div className="flex flex-rows h-full w-full g-3">
-          <DynamicTextArea placeholder={"Message"} defaultValue={""} maxLength={-1} onChange={undefined}/>
-          <button onClick={sendMsg} className="w-fit h-fit rounded-full p-3 bg-(--purple)">
+          <DynamicTextArea placeholder={"Message"} defaultValue={""} maxLength={-1} onChange={(e) => {setMsg(e.target.value)}}/>
+          <button onClick={() => sendMsg(msg, socket.current)} className="w-fit h-fit rounded-full p-3 bg-(--purple)">
             <Papicons className="h-7 w-7 text-white" name="ArrowRight" />
           </button>
         </div>
