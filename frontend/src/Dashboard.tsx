@@ -11,7 +11,8 @@ import { Commit, EmptyCommit } from './components/Commit.tsx';
 import { getRiskLevelColor, isFollowed, makeItPrety } from './components/Utils.tsx';
 import { useGetProfilesDashboard } from './api/ProfilesDashboard.ts';
 import { useGetUser } from './api/User.ts';
-import { BtnAddCommit, BtnVoirIntra } from './components/Button.tsx';
+import { BtnAddCommit, BtnVoirIntra, FilterBtn } from './components/Button.tsx';
+import { Papicons } from '@getpapillon/papicons';
 
 function StudentCard({student}: {student : ProfileDashboard}) {
   const haveCommit = student.comments.length != 0;
@@ -102,7 +103,10 @@ export function Dashboard() {
     <>
       <div className="dashboardSearch gap-5">
         <p className="font-semibold text-2xl pl-3">Students</p>
-        <input value={studentsfilter} onChange={(e) => {setstudentsfilter(e.target.value)}} className="dashboardSearchProfile" type="text" placeholder="Rechercher un student" />
+        <div className="flex flex-row dashboardSearchProfile">
+          <input className="w-full outline-0 indent-2.5" onChange={(e) => {setstudentsfilter(e.target.value)}} type="text" placeholder="Rechercher un student" />
+          <FilterBtn />
+        </div>
       </div>
       <StudentsCards inputSearchBar={""} followedOnly={true}/>
       <StudentsCards inputSearchBar={studentsfilter} followedOnly={false}/>

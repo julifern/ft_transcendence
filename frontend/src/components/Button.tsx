@@ -6,6 +6,8 @@ import { DynamicTextArea, isFollowed } from "./Utils";
 import { queryClient } from "../main";
 import { useGetUser } from "../api/User";
 import { useState } from "react";
+import { useGetPools } from "../api/Pools";
+import type { Pool } from "../types/Pools";
 
 export function BtnVoirIntra(student: ProfileDashboard) {
   return (
@@ -78,6 +80,35 @@ export function BtnAddCommit(student: ProfileDashboard) {
       </Popup>
     </>
   )
+}
+
+function FilterListOpt({ pool }: { pool: Pool }) {
+  return (
+    <option value={pool.month + pool.year}>{pool.month + pool.year}</option>
+  );
+}
+
+export function FilterBtn() {
+  const api = useGetPools();
+  if (api.isPending) return <p>Loading...</p>
+  if (api.error) return <p>An error has occurred: {api.error.message}</p>
+  return (
+    <Popup
+      trigger={
+          <Papicons className="text-(--text-gray)" name="Filter" />
+        }
+        modal nested>
+      <div className="bg-(--bg) rounded-xl border-2 border-(--gray) w-[80vw] h-[80vh] p-5">
+        <h1 className="text-2xl bold">Filte Piscines</h1>
+        <div className=" bg-(--gray) w-full h-0.5"></div>
+        <select name="pools" id="pools">
+          {
+            api.data.available_pools.map((pool) => <FilterListOpt pool={pool} />)
+          }
+        </select>
+      </div>
+    </Popup>
+  );
 }
 
 function ScrollCommitHistory() {
