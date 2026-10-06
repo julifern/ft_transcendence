@@ -345,7 +345,7 @@ Exemple : `GET http://localhost:8000/auth/api/dashboard/?year=2025&month=august`
 ### Commandes utiles pour le développement (`seed_piscine`)
 
 Un outil de génération de données factices est disponible pour tester l'interface avec plusieurs promotions :
-
+ 
 ```bash
 # Générer 50 profils factices pour août 2025
 docker compose exec django python manage.py seed_piscine --generate 50 --year 2025 --month august

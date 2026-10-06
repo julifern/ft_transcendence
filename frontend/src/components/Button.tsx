@@ -82,13 +82,13 @@ export function BtnAddCommit(student: ProfileDashboard) {
   )
 }
 
-function FilterListOpt({ pool }: { pool: Pool }) {
+function FilterListOpt({ pool, index }: { pool: Pool, index: number}) {
   return (
-    <option value={pool.month + pool.year}>{pool.month + pool.year}</option>
+    <option value={index}>{`${pool.month}-${pool.year}`}</option>
   );
 }
 
-export function FilterBtn() {
+export function FilterBtn({ setPoolIdx } : { setPoolIdx : React.Dispatch<React.SetStateAction<number>>}) {
   const api = useGetPools();
   if (api.isPending) return <p>Loading...</p>
   if (api.error) return <p>An error has occurred: {api.error.message}</p>
@@ -101,9 +101,9 @@ export function FilterBtn() {
       <div className="bg-(--bg) rounded-xl border-2 border-(--gray) w-[80vw] h-[80vh] p-5">
         <h1 className="text-2xl bold">Filte Piscines</h1>
         <div className=" bg-(--gray) w-full h-0.5"></div>
-        <select name="pools" id="pools">
+        <select name="pools" id="pools" onChange={(e) => setPoolIdx(parseInt(e.target.value))}>
           {
-            api.data.available_pools.map((pool) => <FilterListOpt pool={pool} />)
+            api.data.available_pools.map((pool, index) => <FilterListOpt key={index} pool={pool} index={index} />)
           }
         </select>
       </div>

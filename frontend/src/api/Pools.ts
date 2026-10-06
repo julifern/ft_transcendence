@@ -15,7 +15,7 @@ export async function getPools(): Promise<Pools> {
 }
 
 export function useGetPools() {
-  return (useQuery<Pools, Error>({ queryKey: ["auth", "api", "pools"], queryFn: () => getPools(),
+  return (useQuery<Pools, Error>({ queryKey: ["auth", "api", "pools"], queryFn: getPools,
     retry: (failureCount: number, error: Error) => {
       if (error.message === "HTTP 401") {
         return (false);
