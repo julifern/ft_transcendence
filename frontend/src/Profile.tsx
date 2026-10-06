@@ -64,7 +64,7 @@ function ProjectOverViewSubmodule({ str, grade, valid}: {str: string, grade: num
     strGrade = "...";
   return (
     <>
-      <div className={`w-20 h-fit rounded-xl bg-(--gray) text-(--text-gray) pl-2 pr-2 pb-1 pt-1`}>
+      <div className={` h-fit rounded-xl bg-(--gray) text-(--text-gray) pl-2 pr-2 pb-1 pt-1`}>
         <div className="flex flex-col items-center gap-1">
           <p className="text-xs">{str}</p>
           <p className={`${noteColor} text-white rounded-full pl-3 pr-3`}>{strGrade}</p>
@@ -189,10 +189,10 @@ function Description(student: Profile) {
 function StudentProfileTop(student: Profile) {
   return (
     <>
-      <div className="absolute w-full top-0 left-0 right-0 h-50 blur-lg z-1">
+      <div className="absolute w-full top-0 left-0 right-0 h-50 z-1">
         <div className="studentCardPp w-full h-full" style={{ backgroundImage: `url(${student.image_url})` }}/>
       </div>
-      <div className="absolute w-full top-0 left-0 right-0 h-60 z-10">
+      <div className="absolute w-full top-0 left-0 right-0 h-60 z-10 backdrop-blur-xl">
         <div className="w-full h-full bg-linear-to-b from-transparent via-white/50 to-(--bg)" />
       </div>
       <div className="flex flex-col items-center justify-center gap-2 z-20">
@@ -206,18 +206,6 @@ function StudentProfileTop(student: Profile) {
         </div>
       </div>
     </>
-  );
-}
-
-function ListProject({ project }  : { project: Project }) {
-  const noteColor: string = project.valid ? " text-(--green) " : " text-(--red) ";
-  const iconName: string = project.valid ? "Check" : "Cross";
-  return (
-    <div className="flex flex-rows w-full h-fit">
-      <h1 className="w-full">{project.name.substring(10)}</h1>
-      <p className={`${noteColor}`}>{project.note}</p>
-      <Papicons className={`${noteColor}`} name={`${iconName}`} />
-    </div>
   );
 }
 
