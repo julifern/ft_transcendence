@@ -38,8 +38,8 @@ function ChatHeader({title, description}: {title: string, description: string}) 
 }
 
 function ModuleMessage({nickname, msg, isSender}: {nickname: string, msg: string, isSender: boolean}) {
-  const isSenderCssRenderModule: string = isSender ? " moduleMessage moduleSenderMessage " : " moduleMessage moduleReceiverMessage ";
-  const msgPosition: string = isSender ? " justify-end " : " justify-start "  
+  const isSenderCssRenderModule: string = isSender ? "moduleMessage moduleSenderMessage bg-(--bright-purple)" : " moduleMessage moduleReceiverMessage ";
+  const msgPosition: string = isSender ? " justify-end " : " justify-start "
   return (
     <>
       <div className={"flex " + msgPosition}>
@@ -47,7 +47,7 @@ function ModuleMessage({nickname, msg, isSender}: {nickname: string, msg: string
           <div className={"flex " + msgPosition}>
             <p className="font-bold">{nickname}</p>
           </div>
-          <div className="bg-[#E6E6E6] w-ful h-0.5"></div>
+          <div className={`${isSender ? "bg-(--purple)": "bg-[#E6E6E6]"} w-ful h-0.5`}></div>
           <p>{msg}</p>
         </div>
       </div>

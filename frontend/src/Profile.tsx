@@ -11,7 +11,6 @@ import { useParams } from 'react-router-dom';
 import { useGetProfile } from './api/Profile.ts';
 import type { XpHistory } from './types/XpHistory.ts';
 import { useState } from 'react';
-import { Papicons } from '@getpapillon/papicons';
 
 function XpOverView({ xpHistory }: { xpHistory: XpHistory[][] }) {
   const [week, setWeek] = useState(0);
@@ -74,7 +73,7 @@ function ProjectOverViewSubmodule({ str, grade, valid}: {str: string, grade: num
   );
 }
 
-function ProjectOverViewGrade({projects, name, nb_total_projects}: {projects: Project[], name: string, nb_total_projects: number}) {
+function ProjectOverViewGrade({projects, name, nb_total_projects}: {projects: Project[], name: string[], nb_total_projects: number}) {
   return (
     <>
       {
@@ -83,7 +82,7 @@ function ProjectOverViewGrade({projects, name, nb_total_projects}: {projects: Pr
             return (
               <ProjectOverViewSubmodule
                 key={i}
-                str={name + i}
+                str={name[i]}
                 grade={projects[i].note}
                 valid={projects[i].valid}
               />
@@ -92,7 +91,7 @@ function ProjectOverViewGrade({projects, name, nb_total_projects}: {projects: Pr
           return (
             <ProjectOverViewSubmodule
               key={i}
-              str={name + i}
+              str={name[i]}
               grade={null}
               valid={false}
             />
@@ -132,10 +131,10 @@ function ProjectOverView(student: Profile) {
       <div className="module flex flex-col w-full h-fit gap-2">
         <div className="flex flex-col w-full h-fit gap-3">
           <div className="grid grid-flow-cols grid-cols-4 gap-2">
-            <ProjectOverViewGrade projects={student.exams} name="Exam" nb_total_projects={4} />
+            <ProjectOverViewGrade projects={student.exams} name={["Exam0", "Exam1", "Exam2", "Exam3"]} nb_total_projects={4} />
           </div>
           <div className="grid grid-flow-cols grid-cols-4 gap-2">
-            <ProjectOverViewGrade projects={student.rushs} name="Rush" nb_total_projects={4} />
+            <ProjectOverViewGrade projects={student.rushs} name={["Rush0", "Rush1", "Rush2", "BSQ"]} nb_total_projects={4} />
           </div>
         </div>
         <div className="flex flex-row h-fit gap-3">
