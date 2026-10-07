@@ -37,7 +37,7 @@ function StudentCard({student}: {student : ProfileDashboard}) {
           haveCommit ?
             <>
               <Commit comment={student.comments[0]} login={student.login}/>
-              <div className="flex flex-col w-full h-fit justify-end gap-1.5">
+              <div className="flex flex-col w-full h-full justify-end gap-1.5">
                 <BtnAddCommit {...student} />
                 <BtnVoirIntra {...student} />
               </div>
@@ -70,7 +70,8 @@ function ListStudentsCards({inputSearchBar, followedOnly}: {inputSearchBar: stri
       if (inputSearchBar === "")
         return (el);
       else
-        return (el.login.toLocaleLowerCase().includes(inputSearchBar));
+        return (el.login.toLocaleLowerCase().includes(inputSearchBar)
+                || el.first_name.toLocaleLowerCase().includes(inputSearchBar));
     });
   }
   if (!filterData.length)

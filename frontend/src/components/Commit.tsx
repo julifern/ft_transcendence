@@ -10,10 +10,9 @@ import { useState } from "react";
 export function CommitLeaf() {
   return (
     <>
-      <div className="flex flex-col items-center justify-center" style={{marginTop: "-2px"}}>
+      <div className="flex flex-col items-center justify-center">
         <div className="w-2.5 h-2.5 rounded-full bg-(--purple) shrink-0"></div>
-        <div className="flex w-1 h-full" style={{backgroundColor: "var(--purple)", marginTop: "-2px"}}></div>
-        <div className="w-1 h-1 rounded-full bg-(--purple) shrink-0" style={{marginTop: "-2px"}}></div>
+        <div className="w-1 h-full rounded-full" style={{backgroundColor: "var(--purple)", marginTop: "-2px"}}></div>
       </div>
     </>
   )
@@ -45,7 +44,7 @@ export function EmptyCommit(student: ProfileDashboard) {
       <div className="flex flex-col items-center justify-center w-full h-full gap-1.25">
         <Papicons className="w-15 h-15 text-(--text-gray)" name="Ghost" />
         <h1>
-          Aucune activité
+          Aucun Commit
         </h1>
         <div className="flex flex-col w-full h-fit gap-1.5">
           <BtnAddCommit {...student} />

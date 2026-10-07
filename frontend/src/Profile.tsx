@@ -54,25 +54,26 @@ function Summarize() {
   );
 }
 
-function ProjectOverViewSubmodule({ str, grade}: {str: string, grade: number | null}) {
+function ProjectOverViewSubmodule({ str, grade, valid}: {str: string, grade: number | null, valid: boolean}) {
   let strGrade;
+  const noteColor: string = valid ? " bg-(--purple) " : " bg-(--bright-purple) "
   if (grade !== null)
     strGrade = grade.toString() + '%';
   else
     strGrade = "...";
   return (
     <>
-      <div className="w-full h-fit rounded-xl bg-(--gray) text-(--text-gray) pl-2 pr-2 pb-1 pt-1">
+      <div className={` h-fit rounded-xl bg-(--gray) text-(--text-gray) pl-2 pr-2 pb-1 pt-1`}>
         <div className="flex flex-col items-center gap-1">
           <p className="text-xs">{str}</p>
-          <p className="bg-(--purple) text-white rounded-full pl-3 pr-3">{strGrade}</p>
+          <p className={`${noteColor} text-white rounded-full pl-3 pr-3`}>{strGrade}</p>
         </div>
       </div>
     </>
   );
 }
 
-function ProjectOverViewGrade({projects, name, nb_total_projects}: {projects: Project[], name: string, nb_total_projects: number}) {
+function ProjectOverViewGrade({projects, name, nb_total_projects}: {projects: Project[], name: string[], nb_total_projects: number}) {
   return (
     <>
       {
@@ -81,16 +82,18 @@ function ProjectOverViewGrade({projects, name, nb_total_projects}: {projects: Pr
             return (
               <ProjectOverViewSubmodule
                 key={i}
-                str={name + i}
-                grade={projects[projects.length - i - 1].note}
+                str={name[i]}
+                grade={projects[i].note}
+                valid={projects[i].valid}
               />
             );
           }
           return (
             <ProjectOverViewSubmodule
               key={i}
-              str={name + i}
+              str={name[i]}
               grade={null}
+              valid={false}
             />
           );
         })
@@ -127,11 +130,11 @@ function ProjectOverView(student: Profile) {
     <>
       <div className="module flex flex-col w-full h-fit gap-2">
         <div className="flex flex-col w-full h-fit gap-3">
-          <div className="grid grid-flow-col grid-rows-1 md:grid-rows-2 2xl:grid-rows-1 gap-2">
-            <ProjectOverViewGrade projects={student.exams} name="Exam" nb_total_projects={4} />
+          <div className="grid grid-flow-cols grid-cols-4 gap-2">
+            <ProjectOverViewGrade projects={student.exams} name={["Exam0", "Exam1", "Exam2", "Exam3"]} nb_total_projects={4} />
           </div>
-          <div className="grid grid-flow-col grid-rows-1 md:grid-rows-2 2xl:grid-rows-1 gap-2">
-            <ProjectOverViewGrade projects={student.rushs} name="Rush" nb_total_projects={4} />
+          <div className="grid grid-flow-cols grid-cols-4 gap-2">
+            <ProjectOverViewGrade projects={student.rushs} name={["Rush0", "Rush1", "Rush2", "BSQ"]} nb_total_projects={4} />
           </div>
         </div>
         <div className="flex flex-row h-fit gap-3">
@@ -185,8 +188,14 @@ function Description(student: Profile) {
 function StudentProfileTop(student: Profile) {
   return (
     <>
-      <div className="flex flex-col items-center justify-center gap-2">
-        <div className="studentCardPp bg-image-item profile-image rounded-full user-image w-45 h-43.75" style={{backgroundImage: "url(" + student.image_url + ")"}}></div>
+      <div className="absolute w-full top-0 left-0 right-0 h-50 z-1">
+        <div className="studentCardPp w-full h-full" style={{ backgroundImage: `url(${student.image_url})` }}/>
+      </div>
+      <div className="absolute w-full top-0 left-0 right-0 h-60 z-10 backdrop-blur-xl">
+        <div className="w-full h-full bg-linear-to-b from-transparent via-white/50 to-(--bg)" />
+      </div>
+      <div className="flex flex-col items-center justify-center gap-2 z-20">
+        <div className="studentCardPp border border-(--purple) bg-image-item profile-image rounded-full user-image w-45 h-43.75" style={{backgroundImage: "url(" + student.image_url + ")"}}></div>
         <div className="flex flex-col items-center justify-center">
           <h1 className="text-3xl font-semibold">{makeItPrety(student.first_name)} {makeItPrety(student.last_name)}</h1>
           <p className="text-2xl font-normal text-(--text-gray)" >{student.login}</p>
@@ -196,6 +205,14 @@ function StudentProfileTop(student: Profile) {
         </div>
       </div>
     </>
+  );
+}
+
+function ProjectList({ student }: {student: Profile}) {
+  return (
+    <div className="module flex flex-wrap h-fit gap-3">
+      {student.projets.map((project) => <ProjectOverViewSubmodule key={project.name} str={project.name.substring(10)} grade={project.note} valid={project.valid}/>)}
+    </div>
   );
 }
 
@@ -216,17 +233,18 @@ export function Profile() {
   return (
     <>
       <StudentProfileTop {...student} />
-        <div className="flex flex-row w-full h-fit gap-1.5">
-          <BtnVoirIntra {...student} />
-          <BtnFollow {...student} />
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2.5">
-          <Description {...student} />
-          <CommitHistory {...student} />
-          <ProjectOverView {...student} />
-          <XpOverView xpHistory={student.xp_history}/>
-          <Summarize />
-        </div>
-      </>
+      <div className="flex flex-row w-full h-fit gap-1.5">
+        <BtnVoirIntra {...student} />
+        <BtnFollow {...student} />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2.5">
+        <Description {...student} />
+        <CommitHistory {...student} />
+        <ProjectList student={student}/>
+        <ProjectOverView {...student} />
+        {/* <XpOverView xpHistory={student.xp_history}/> */}
+        <Summarize />
+      </div>
+    </>
   );
 }

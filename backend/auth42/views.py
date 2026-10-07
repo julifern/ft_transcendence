@@ -378,14 +378,29 @@ def dashboard(request: HttpRequest) -> JsonResponse:
 	if not is_logged_in(request):
 		return JsonResponse({'authenticated': False}, status=401)
 
-	# Tri par niveau decroissant avec prefetch des relations pour la rapidite
+	# 1. Recuperation des parametres optionnels depuis l'URL
+	target_year = request.GET.get('year')
+	target_month = request.GET.get('month')
+
+	# 2. Requete de base avec prefetch pour la rapidite
 	profils_qs = Profil.objects.prefetch_related(
 		'project_set', 'comment_set', 'ftuser_set'
-	).order_by(F('profil_lvl').desc(nulls_last=True))
+	)
 
+	# 3. Application du filtre si le frontend a precise une piscine particuliere
+	if target_year and target_month:
+		profils_qs = profils_qs.filter(
+			profil_pool_year=target_year, 
+			profil_pool_month=target_month
+		)
+
+	# 4. Tri par niveau decroissant
+	profils_qs = profils_qs.order_by(F('profil_lvl').desc(nulls_last=True))
+
+	# 5. Formatage des donnees
 	profils: list[dict] = []
 	for rank, profil in enumerate(profils_qs, start=1):
-		# On passe le rank calcule par l'ordre du tri pour eviter 150 requetes SQL de comptage
+		# On passe le rank calcule par l'ordre du tri pour eviter de refaire le calcul
 		profils.append(profil.to_dashboard_dict(rank=rank))
 
 	return JsonResponse({'profils': profils}, json_dumps_params={'indent': 2})
@@ -400,3 +415,19 @@ def api_profil(request: HttpRequest, login: str) -> JsonResponse:
 		return JsonResponse({'error': 'profil not found'}, status=404)
 
 	return JsonResponse(profil.to_dict(), json_dumps_params={'indent': 2})
+
+# Liste des piscines dans la base de données
+def get_available_pools(request):
+    # distinct() permet de ne recuperer qu'une seule fois chaque combinaison (ex: 1x september 2026, 1x july 4242)
+    pools = Profil.objects.values('profil_pool_year', 'profil_pool_month').distinct()
+    
+    pool_list = []
+    for p in pools:
+        # Securite pour ne pas renvoyer de valeurs vides
+        if p['profil_pool_year'] and p['profil_pool_month']:
+            pool_list.append({
+                "year": p['profil_pool_year'],
+                "month": p['profil_pool_month']
+            })
+            
+    return JsonResponse({"available_pools": pool_list})
