@@ -417,7 +417,10 @@ def api_profil(request: HttpRequest, login: str) -> JsonResponse:
 	return JsonResponse(profil.to_dict(), json_dumps_params={'indent': 2})
 
 # Liste des piscines dans la base de données
-def get_available_pools(request):
+def get_available_pools(request: HttpRequest) -> JsonResponse:
+    if not is_logged_in(request):
+        return JsonResponse({'authenticated': False}, status=401)
+
     # distinct() permet de ne recuperer qu'une seule fois chaque combinaison (ex: 1x september 2026, 1x july 4242)
     pools = Profil.objects.values('profil_pool_year', 'profil_pool_month').distinct()
     
