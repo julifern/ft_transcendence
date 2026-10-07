@@ -77,7 +77,7 @@ export function BtnAddCommit(student: ProfileDashboard) {
   )
 }
 
-function SortBtn({name, idx, setSortType, selected}: {name: string, idx: number, setSortType: React.Dispatch<React.SetStateAction<number>>, selected: number}) {
+function SortBtn({name, idx, setSortType, selected}: {name: string, idx: number, setSortType: React.Dispatch<React.SetStateAction<number>>, selected: boolean}) {
   const selectedStyle = selected ? " bg-red-600 " : " "; 
   return (
     <button className={`${selectedStyle}`} onClick={() => setSortType(idx)}>
@@ -107,16 +107,19 @@ function FilterListOpt({ pool, index, selected}: { pool: Pool, index: number, se
   );
 }
 
-export function FilterBtn({ setPoolIdx, setSortType, poolIdx, sortType } : {
+export function FilterBtn({ setPoolIdx, setSortType, setReverseSort, poolIdx, sortType, reverseSort} : {
   setPoolIdx : React.Dispatch<React.SetStateAction<number>>,
-  setSortType : React.Dispatch<React.SetStateAction<number>>
+  setSortType : React.Dispatch<React.SetStateAction<number>>,
+  setReverseSort: React.Dispatch<React.SetStateAction<number>>,
   poolIdx: number,
-  sortType: number})
+  sortType: number,
+  reverseSort: number})
 {
   const api = useGetPools();
   if (api.isPending) return <p>Loading...</p>
   if (api.error) return <p>An error has occurred: {api.error.message}</p>
   const lstFilterBtn: string[] = ["lvl", "risk", "alpha"];
+  const reverseSortBtnColor = reverseSort ? " bg-red-500 " : "";
   return (
     <Popup
       trigger={
@@ -134,6 +137,10 @@ export function FilterBtn({ setPoolIdx, setSortType, poolIdx, sortType } : {
         <div className="flex flex-col">
           <SortBtns buttonName={lstFilterBtn} setSortType={setSortType} selectedIdx={sortType} />
         </div>
+
+        <button className={`${reverseSortBtnColor}`} onClick={() => setReverseSort(reverseSort ? 0 : 1)}>
+          reverse
+        </button>
       </div>
     </Popup>
   );

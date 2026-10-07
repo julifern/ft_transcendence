@@ -51,7 +51,7 @@ function StudentCard({student}: {student : ProfileDashboard}) {
 }
 
 
-function sortListStudentsCards(profils: ProfileDashboard[], sortType: number) {
+function sortListStudentsCards(profils: ProfileDashboard[], sortType: number, reverseSort: boolean) {
   let fn: ((a: ProfileDashboard, b: ProfileDashboard) => any) | undefined = undefined;
   switch (sortType) {
     case 0: // lvl
@@ -66,14 +66,14 @@ function sortListStudentsCards(profils: ProfileDashboard[], sortType: number) {
     default:
       fn = compareLevel;
   }
-  if (fn) {
-    console.log("element sorted");
+  if (fn)
     profils.sort(fn);
-  }
+  if (reverseSort) 
+    profils.reverse();
   return (profils);
 }
 
-function ListStudentsCards({inputSearchBar, followedOnly, poolIdx, sortType}: {inputSearchBar: string, followedOnly: boolean, poolIdx: number, sortType: number}) {
+function ListStudentsCards({inputSearchBar, followedOnly, poolIdx, sortType, reverseSort}: {inputSearchBar: string, followedOnly: boolean, poolIdx: number, sortType: number, reverseSort: boolean}) {
   const api = useGetProfilesDashboard(poolIdx);
   const title: string = followedOnly ? "Tes suivis" : "Tous"
   let filterData;
@@ -89,7 +89,7 @@ function ListStudentsCards({inputSearchBar, followedOnly, poolIdx, sortType}: {i
   } else {
     if (api.isPending) return <p>Loading...</p>
     if (api.error) return <p>An error has occurred: {api.error.message}</p>
-    api.data.profils = sortListStudentsCards(api.data.profils, sortType);
+    api.data.profils = sortListStudentsCards(api.data.profils, sortType, reverseSort);
     filterData = api.data.profils.filter((el) => {
       if (inputSearchBar === "")
         return (el);
@@ -110,11 +110,11 @@ function ListStudentsCards({inputSearchBar, followedOnly, poolIdx, sortType}: {i
   );
 }
 
-function StudentsCards({inputSearchBar, followedOnly, poolIdx, sortType}: {inputSearchBar: string, followedOnly: boolean, poolIdx: number, sortType: number}) {
+function StudentsCards({inputSearchBar, followedOnly, poolIdx, sortType, reverseSort}: {inputSearchBar: string, followedOnly: boolean, poolIdx: number, sortType: number, reverseSort: boolean}) {
   return (
     <>
       <div className="studentsCardFollows flex flex-col gap-2.5">
-        <ListStudentsCards inputSearchBar={inputSearchBar} followedOnly={followedOnly} poolIdx={poolIdx} sortType={sortType}/>
+        <ListStudentsCards inputSearchBar={inputSearchBar} followedOnly={followedOnly} poolIdx={poolIdx} sortType={sortType} reverseSort={reverseSort}/>
       </div>
     </>
   );
@@ -128,25 +128,29 @@ export function Dashboard() {
   const [sortType, setSortType] = useState(() => {
     return (Number(localStorage.getItem("sortType") ?? 0))
   });
+  const [reverseSort, setReverseSort] = useState(() => {
+    return (Number(localStorage.getItem("reverseSort") ?? 0))
+  })
   useEffect(() => {
-    console.log("change!!!");
     localStorage.setItem("poolIdx", poolIdx.toString());
   }, [poolIdx]);
   useEffect(() => {
-    console.log("change!!!");
     localStorage.setItem("sortType", sortType.toString());
   }, [sortType]);
+  useEffect(() => {
+    localStorage.setItem("reverseSort", reverseSort.toString());
+  }, [reverseSort])
   return (
     <>
       <div className="dashboardSearch gap-5">
         <p className="font-semibold text-2xl pl-3">Students</p>
         <div className="flex flex-row dashboardSearchProfile">
           <input className="w-full outline-0 indent-2.5" onChange={(e) => {setstudentsfilter(e.target.value)}} type="text" placeholder="Rechercher un student" />
-          <FilterBtn setPoolIdx={setPoolIdx} setSortType={setSortType} poolIdx={poolIdx} sortType={sortType} />
+          <FilterBtn setPoolIdx={setPoolIdx} setSortType={setSortType} setReverseSort={setReverseSort} poolIdx={poolIdx} sortType={sortType} reverseSort={reverseSort}/>
         </div>
       </div>
-      <StudentsCards inputSearchBar={""} followedOnly={true} poolIdx={poolIdx} sortType={sortType}/>
-      <StudentsCards inputSearchBar={studentsfilter} followedOnly={false} poolIdx={poolIdx} sortType={sortType}/>
+      <StudentsCards inputSearchBar={""} followedOnly={true} poolIdx={poolIdx} sortType={sortType} reverseSort={!!reverseSort}/>
+      <StudentsCards inputSearchBar={studentsfilter} followedOnly={false} poolIdx={poolIdx} sortType={sortType} reverseSort={!!reverseSort}/>
     </>
   )
 } 
