@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import type { User } from "../types/User";
+import type { ProfileDashboard } from "../types/ObjStudent";
 
 export function DynamicTextArea({ placeholder, defaultValue, maxLength, onChange }: { placeholder: string, defaultValue: string, maxLength: number, onChange: React.ChangeEventHandler<HTMLTextAreaElement> | undefined}) {
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
@@ -71,4 +72,16 @@ export function slugify(str: string) : string {
     .replace(/[^\w\s-]/g, '')
     .replace(/[\s_-]+/g, '-')
     .replace(/^-+|-+$/g, ''));
+}
+
+export function compareLogin(a: ProfileDashboard, b: ProfileDashboard) {
+  return (a.login > b.login);
+}
+
+export function compareLevel(a: ProfileDashboard, b: ProfileDashboard) {
+  return (a.lvl - b.lvl);
+}
+
+export function compareRiskScore(a: ProfileDashboard, b: ProfileDashboard) {
+  return (b.risk_score - a.risk_score);
 }

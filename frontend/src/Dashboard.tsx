@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { InlineIcon } from '@iconify/react';
 
@@ -8,11 +8,10 @@ import './styles/color.css'
 import { type ProfileDashboard } from './types/ObjStudent.ts'
 
 import { Commit, EmptyCommit } from './components/Commit.tsx';
-import { getRiskLevelColor, isFollowed, makeItPrety } from './components/Utils.tsx';
+import { compareLevel, compareLogin, compareRiskScore, getRiskLevelColor, isFollowed, makeItPrety } from './components/Utils.tsx';
 import { useGetProfilesDashboard } from './api/ProfilesDashboard.ts';
 import { useGetUser } from './api/User.ts';
 import { BtnAddCommit, BtnVoirIntra, FilterBtn } from './components/Button.tsx';
-import { Papicons } from '@getpapillon/papicons';
 
 function StudentCard({student}: {student : ProfileDashboard}) {
   const haveCommit = student.comments.length != 0;
@@ -51,7 +50,30 @@ function StudentCard({student}: {student : ProfileDashboard}) {
   )
 }
 
-function ListStudentsCards({inputSearchBar, followedOnly, poolIdx}: {inputSearchBar: string, followedOnly: boolean, poolIdx: number}) {
+
+function sortListStudentsCards(profils: ProfileDashboard[], sortType: number) {
+  let fn: ((a: ProfileDashboard, b: ProfileDashboard) => any) | undefined = undefined;
+  switch (sortType) {
+    case 0: // lvl
+      fn = compareLevel;
+      break; 
+      case 1: // risk
+      fn = compareRiskScore;
+      break ;
+    case 2:
+      fn = compareLogin;
+      break ;
+    default:
+      fn = compareLevel;
+  }
+  if (fn) {
+    console.log("element sorted");
+    profils.sort(fn);
+  }
+  return (profils);
+}
+
+function ListStudentsCards({inputSearchBar, followedOnly, poolIdx, sortType}: {inputSearchBar: string, followedOnly: boolean, poolIdx: number, sortType: number}) {
   const api = useGetProfilesDashboard(poolIdx);
   const title: string = followedOnly ? "Tes suivis" : "Tous"
   let filterData;
@@ -67,6 +89,7 @@ function ListStudentsCards({inputSearchBar, followedOnly, poolIdx}: {inputSearch
   } else {
     if (api.isPending) return <p>Loading...</p>
     if (api.error) return <p>An error has occurred: {api.error.message}</p>
+    api.data.profils = sortListStudentsCards(api.data.profils, sortType);
     filterData = api.data.profils.filter((el) => {
       if (inputSearchBar === "")
         return (el);
@@ -87,11 +110,11 @@ function ListStudentsCards({inputSearchBar, followedOnly, poolIdx}: {inputSearch
   );
 }
 
-function StudentsCards({inputSearchBar, followedOnly, poolIdx}: {inputSearchBar: string, followedOnly: boolean, poolIdx: number}) {
+function StudentsCards({inputSearchBar, followedOnly, poolIdx, sortType}: {inputSearchBar: string, followedOnly: boolean, poolIdx: number, sortType: number}) {
   return (
     <>
       <div className="studentsCardFollows flex flex-col gap-2.5">
-        <ListStudentsCards inputSearchBar={inputSearchBar} followedOnly={followedOnly} poolIdx={poolIdx}/>
+        <ListStudentsCards inputSearchBar={inputSearchBar} followedOnly={followedOnly} poolIdx={poolIdx} sortType={sortType}/>
       </div>
     </>
   );
@@ -99,18 +122,31 @@ function StudentsCards({inputSearchBar, followedOnly, poolIdx}: {inputSearchBar:
 
 export function Dashboard() {
   const [studentsfilter, setstudentsfilter] = useState("");
-  const [poolIdx, setPoolIdx] = useState(0);
+  const [poolIdx, setPoolIdx] = useState(() => {
+    return (Number(localStorage.getItem("poolIdx") ?? 0));
+  });
+  const [sortType, setSortType] = useState(() => {
+    return (Number(localStorage.getItem("sortType") ?? 0))
+  });
+  useEffect(() => {
+    console.log("change!!!");
+    localStorage.setItem("poolIdx", poolIdx.toString());
+  }, [poolIdx]);
+  useEffect(() => {
+    console.log("change!!!");
+    localStorage.setItem("sortType", sortType.toString());
+  }, [sortType]);
   return (
     <>
       <div className="dashboardSearch gap-5">
         <p className="font-semibold text-2xl pl-3">Students</p>
         <div className="flex flex-row dashboardSearchProfile">
           <input className="w-full outline-0 indent-2.5" onChange={(e) => {setstudentsfilter(e.target.value)}} type="text" placeholder="Rechercher un student" />
-          <FilterBtn setPoolIdx={setPoolIdx}/>
+          <FilterBtn setPoolIdx={setPoolIdx} setSortType={setSortType} poolIdx={poolIdx} sortType={sortType} />
         </div>
       </div>
-      <StudentsCards inputSearchBar={""} followedOnly={true} poolIdx={poolIdx}/>
-      <StudentsCards inputSearchBar={studentsfilter} followedOnly={false} poolIdx={poolIdx}/>
+      <StudentsCards inputSearchBar={""} followedOnly={true} poolIdx={poolIdx} sortType={sortType}/>
+      <StudentsCards inputSearchBar={studentsfilter} followedOnly={false} poolIdx={poolIdx} sortType={sortType}/>
     </>
   )
 } 

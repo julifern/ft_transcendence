@@ -22,12 +22,7 @@ export function BtnVoirIntra(student: ProfileDashboard) {
   )
 }
 
-type Props = {
-  student: ProfileDashboard;
-  close: () => void;
-};
-
-function AddCommitPopupContente({ student, close } : Props) {
+function AddCommitPopupContente({ student, close } : {student: ProfileDashboard, close: () => void}) {
   const [commitContent, setCommitContent] = useState("");
   function handleSubmit(e: React.SubmitEvent<HTMLFormElement>, login: string, close: () => void) {
     // Prevent the browser from reloading the page
@@ -82,16 +77,46 @@ export function BtnAddCommit(student: ProfileDashboard) {
   )
 }
 
-function FilterListOpt({ pool, index }: { pool: Pool, index: number}) {
+function SortBtn({name, idx, setSortType, selected}: {name: string, idx: number, setSortType: React.Dispatch<React.SetStateAction<number>>, selected: number}) {
+  const selectedStyle = selected ? " bg-red-600 " : " "; 
   return (
-    <option value={index}>{`${pool.month}-${pool.year}`}</option>
+    <button className={`${selectedStyle}`} onClick={() => setSortType(idx)}>
+      {name}
+    </button>
   );
 }
 
-export function FilterBtn({ setPoolIdx } : { setPoolIdx : React.Dispatch<React.SetStateAction<number>>}) {
+function SortBtns({buttonName, setSortType, selectedIdx}: {
+  buttonName: string[],
+  setSortType: React.Dispatch<React.SetStateAction<number>>,
+  selectedIdx: number
+})
+{
+  return (
+    <>
+      {
+        buttonName.map((name, idx) => <SortBtn key={idx} name={name} idx={idx} setSortType={setSortType} selected={selectedIdx === idx}/>)
+      }
+    </>
+  );
+}
+
+function FilterListOpt({ pool, index, selected}: { pool: Pool, index: number, selected: boolean }) {
+  return (
+    <option selected={selected} value={index}>{`${pool.month}-${pool.year}`}</option>
+  );
+}
+
+export function FilterBtn({ setPoolIdx, setSortType, poolIdx, sortType } : {
+  setPoolIdx : React.Dispatch<React.SetStateAction<number>>,
+  setSortType : React.Dispatch<React.SetStateAction<number>>
+  poolIdx: number,
+  sortType: number})
+{
   const api = useGetPools();
   if (api.isPending) return <p>Loading...</p>
   if (api.error) return <p>An error has occurred: {api.error.message}</p>
+  const lstFilterBtn: string[] = ["lvl", "risk", "alpha"];
   return (
     <Popup
       trigger={
@@ -99,13 +124,16 @@ export function FilterBtn({ setPoolIdx } : { setPoolIdx : React.Dispatch<React.S
         }
         modal nested>
       <div className="bg-(--bg) rounded-xl border-2 border-(--gray) w-[80vw] h-[80vh] p-5">
-        <h1 className="text-2xl bold">Filte Piscines</h1>
+        <h1 className="text-2xl bold">Filtre Piscines</h1>
         <div className=" bg-(--gray) w-full h-0.5"></div>
         <select name="pools" id="pools" onChange={(e) => setPoolIdx(parseInt(e.target.value))}>
           {
-            api.data.available_pools.map((pool, index) => <FilterListOpt key={index} pool={pool} index={index} />)
+            api.data.available_pools.map((pool, index) => <FilterListOpt key={index} pool={pool} index={index} selected={poolIdx === index}/>)
           }
         </select>
+        <div className="flex flex-col">
+          <SortBtns buttonName={lstFilterBtn} setSortType={setSortType} selectedIdx={sortType} />
+        </div>
       </div>
     </Popup>
   );
@@ -121,7 +149,7 @@ export function BtnSeeMoreCommit() {
       <button onClick={ScrollCommitHistory} type="button" className="w-full rounded-full bg-(--gray)" >
         <div className="flex justify-center items-center p-2 gap-1">
           <Papicons name="ArrowRightUp" className="h-fit text-(--text-gray)" />
-          <p>Voir plus</p>
+          <p>Voir plus</p>setSortType
         </div>
       </button>
     </>
