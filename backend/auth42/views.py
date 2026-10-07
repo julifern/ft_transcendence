@@ -157,7 +157,7 @@ def callback(request: HttpRequest) -> HttpResponse | JsonResponse | HttpResponse
 	code: str | None = request.GET.get('code')
 	if not code:
 		error: str | None = request.GET.get('error')
-		return HttpResponse(f"Error : {error}")
+		return JsonResponse({'error': error}, status=400)
 
 	# requete POST
 	response: requests.Response = requests.post('https://api.intra.42.fr/oauth/token', data={

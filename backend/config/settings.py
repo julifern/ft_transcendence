@@ -37,6 +37,10 @@ CSRF_TRUSTED_ORIGINS = [
     'https://127.0.0.1',
 ]
 
+# Force les cookies de session/CSRF a n'etre envoyes que sur une connexion HTTPS
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
 # Application definition
 
 INSTALLED_APPS = [
