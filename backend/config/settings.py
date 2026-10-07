@@ -37,6 +37,10 @@ CSRF_TRUSTED_ORIGINS = [
     'https://127.0.0.1',
 ]
 
+# Force les cookies de session/CSRF a n'etre envoyes que sur une connexion HTTPS
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -88,7 +92,7 @@ ASGI_APPLICATION = 'config.asgi.application'
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('SECRET_KEY_DJANGO')
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', default=0)
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 FT_CLIENT_ID = os.environ.get('FT_CLIENT_ID')
 FT_CLIENT_SECRET = os.environ.get('FT_CLIENT_SECRET')
 FT_REDIRECT_URI = os.environ.get('FT_REDIRECT_URI')
