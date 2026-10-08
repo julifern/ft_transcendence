@@ -11,6 +11,11 @@ from auth42.services.metrics import (
 	compute_student_rank,
 )
 
+ROLE_CHOICES = [
+	('staff', 'Staff'),
+	('tutor', 'Tutor'),
+]
+
 # Class par user se connectant au site
 class FtUser(models.Model):
 	user_id: int 				= models.IntegerField(unique=True) # unique=True: jamais 2 fois le meme utilisateur
@@ -24,6 +29,8 @@ class FtUser(models.Model):
 	user_kind: str				= models.CharField(max_length=50, default='')
 	user_location: str			= models.CharField(max_length=20, blank=True)
 	user_followed				= models.ManyToManyField('Profil', blank=True)
+	user_role: str 				= models.CharField(max_length=20, choices=ROLE_CHOICES, default='tutor')
+
 
 
 	# Surcharge operator<<
@@ -44,6 +51,7 @@ class FtUser(models.Model):
 			'image_url': self.user_image_url,
 			'kind': self.user_kind,
 			'location': self.user_location,
+			'role': self.user_role,
 			'followed': followed,
 		}
 

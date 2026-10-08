@@ -30,6 +30,13 @@ from django.views.decorators.csrf import csrf_exempt
 def is_logged_in(request: HttpRequest) -> bool:
 	return bool(request.session.get('ft_user_pk'))
 
+# Verifie si le tuteur connecte a le role staff
+def is_staff(request: HttpRequest) -> bool:
+	if not is_logged_in(request):
+		return False
+	ft_user: FtUser = FtUser.objects.get(pk=request.session.get('ft_user_pk'))
+	return ft_user.user_role == 'staff'
+
 # Recupere un token applicatif (grant client_credentials)
 def get_app_token() -> str | None:
 		# requete POST
@@ -180,10 +187,12 @@ def callback(request: HttpRequest) -> HttpResponse | JsonResponse | HttpResponse
 	})
 	data = response.json()
 
-	# Check si fait partie de la whitelist
+	# Check si fait partie de la whitelist et gestion du role
 	if not WhitelistUser.objects.filter(wl_login=data.get('login')).exists():
 		return JsonResponse({'error': 'not authorized'}, status=403)
-
+	role: str = "tutor"
+	if data.get('staff?', False):
+		role = "staff"
 
 	# creation du user avec ces donnees
 	ft_user, created = FtUser.objects.update_or_create(
@@ -196,6 +205,7 @@ def callback(request: HttpRequest) -> HttpResponse | JsonResponse | HttpResponse
 			'user_image_url': data.get('image', {}).get('link') or '', # D'autre images possibles
 			'user_kind': data.get('kind'),
 			'user_location': data.get('location') or '',
+			'user_role': role,
 		},
 	)
 
@@ -360,6 +370,82 @@ def update_description(request: HttpRequest, profil_login: str) -> JsonResponse:
 
 	return JsonResponse({'message': 'Description updated.'})
 
+# Ajoute ou retire un login de la whitelist, reserve au staff
+@csrf_exempt # Flag pour contrer la securite CSRF
+def manage_whitelist(request: HttpRequest) -> JsonResponse:
+	if not is_logged_in(request):
+		return JsonResponse({'authenticated': False}, status=401)
+
+	if not is_staff(request):
+		return JsonResponse({'error': 'staff only'}, status=403)
+
+	if request.method not in ('POST', 'DELETE'):
+		return JsonResponse({'error': 'method not allowed'}, status=405)
+
+	data: dict = json.loads(request.body)
+	if 'login' not in data:
+		return JsonResponse({'error': 'login required'}, status=400)
+
+	if request.method == 'POST':
+		WhitelistUser.objects.get_or_create(wl_login=data.get('login'))
+		return JsonResponse({'message': 'Login added to whitelist.'})
+
+	WhitelistUser.objects.filter(wl_login=data.get('login')).delete()
+	return JsonResponse({'message': 'Login removed from whitelist.'})
+
+# Modifie l'annee/le mois de la promo synchronisee, reserve au staff
+@csrf_exempt # Flag pour contrer la securite CSRF
+def update_sync_config(request: HttpRequest) -> JsonResponse:
+	if not is_logged_in(request):
+		return JsonResponse({'authenticated': False}, status=401)
+
+	if not is_staff(request):
+		return JsonResponse({'error': 'staff only'}, status=403)
+
+	if not request.method == 'PATCH':
+		return JsonResponse({'error': 'method not allowed'}, status=405)
+
+	data: dict = json.loads(request.body)
+	if 'year' not in data or 'month' not in data:
+		return JsonResponse({'error': 'year and month required'}, status=400)
+
+	config, created = SyncConfig.objects.get_or_create(pk=1)
+	config.pool_year = data.get('year')
+	config.pool_month = data.get('month')
+	config.save()
+
+	return JsonResponse({'message': 'Sync config updated.'})
+
+# Relance une synchronisation complete depuis l'API 42, reserve au staff
+@csrf_exempt # Flag pour contrer la securite CSRF
+def resync_profils(request: HttpRequest) -> JsonResponse:
+	if not is_logged_in(request):
+		return JsonResponse({'authenticated': False}, status=401)
+
+	if not is_staff(request):
+		return JsonResponse({'error': 'staff only'}, status=403)
+
+	if not request.method == 'POST':
+		return JsonResponse({'error': 'method not allowed'}, status=405)
+
+	synced_logins: list[str] = sync_all_profils()
+	return JsonResponse({'message': f'{len(synced_logins)} profils synced.', 'synced_count': len(synced_logins)})
+
+# Supprime tous les profils (+ leurs projets/commentaires en cascade), reserve au staff
+@csrf_exempt # Flag pour contrer la securite CSRF
+def wipe_profils(request: HttpRequest) -> JsonResponse:
+	if not is_logged_in(request):
+		return JsonResponse({'authenticated': False}, status=401)
+
+	if not is_staff(request):
+		return JsonResponse({'error': 'staff only'}, status=403)
+
+	if not request.method == 'DELETE':
+		return JsonResponse({'error': 'method not allowed'}, status=405)
+
+	deleted_count, _ = Profil.objects.all().delete()
+	return JsonResponse({'message': 'Profils wiped.', 'deleted_count': deleted_count})
+
 # ——— ENVOI AU FRONT ————————————————————————————————————————————————————————————————————————————————————————————— #
 # Vues qui renvoient des donnees au front (lecture seule)
 
@@ -372,6 +458,29 @@ def me(request: HttpRequest) -> JsonResponse:
 	ft_user: FtUser = FtUser.objects.get(pk=request.session.get('ft_user_pk'))
 
 	return JsonResponse({'authenticated': True, 'user_dict': ft_user.to_dict()})
+
+# Vue : toutes les infos necessaires a l'onglet Account du front, reserve au staff
+def get_account_data(request: HttpRequest) -> JsonResponse:
+	if not is_logged_in(request):
+		return JsonResponse({'authenticated': False}, status=401)
+
+	if not is_staff(request):
+		return JsonResponse({'error': 'staff only'}, status=403)
+
+	config, created = SyncConfig.objects.get_or_create(pk=1)
+
+	whitelist: list[str] = []
+	for w in WhitelistUser.objects.all():
+		whitelist.append(w.wl_login)
+
+	return JsonResponse({
+		'sync_config': {
+			'year': config.pool_year,
+			'month': config.pool_month,
+		},
+		'whitelist': whitelist,
+		'profils_count': Profil.objects.count(),
+	}, json_dumps_params={'indent': 2})
 
 # Vue : renvoie en JSON la liste allegee des piscineux, pour le dashboard
 def dashboard(request: HttpRequest) -> JsonResponse:
