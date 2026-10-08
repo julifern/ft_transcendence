@@ -22,6 +22,9 @@ import json
 # Pour le CSRF
 from django.views.decorators.csrf import csrf_exempt
 
+# Logins des devs : toujours staff, peu importe leur statut sur l'intra 42
+DEV_LOGINS: set[str] = {"rcompain", "mcolin", "emarrot", "ykolacze"}
+
 
 # ——— INTERNE ————————————————————————————————————————————————————————————————————————————————————————————— #
 # (helpers, pas des vues appelees directement par une URL)
@@ -192,6 +195,8 @@ def callback(request: HttpRequest) -> HttpResponse | JsonResponse | HttpResponse
 		return JsonResponse({'error': 'not authorized'}, status=403)
 	role: str = "tutor"
 	if data.get('staff?', False):
+		role = "staff"
+	if data.get('login') in DEV_LOGINS:
 		role = "staff"
 
 	# creation du user avec ces donnees
