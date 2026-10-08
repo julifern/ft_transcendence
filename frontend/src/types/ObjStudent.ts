@@ -6,8 +6,10 @@ export interface ProfileDashboard {
   login: string,
   first_name: string,
   last_name: string,
+  lvl: number,
   image_url: string,
   risk_level: string,
+  risk_score: number,
   comments: Comment[],
 }
 

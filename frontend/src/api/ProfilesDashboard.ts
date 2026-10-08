@@ -1,9 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import type { ProfilesDashboard } from '../types/ObjStudent';
+import { useGetPools } from './Pools';
 
-export async function getProfilesDashboard(): Promise<ProfilesDashboard> {
+export async function getProfilesDashboard(url: string): Promise<ProfilesDashboard> {
   const res = await fetch(
-    "/auth/api/dashboard/",
+    url,
     {
       credentials: "include",
     }
@@ -14,13 +15,26 @@ export async function getProfilesDashboard(): Promise<ProfilesDashboard> {
   return res.json()
 }
 
-export function useGetProfilesDashboard() {
-  return (useQuery<ProfilesDashboard, Error>({ queryKey: ["auth", "api", "dashboard"], queryFn: getProfilesDashboard,
-    retry: (failureCount: number, error: Error) => {
+export function useGetProfilesDashboard(poolIdx: number) {
+  const api = useGetPools();
+  const pool = api.data?.available_pools?.[poolIdx];
+  const year = pool?.year;
+  const month = pool?.month;
+  const dashboardQuery = useQuery<ProfilesDashboard, Error>({ queryKey: ["auth", "api", "dashboard", year, month], queryFn: () =>
+      getProfilesDashboard(
+        `/auth/api/dashboard/?year=${year}&month=${month}`
+      ),
+    enabled: !!year && !!month,
+    retry: (failureCount, error) => {
       if (error.message === "HTTP 401") {
-        return (false);
+        return false;
       }
-      return (failureCount < 3);
-    }
-  }));
+      return failureCount < 3;
+    },
+  });
+  return {
+    ...dashboardQuery,
+    isLoadingPools: api.isPending,
+    poolsError: api.error,
+  };
 }

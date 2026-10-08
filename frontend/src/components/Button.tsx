@@ -6,6 +6,8 @@ import { DynamicTextArea, isFollowed } from "./Utils";
 import { queryClient } from "../main";
 import { useGetUser } from "../api/User";
 import { useState } from "react";
+import { useGetPools } from "../api/Pools";
+import type { Pool } from "../types/Pools";
 
 export function BtnVoirIntra(student: ProfileDashboard) {
   return (
@@ -20,12 +22,7 @@ export function BtnVoirIntra(student: ProfileDashboard) {
   )
 }
 
-type Props = {
-  student: ProfileDashboard;
-  close: () => void;
-};
-
-function AddCommitPopupContente({ student, close } : Props) {
+function AddCommitPopupContente({ student, close } : {student: ProfileDashboard, close: () => void}) {
   const [commitContent, setCommitContent] = useState("");
   function handleSubmit(e: React.SubmitEvent<HTMLFormElement>, login: string, close: () => void) {
     // Prevent the browser from reloading the page
@@ -80,6 +77,91 @@ export function BtnAddCommit(student: ProfileDashboard) {
   )
 }
 
+function SortBtn({name, idx, setSortType, selected}: {name: string, idx: number, setSortType: React.Dispatch<React.SetStateAction<number>>, selected: boolean}) {
+  const selectedStyleBox = selected ? " bg-(--purple) " : " border-2 border-(--purple) ";
+  return (
+    <button className={`flex flex-rows items-center w-full h-full p-3 gap-2`} onClick={() => setSortType(idx)}>
+      <div className={`flex justify-center items-center w-5 h-5 ${selectedStyleBox} rounded`}>
+        {
+          selected ? <Papicons className="w-4 h-4 text-white" name="Check" /> : <></>
+        }
+      </div>
+      <p className="text-xl bold">
+        {name}
+      </p>
+    </button>
+  );
+}
+
+function SortBtns({buttonName, setSortType, selectedIdx}: {
+  buttonName: string[],
+  setSortType: React.Dispatch<React.SetStateAction<number>>,
+  selectedIdx: number
+})
+{
+  return (
+    <>
+      {
+        buttonName.map((name, idx) => <SortBtn key={idx} name={name} idx={idx} setSortType={setSortType} selected={selectedIdx === idx}/>)
+      }
+    </>
+  );
+}
+
+function FilterListOpt({ pool, index, selected}: { pool: Pool, index: number, selected: boolean }) {
+  return (
+    <option selected={selected} value={index}>{`${pool.month}-${pool.year}`}</option>
+  );
+}
+
+export function FilterBtn({ setPoolIdx, setSortType, setReverseSort, poolIdx, sortType, reverseSort} : {
+  setPoolIdx : React.Dispatch<React.SetStateAction<number>>,
+  setSortType : React.Dispatch<React.SetStateAction<number>>,
+  setReverseSort: React.Dispatch<React.SetStateAction<number>>,
+  poolIdx: number,
+  sortType: number,
+  reverseSort: number})
+{
+  const api = useGetPools();
+  if (api.isPending) return <p>Loading...</p>
+  if (api.error) return <p>An error has occurred: {api.error.message}</p>
+  const lstFilterBtn: string[] = ["Level", "Risk", "Login"];
+  const selectedStyleBox = reverseSort ? " bg-(--purple) " : " border-2 border-(--purple) ";
+  return (
+    <Popup
+      trigger={
+          <Papicons className="text-(--text-gray)" name="Filter" />
+        }
+        modal nested>
+      <div className="flex flex-col bg-(--bg) rounded-xl border-2 border-(--gray) w-[80vw] h-[80vh] p-5 gap-3">
+        <h1 className="text-2xl bold">Filtre Piscines</h1>
+        <span className=" bg-(--gray) w-full h-0.5"></span>
+        <div>
+          <select name="pools" id="pools" onChange={(e) => setPoolIdx(parseInt(e.target.value))}>
+            {
+              api.data.available_pools.map((pool, index) => <FilterListOpt key={index} pool={pool} index={index} selected={poolIdx === index}/>)
+            }
+          </select>
+        </div>
+        <div className="flex flex-col w-full justify-start border-2 border-(--purple) rounded-2xl p-5">
+          <SortBtns buttonName={lstFilterBtn} setSortType={setSortType} selectedIdx={sortType} />
+          <span className="w-full h-1 bg-(--bright-purple) rounded"></span>
+          <button className={`flex flex-rows items-center w-full h-full p-3 gap-2`} onClick={() => setReverseSort(reverseSort ? 0 : 1)}>
+            <div className={`flex justify-center items-center w-5 h-5 ${selectedStyleBox} rounded`}>
+              {
+                reverseSort ? <Papicons className="w-4 h-4 text-white" name="Check" /> : <></>
+              }
+            </div>
+            <p className="text-xl bold">
+              reverse
+            </p>
+          </button>
+        </div>
+      </div>
+    </Popup>
+  );
+}
+
 function ScrollCommitHistory() {
   alert("try to scroll...");
 }
@@ -90,7 +172,7 @@ export function BtnSeeMoreCommit() {
       <button onClick={ScrollCommitHistory} type="button" className="w-full rounded-full bg-(--gray)" >
         <div className="flex justify-center items-center p-2 gap-1">
           <Papicons name="ArrowRightUp" className="h-fit text-(--text-gray)" />
-          <p>Voir plus</p>
+          <p>Voir plus</p>setSortType
         </div>
       </button>
     </>

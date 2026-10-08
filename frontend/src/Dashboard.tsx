@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { InlineIcon } from '@iconify/react';
 
@@ -8,10 +8,10 @@ import './styles/color.css'
 import { type ProfileDashboard } from './types/ObjStudent.ts'
 
 import { Commit, EmptyCommit } from './components/Commit.tsx';
-import { getRiskLevelColor, isFollowed, makeItPrety } from './components/Utils.tsx';
+import { compareLevel, compareLogin, compareRiskScore, getRiskLevelColor, isFollowed, makeItPrety } from './components/Utils.tsx';
 import { useGetProfilesDashboard } from './api/ProfilesDashboard.ts';
 import { useGetUser } from './api/User.ts';
-import { BtnAddCommit, BtnVoirIntra } from './components/Button.tsx';
+import { BtnAddCommit, BtnVoirIntra, FilterBtn } from './components/Button.tsx';
 
 function StudentCard({student}: {student : ProfileDashboard}) {
   const haveCommit = student.comments.length != 0;
@@ -50,8 +50,31 @@ function StudentCard({student}: {student : ProfileDashboard}) {
   )
 }
 
-function ListStudentsCards({inputSearchBar, followedOnly}: {inputSearchBar: string, followedOnly: boolean}) {
-  const api = useGetProfilesDashboard();
+
+function sortListStudentsCards(profils: ProfileDashboard[], sortType: number, reverseSort: boolean) {
+  let fn: ((a: ProfileDashboard, b: ProfileDashboard) => any) | undefined = undefined;
+  switch (sortType) {
+    case 0: // lvl
+      fn = compareLevel;
+      break; 
+      case 1: // risk
+      fn = compareRiskScore;
+      break ;
+    case 2:
+      fn = compareLogin;
+      break ;
+    default:
+      fn = compareLevel;
+  }
+  if (fn)
+    profils.sort(fn);
+  if (reverseSort) 
+    profils.reverse();
+  return (profils);
+}
+
+function ListStudentsCards({inputSearchBar, followedOnly, poolIdx, sortType, reverseSort}: {inputSearchBar: string, followedOnly: boolean, poolIdx: number, sortType: number, reverseSort: boolean}) {
+  const api = useGetProfilesDashboard(poolIdx);
   const title: string = followedOnly ? "Tes suivis" : "Tous"
   let filterData;
   if (followedOnly) {
@@ -66,6 +89,7 @@ function ListStudentsCards({inputSearchBar, followedOnly}: {inputSearchBar: stri
   } else {
     if (api.isPending) return <p>Loading...</p>
     if (api.error) return <p>An error has occurred: {api.error.message}</p>
+    api.data.profils = sortListStudentsCards(api.data.profils, sortType, reverseSort);
     filterData = api.data.profils.filter((el) => {
       if (inputSearchBar === "")
         return (el);
@@ -86,11 +110,11 @@ function ListStudentsCards({inputSearchBar, followedOnly}: {inputSearchBar: stri
   );
 }
 
-function StudentsCards({inputSearchBar, followedOnly}: {inputSearchBar: string, followedOnly: boolean}) {
+function StudentsCards({inputSearchBar, followedOnly, poolIdx, sortType, reverseSort}: {inputSearchBar: string, followedOnly: boolean, poolIdx: number, sortType: number, reverseSort: boolean}) {
   return (
     <>
       <div className="studentsCardFollows flex flex-col gap-2.5">
-        <ListStudentsCards inputSearchBar={inputSearchBar} followedOnly={followedOnly} />
+        <ListStudentsCards inputSearchBar={inputSearchBar} followedOnly={followedOnly} poolIdx={poolIdx} sortType={sortType} reverseSort={reverseSort}/>
       </div>
     </>
   );
@@ -98,14 +122,35 @@ function StudentsCards({inputSearchBar, followedOnly}: {inputSearchBar: string, 
 
 export function Dashboard() {
   const [studentsfilter, setstudentsfilter] = useState("");
+  const [poolIdx, setPoolIdx] = useState(() => {
+    return (Number(localStorage.getItem("poolIdx") ?? 0));
+  });
+  const [sortType, setSortType] = useState(() => {
+    return (Number(localStorage.getItem("sortType") ?? 0))
+  });
+  const [reverseSort, setReverseSort] = useState(() => {
+    return (Number(localStorage.getItem("reverseSort") ?? 0))
+  })
+  useEffect(() => {
+    localStorage.setItem("poolIdx", poolIdx.toString());
+  }, [poolIdx]);
+  useEffect(() => {
+    localStorage.setItem("sortType", sortType.toString());
+  }, [sortType]);
+  useEffect(() => {
+    localStorage.setItem("reverseSort", reverseSort.toString());
+  }, [reverseSort])
   return (
     <>
       <div className="dashboardSearch gap-5">
         <p className="font-semibold text-2xl pl-3">Students</p>
-        <input value={studentsfilter} onChange={(e) => {setstudentsfilter(e.target.value)}} className="dashboardSearchProfile" type="text" placeholder="Rechercher un student" />
+        <div className="flex flex-row dashboardSearchProfile">
+          <input className="w-full outline-0 indent-2.5" onChange={(e) => {setstudentsfilter(e.target.value)}} type="text" placeholder="Rechercher un student" />
+          <FilterBtn setPoolIdx={setPoolIdx} setSortType={setSortType} setReverseSort={setReverseSort} poolIdx={poolIdx} sortType={sortType} reverseSort={reverseSort}/>
+        </div>
       </div>
-      <StudentsCards inputSearchBar={""} followedOnly={true}/>
-      <StudentsCards inputSearchBar={studentsfilter} followedOnly={false}/>
+      <StudentsCards inputSearchBar={""} followedOnly={true} poolIdx={poolIdx} sortType={sortType} reverseSort={!!reverseSort}/>
+      <StudentsCards inputSearchBar={studentsfilter} followedOnly={false} poolIdx={poolIdx} sortType={sortType} reverseSort={!!reverseSort}/>
     </>
   )
 } 
