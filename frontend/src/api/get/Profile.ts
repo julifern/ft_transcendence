@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
-import type { User } from '../types/User';
+import type { Profile } from '../../types/ObjStudent';
 
-export async function getUser(): Promise<User> {
+export async function getProfile(login: string): Promise<Profile> {
   const res = await fetch(
-    "/auth/me/",
+    "/auth/api/profils/" + login,
     {
       credentials: "include",
     }
@@ -14,8 +14,8 @@ export async function getUser(): Promise<User> {
   return res.json()
 }
 
-export function useGetUser() {
-  return (useQuery<User, Error>({ queryKey: ["auth", "me"], queryFn: getUser,
+export function useGetProfile(login: string) {
+  return (useQuery<Profile, Error>({ queryKey: ["auth", "api", "profils", login], queryFn: () => getProfile(login),
     retry: (failureCount: number, error: Error) => {
       if (error.message === "HTTP 401") {
         return (false);

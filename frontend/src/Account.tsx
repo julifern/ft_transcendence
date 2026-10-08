@@ -1,7 +1,12 @@
-import { useGetUser } from "./api/User";
+import { Papicons } from "@getpapillon/papicons";
+import { useGetUser } from "./api/get/User";
 import { makeItPrety } from "./components/Utils";
+import { useGetAccount } from "./api/get/Account";
+import { AddWhiteList } from "./components/Button";
+import { Dropdown, type MenuProps } from "antd";
+import { apiDeleteWhiteListLogin } from "./api/delete/WhiteList";
 
-export function Account() {
+function AccountTop() {
   const api = useGetUser();
   if (api.isPending) return (<p>Loading...</p>);
   if (api.error) return (<p>An error has occurred: {api.error.message}</p>);
@@ -21,6 +26,61 @@ export function Account() {
           <p className="text-2xl font-normal text-(--text-gray)" >{student.login}</p>
         </div>
       </div>
-  </>
-);
+    </>
+  );
+}
+function WhiteListedLogin({ login }: { login: string }) {
+  const items: MenuProps['items'] = [
+    {
+      label: "Copier",
+      key: "cop",
+      onClick: () => {navigator.clipboard.writeText(login)},
+      icon: <Papicons name="List" />
+    },
+    {
+      label: "Supprimer",
+      key: "sup",
+      danger: true,
+      onClick: () => {apiDeleteWhiteListLogin(login)},
+      icon: <Papicons name="Trash" />
+    },
+  ];
+  return (
+    <Dropdown menu={{items}} trigger={["contextMenu"]}>
+      <p>{login}</p>
+    </Dropdown>
+  );
+}
+
+function AccountWhiteList() {
+  const api = useGetAccount();
+  if (api.isPending) return (<p>Loading...</p>);
+  if (api.error) return (<p>An error has occurred: {api.error.message}</p>);
+  return (
+    <div className="flex">
+      <div className="module flex-col">
+        <div className="flex justify-center items-center gap-2">
+          <Papicons className="text-xs" name="List" />
+          <h1 className="text-2xl">
+            White list:
+          </h1>
+        </div>
+        {
+          api.data.whitelist.map((login: string) =>
+            <WhiteListedLogin key={login} login={login}/>
+          )
+        }
+        <AddWhiteList />
+      </div>
+    </div>
+  );
+}
+
+export function Account() {
+  return (
+    <>
+      <AccountTop />
+      <AccountWhiteList />
+    </>
+  );
 }

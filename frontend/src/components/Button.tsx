@@ -4,10 +4,11 @@ import Popup from "reactjs-popup";
 import { InlineIcon } from "@iconify/react";
 import { DynamicTextArea, isFollowed } from "./Utils";
 import { queryClient } from "../main";
-import { useGetUser } from "../api/User";
+import { useGetUser } from "../api/get/User";
 import { useState } from "react";
-import { useGetPools } from "../api/Pools";
+import { useGetPools } from "../api/get/Pools";
 import type { Pool } from "../types/Pools";
+import { apiAddWhiteListLogin } from "../api/post/WhiteList";
 
 export function BtnVoirIntra(student: ProfileDashboard) {
   return (
@@ -36,7 +37,7 @@ function AddCommitPopupContente({ student, close } : {student: ProfileDashboard,
       close(); // close popup
       queryClient.invalidateQueries({queryKey: ["auth", "api", "profils", login]});
       queryClient.invalidateQueries({queryKey: ["auth", "api", "dashboard"]});
-    });43
+    });
   }
   return (
     <>
@@ -139,7 +140,7 @@ export function FilterBtn({ setPoolIdx, setSortType, setReverseSort, poolIdx, so
         <div>
           <select name="pools" id="pools" onChange={(e) => setPoolIdx(parseInt(e.target.value))}>
             {
-              api.data.available_pools.map((pool, index) => <FilterListOpt key={index} pool={pool} index={index} selected={poolIdx === index}/>)
+              api.data.available_pools.map((pool: Pool, index: number) => <FilterListOpt key={index} pool={pool} index={index} selected={poolIdx === index}/>)
             }
           </select>
         </div>
@@ -272,5 +273,36 @@ export function BtnAddChat() {
         <AddChatPopupContente />
       </Popup>
     </>
+  );
+}
+
+function AddWhiteListPopupContente() {
+  const [login, setLogin] = useState("");
+  return (
+      <div className="module flex flex-col h-fit bg-(--bg) p-10 gap-2 border-2 border-solid border-(--gray)" style={{borderRadius: "50px"}}>
+        <div className="module flex flex-col">
+          <DynamicTextArea maxLength={100} placeholder={"login"} defaultValue={""} onChange={(e) => setLogin(e.target.value)}/>
+        </div>
+        <button onClick={() => apiAddWhiteListLogin(login)} type="button" className="w-full rounded-full bg-(--purple) text-white">
+          <div className="flex justify-center items-center p-2 gap-1">
+            <InlineIcon icon="fa:paper-plane" />
+            <p>Ajouter a la white list</p>
+          </div>
+        </button>
+      </div>
+  )
+}
+
+export function AddWhiteList() {
+  return (
+     <Popup trigger=
+        {
+          <button className="rounded " onClick={() => AddWhiteList()}>
+            Ajouter a la with list
+          </button>
+        }
+        modal nested>
+        <AddWhiteListPopupContente />
+      </Popup>
   );
 }

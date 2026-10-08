@@ -8,7 +8,7 @@ import { InlineIcon } from '@iconify/react';
 import { GraphXpOverView } from './components/GraphXpOverView.tsx';
 import type { Project } from './types/Project.ts';
 import { useParams } from 'react-router-dom';
-import { useGetProfile } from './api/Profile.ts';
+import { useGetProfile } from './api/get/Profile.ts';
 import type { XpHistory } from './types/XpHistory.ts';
 import { useState } from 'react';
 
@@ -185,7 +185,7 @@ function Description(student: Profile) {
    );
 }
 
-export function StudentProfileTop(student: Profile) {
+function StudentProfileTop(student: Profile) {
   return (
     <>
       <div className="absolute w-full top-0 left-0 right-0 h-50 z-1">
