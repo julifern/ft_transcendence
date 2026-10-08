@@ -78,10 +78,17 @@ export function BtnAddCommit(student: ProfileDashboard) {
 }
 
 function SortBtn({name, idx, setSortType, selected}: {name: string, idx: number, setSortType: React.Dispatch<React.SetStateAction<number>>, selected: boolean}) {
-  const selectedStyle = selected ? " bg-red-600 " : " "; 
+  const selectedStyleBox = selected ? " bg-(--purple) " : " border-2 border-(--purple) ";
   return (
-    <button className={`${selectedStyle}`} onClick={() => setSortType(idx)}>
-      {name}
+    <button className={`flex flex-rows items-center w-full h-full p-3 gap-2`} onClick={() => setSortType(idx)}>
+      <div className={`flex justify-center items-center w-5 h-5 ${selectedStyleBox} rounded`}>
+        {
+          selected ? <Papicons className="w-4 h-4 text-white" name="Check" /> : <></>
+        }
+      </div>
+      <p className="text-xl bold">
+        {name}
+      </p>
     </button>
   );
 }
@@ -118,29 +125,38 @@ export function FilterBtn({ setPoolIdx, setSortType, setReverseSort, poolIdx, so
   const api = useGetPools();
   if (api.isPending) return <p>Loading...</p>
   if (api.error) return <p>An error has occurred: {api.error.message}</p>
-  const lstFilterBtn: string[] = ["lvl", "risk", "alpha"];
-  const reverseSortBtnColor = reverseSort ? " bg-red-500 " : "";
+  const lstFilterBtn: string[] = ["Level", "Risk", "Login"];
+  const selectedStyleBox = reverseSort ? " bg-(--purple) " : " border-2 border-(--purple) ";
   return (
     <Popup
       trigger={
           <Papicons className="text-(--text-gray)" name="Filter" />
         }
         modal nested>
-      <div className="bg-(--bg) rounded-xl border-2 border-(--gray) w-[80vw] h-[80vh] p-5">
+      <div className="flex flex-col bg-(--bg) rounded-xl border-2 border-(--gray) w-[80vw] h-[80vh] p-5 gap-3">
         <h1 className="text-2xl bold">Filtre Piscines</h1>
-        <div className=" bg-(--gray) w-full h-0.5"></div>
-        <select name="pools" id="pools" onChange={(e) => setPoolIdx(parseInt(e.target.value))}>
-          {
-            api.data.available_pools.map((pool, index) => <FilterListOpt key={index} pool={pool} index={index} selected={poolIdx === index}/>)
-          }
-        </select>
-        <div className="flex flex-col">
-          <SortBtns buttonName={lstFilterBtn} setSortType={setSortType} selectedIdx={sortType} />
+        <span className=" bg-(--gray) w-full h-0.5"></span>
+        <div>
+          <select name="pools" id="pools" onChange={(e) => setPoolIdx(parseInt(e.target.value))}>
+            {
+              api.data.available_pools.map((pool, index) => <FilterListOpt key={index} pool={pool} index={index} selected={poolIdx === index}/>)
+            }
+          </select>
         </div>
-
-        <button className={`${reverseSortBtnColor}`} onClick={() => setReverseSort(reverseSort ? 0 : 1)}>
-          reverse
-        </button>
+        <div className="flex flex-col w-full justify-start border-2 border-(--purple) rounded-2xl p-5">
+          <SortBtns buttonName={lstFilterBtn} setSortType={setSortType} selectedIdx={sortType} />
+          <span className="w-full h-1 bg-(--bright-purple) rounded"></span>
+          <button className={`flex flex-rows items-center w-full h-full p-3 gap-2`} onClick={() => setReverseSort(reverseSort ? 0 : 1)}>
+            <div className={`flex justify-center items-center w-5 h-5 ${selectedStyleBox} rounded`}>
+              {
+                reverseSort ? <Papicons className="w-4 h-4 text-white" name="Check" /> : <></>
+              }
+            </div>
+            <p className="text-xl bold">
+              reverse
+            </p>
+          </button>
+        </div>
       </div>
     </Popup>
   );

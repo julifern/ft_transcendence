@@ -18,7 +18,7 @@ function TrombiCard({ student }: { student: ProfileDashboard }) {
   );
 }
 export function Trombi() {
-  const api = useGetProfilesDashboard();
+  const api = useGetProfilesDashboard(Number(localStorage.getItem("poolIdx")));
   if (api.isPending) return <p>Loading...</p>
   if (api.error) return <p>An error has occurred: {api.error.message}</p>
   return (
