@@ -185,7 +185,7 @@ function Description(student: Profile) {
    );
 }
 
-function StudentProfileTop(student: Profile) {
+export function StudentProfileTop(student: Profile) {
   return (
     <>
       <div className="absolute w-full top-0 left-0 right-0 h-50 z-1">
@@ -242,7 +242,7 @@ export function Profile() {
         <CommitHistory {...student} />
         <ProjectList student={student}/>
         <ProjectOverView {...student} />
-        {/* <XpOverView xpHistory={student.xp_history}/> */}
+        <XpOverView xpHistory={student.xp_history}/>
         <Summarize />
       </div>
     </>
