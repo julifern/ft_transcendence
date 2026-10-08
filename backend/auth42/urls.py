@@ -16,5 +16,10 @@ urlpatterns = [
 	path('comment/<str:login>/', views.add_comment, name='add_comment'),
 	path('follow/<str:profil_login>/', views.follow, name='follow'),
 	path('description/<str:profil_login>/', views.update_description, name='update_description'),
-    path('api/pools/', views.get_available_pools, name='available_pools')
+    path('api/pools/', views.get_available_pools, name='available_pools'),
+	path('whitelist/', views.manage_whitelist, name='manage_whitelist'),
+	path('sync-config/', views.update_sync_config, name='update_sync_config'),
+	path('resync-profils/', views.resync_profils, name='resync_profils'),
+	path('wipe-profils/', views.wipe_profils, name='wipe_profils'),
+	path('account/', views.get_account_data, name='account_data'),
 ]
