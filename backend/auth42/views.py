@@ -30,6 +30,13 @@ from django.views.decorators.csrf import csrf_exempt
 def is_logged_in(request: HttpRequest) -> bool:
 	return bool(request.session.get('ft_user_pk'))
 
+# Verifie si le tuteur connecte a le role staff
+def is_staff(request: HttpRequest) -> bool:
+	if not is_logged_in(request):
+		return False
+	ft_user: FtUser = FtUser.objects.get(pk=request.session.get('ft_user_pk'))
+	return ft_user.user_role == 'staff'
+
 # Recupere un token applicatif (grant client_credentials)
 def get_app_token() -> str | None:
 		# requete POST
@@ -180,10 +187,12 @@ def callback(request: HttpRequest) -> HttpResponse | JsonResponse | HttpResponse
 	})
 	data = response.json()
 
-	# Check si fait partie de la whitelist
+	# Check si fait partie de la whitelist et gestion du role
 	if not WhitelistUser.objects.filter(wl_login=data.get('login')).exists():
 		return JsonResponse({'error': 'not authorized'}, status=403)
-
+	role: str = "tutor"
+	if data.get('staff?', False):
+		role = "staff"
 
 	# creation du user avec ces donnees
 	ft_user, created = FtUser.objects.update_or_create(
@@ -196,6 +205,7 @@ def callback(request: HttpRequest) -> HttpResponse | JsonResponse | HttpResponse
 			'user_image_url': data.get('image', {}).get('link') or '', # D'autre images possibles
 			'user_kind': data.get('kind'),
 			'user_location': data.get('location') or '',
+			'user_role': role,
 		},
 	)
 
