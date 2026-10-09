@@ -9,6 +9,7 @@ export interface User {
     image_url: string,
     kind: string,
     location: string,
+    role: string,
     followed: string[],
   }
 }

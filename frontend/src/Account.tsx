@@ -53,9 +53,11 @@ function WhiteListedLogin({ login }: { login: string }) {
 }
 
 function AccountWhiteList() {
+  const apiuser = useGetUser();
   const api = useGetAccount();
-  if (api.isPending) return (<p>Loading...</p>);
+  if (api.isPending || apiuser.isPending) return (<p>Loading...</p>);
   if (api.error) return (<p>An error has occurred: {api.error.message}</p>);
+  if (apiuser.error) return (<p>An error has occurred: {apiuser.error.message}</p>);
   return (
     <div className="module flex flex-col w-fit h-fit items-start gap-3">
       <div className="flex justify-start items-center gap-1">
@@ -73,7 +75,12 @@ function AccountWhiteList() {
           }
         </span>
       </div>
-      <AddWhiteList />
+      {
+        apiuser.data.user_dict.role === "staff" ?
+          <AddWhiteList />
+        :
+          <></>
+      }
     </div>
   );
 }
