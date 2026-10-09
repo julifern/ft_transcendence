@@ -9,6 +9,8 @@ import { useState } from "react";
 import { useGetPools } from "../api/get/Pools";
 import type { Pool } from "../types/Pools";
 import { apiAddWhiteListLogin } from "../api/post/WhiteList";
+import { handleSubmit } from "../api/post/Commit";
+import { handleFollow } from "../api/general/Follow";
 
 export function BtnVoirIntra(student: ProfileDashboard) {
   return (
@@ -25,24 +27,10 @@ export function BtnVoirIntra(student: ProfileDashboard) {
 
 function AddCommitPopupContente({ student, close } : {student: ProfileDashboard, close: () => void}) {
   const [commitContent, setCommitContent] = useState("");
-  function handleSubmit(e: React.SubmitEvent<HTMLFormElement>, login: string, close: () => void) {
-    // Prevent the browser from reloading the page
-    e.preventDefault();
-    fetch("/auth/comment/" + login + "/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ content: commitContent }),
-    }).then(res => res.json()).then(() => {
-      close(); // close popup
-      queryClient.invalidateQueries({queryKey: ["auth", "api", "profils", login]});
-      queryClient.invalidateQueries({queryKey: ["auth", "api", "dashboard"]});
-    });
-  }
   return (
     <>
       <div className="module flex flex-col h-fit bg-(--bg) p-10 gap-2 border-2 border-solid border-(--gray)" style={{borderRadius: "50px"}}>
-        <form action="post" onSubmit={(e) => handleSubmit(e, student.login, close)}>
+        <form action="post" onSubmit={(e) => handleSubmit(e, commitContent, student.login, close)}>
           <h1>Contenu de votre nouveau commit:</h1>
           <div className="module flex flex-col">
             <DynamicTextArea maxLength={100} placeholder={"Description (100 char max)"} defaultValue={""} onChange={(e) => { setCommitContent(e.target.value); }} />
@@ -198,21 +186,12 @@ export function BtnFollow(student: ProfileDashboard) {
   if (api.isPending) return <p>Loading...</p>
   if (api.error) return <p>An error has occurred: {api.error.message}</p>
   const followed = isFollowed(student.login, api.data);
-  const handleFollow = async (follow: boolean) => {
-    const res = await fetch(`/auth/follow/${student.login}/`, {
-      method: follow ? "POST" : "DELETE",
-      credentials: "include",
-    });
-    const data = await res.json();
-    console.log(data)
-    queryClient.invalidateQueries({queryKey: ["auth", "me"]})
-  }
   return (
     <BtnFollowBase
       txt={followed ? "Ne plus suivre" : "Suivre"}
       rotate={followed ? 45 : 0}
       login={student.login}
-      handlefunction={() => handleFollow(!followed)}
+      handlefunction={() => handleFollow(!followed, student.login)}
     />
   );
 }
