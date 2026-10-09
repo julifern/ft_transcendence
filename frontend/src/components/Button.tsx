@@ -3,7 +3,6 @@ import type { ProfileDashboard } from "../types/ObjStudent";
 import Popup from "reactjs-popup";
 import { InlineIcon } from "@iconify/react";
 import { DynamicTextArea, isFollowed } from "./Utils";
-import { queryClient } from "../main";
 import { useGetUser } from "../api/get/User";
 import { useState } from "react";
 import { useGetPools } from "../api/get/Pools";
@@ -11,6 +10,7 @@ import type { Pool } from "../types/Pools";
 import { apiAddWhiteListLogin } from "../api/post/WhiteList";
 import { handleSubmit } from "../api/post/Commit";
 import { handleFollow } from "../api/general/Follow";
+import { PopupContente } from "./Popup";
 
 export function BtnVoirIntra(student: ProfileDashboard) {
   return (
@@ -255,34 +255,34 @@ export function BtnAddChat() {
   );
 }
 
-function AddWhiteListPopupContente() {
-  const [login, setLogin] = useState("");
-  return (
-      <div className="module flex flex-col h-fit bg-(--bg) p-10 gap-2 border-2 border-solid border-(--gray)" style={{borderRadius: "50px"}}>
-        <div className="module flex flex-col">
-          <DynamicTextArea maxLength={100} placeholder={"login"} defaultValue={""} onChange={(e) => setLogin(e.target.value)}/>
-        </div>
-        <button onClick={() => apiAddWhiteListLogin(login)} type="button" className="w-full rounded-full bg-(--purple) text-white">
-          <div className="flex justify-center items-center p-2 gap-1">
-            <InlineIcon icon="fa:paper-plane" />
-            <p>Ajouter a la white list</p>
-          </div>
-        </button>
-      </div>
-  )
-}
+// function AddWhiteListPopupContente() {
+//   const [login, setLogin] = useState("");
+//   return (
+//     <div className="module flex flex-col h-fit bg-(--bg) p-10 gap-2 border-2 border-solid border-(--gray)" style={{borderRadius: "50px"}}>
+//       <div className="module flex flex-col">
+//         <DynamicTextArea maxLength={100} placeholder={"login"} defaultValue={""} onChange={(e) => setLogin(e.target.value)}/>
+//       </div>
+//       <button onClick={() => apiAddWhiteListLogin(login)} type="button" className="w-full rounded-full bg-(--purple) text-white">
+//         <div className="flex justify-center items-center p-2 gap-1">
+//           <InlineIcon icon="fa:paper-plane" />
+//           <p>Ajouter a la white list</p>
+//         </div>
+//       </button>
+//     </div>
+//   )
+// }
 
 export function AddWhiteList() {
+  const [open, setOpen] = useState(false);
   return (
-     <Popup trigger=
-        {
-          <button className="flex flex-row items-center rounded-full bg-(--purple) text-xl text-white pt-1 pb-1 pl-3 pr-3" onClick={() => AddWhiteList()}>
-            <Papicons name="Add" />
-            Ajouter a la with list
-          </button>
-        }
-        modal nested>
-        <AddWhiteListPopupContente />
+    <>
+      <button className="flex flex-row items-center rounded-full bg-(--purple) text-xl text-white pt-1 pb-1 pl-3 pr-3" onClick={() => setOpen(true)}>
+        <Papicons name="Add" />
+        Ajouter a la with list
+      </button>
+      <Popup open={open} onClose={() => setOpen(false)} modal nested>
+        <PopupContente  Btntext="Ajouter a la white list" maxLength={100} placeholder="login" defaultValue="" fn={apiAddWhiteListLogin} close={() => setOpen(false)}/>
       </Popup>
+    </>
   );
 }
