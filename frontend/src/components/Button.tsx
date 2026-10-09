@@ -1,14 +1,15 @@
 import { Papicons } from "@getpapillon/papicons";
 import type { ProfileDashboard } from "../types/ObjStudent";
 import Popup from "reactjs-popup";
-import { InlineIcon } from "@iconify/react";
-import { DynamicTextArea, isFollowed } from "./Utils";
-import { queryClient } from "../main";
+import { isFollowed } from "./Utils";
 import { useGetUser } from "../api/get/User";
 import { useState } from "react";
 import { useGetPools } from "../api/get/Pools";
 import type { Pool } from "../types/Pools";
 import { apiAddWhiteListLogin } from "../api/post/WhiteList";
+import { handleSubmit } from "../api/post/Commit";
+import { handleFollow } from "../api/general/Follow";
+import { PopupContente } from "./Popup";
 
 export function BtnVoirIntra(student: ProfileDashboard) {
   return (
@@ -23,59 +24,21 @@ export function BtnVoirIntra(student: ProfileDashboard) {
   )
 }
 
-function AddCommitPopupContente({ student, close } : {student: ProfileDashboard, close: () => void}) {
-  const [commitContent, setCommitContent] = useState("");
-  function handleSubmit(e: React.SubmitEvent<HTMLFormElement>, login: string, close: () => void) {
-    // Prevent the browser from reloading the page
-    e.preventDefault();
-    fetch("/auth/comment/" + login + "/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ content: commitContent }),
-    }).then(res => res.json()).then(() => {
-      close(); // close popup
-      queryClient.invalidateQueries({queryKey: ["auth", "api", "profils", login]});
-      queryClient.invalidateQueries({queryKey: ["auth", "api", "dashboard"]});
-    });
-  }
-  return (
-    <>
-      <div className="module flex flex-col h-fit bg-(--bg) p-10 gap-2 border-2 border-solid border-(--gray)" style={{borderRadius: "50px"}}>
-        <form action="post" onSubmit={(e) => handleSubmit(e, student.login, close)}>
-          <h1>Contenu de votre nouveau commit:</h1>
-          <div className="module flex flex-col">
-            <DynamicTextArea maxLength={100} placeholder={"Description (100 char max)"} defaultValue={""} onChange={(e) => { setCommitContent(e.target.value); }} />
-          </div>
-          <button type="submit" className="w-full rounded-full bg-(--purple) text-white">
-            <div className="flex justify-center items-center p-2 gap-1">
-              <InlineIcon icon="fa:paper-plane" />
-              <p>Envoyer le commit</p>
-            </div>
-          </button>
-        </form>
-      </div>
-    </>
-  );
-}
-
 export function BtnAddCommit(student: ProfileDashboard) {
+  const [open, setOpen] = useState(false);
   return (
     <>
-      <Popup
-        trigger={
-          <button type="button" className="w-full rounded-full bg-(--purple) text-white">
-            <div className="flex justify-center items-center p-2 gap-1">
-              <Papicons name="Add" />
-              <p>Ajouter un commit</p>
-            </div>
-          </button>
-        }
-        modal nested>
-      { close => (<AddCommitPopupContente student={student} close={close} />)}
+      <button type="button" className="w-full rounded-full bg-(--purple) text-white" onClick={() => setOpen(true)}>
+        <div className="flex justify-center items-center p-2 gap-1">
+          <Papicons name="Add" />
+          <p>Ajouter un commit</p>
+        </div>
+      </button>
+      <Popup open={open} onClose={() => setOpen(false)} modal nested>
+        <PopupContente  Btntext="Envoyer le commit" maxLength={100} placeholder="Description (100 char max)" defaultValue="" fn={(commitMsg) => handleSubmit(commitMsg, student.login)} close={() => setOpen(false)}/>
       </Popup>
     </>
-  )
+  );
 }
 
 function SortBtn({name, idx, setSortType, selected}: {name: string, idx: number, setSortType: React.Dispatch<React.SetStateAction<number>>, selected: boolean}) {
@@ -173,7 +136,7 @@ export function BtnSeeMoreCommit() {
       <button onClick={ScrollCommitHistory} type="button" className="w-full rounded-full bg-(--gray)" >
         <div className="flex justify-center items-center p-2 gap-1">
           <Papicons name="ArrowRightUp" className="h-fit text-(--text-gray)" />
-          <p>Voir plus</p>setSortType
+          <p>Voir plus</p>
         </div>
       </button>
     </>
@@ -198,21 +161,12 @@ export function BtnFollow(student: ProfileDashboard) {
   if (api.isPending) return <p>Loading...</p>
   if (api.error) return <p>An error has occurred: {api.error.message}</p>
   const followed = isFollowed(student.login, api.data);
-  const handleFollow = async (follow: boolean) => {
-    const res = await fetch(`/auth/follow/${student.login}/`, {
-      method: follow ? "POST" : "DELETE",
-      credentials: "include",
-    });
-    const data = await res.json();
-    console.log(data)
-    queryClient.invalidateQueries({queryKey: ["auth", "me"]})
-  }
   return (
     <BtnFollowBase
       txt={followed ? "Ne plus suivre" : "Suivre"}
       rotate={followed ? 45 : 0}
       login={student.login}
-      handlefunction={() => handleFollow(!followed)}
+      handlefunction={() => handleFollow(!followed, student.login)}
     />
   );
 }
@@ -238,72 +192,34 @@ function addChat() {
   alert("try to add chat!");
 }
 
-function AddChatPopupContente() {
-  return (
-      <div className="module flex flex-col h-fit bg-(--bg) p-10 gap-2 border-2 border-solid border-(--gray)" style={{borderRadius: "50px"}}>
-        <div className="module flex flex-col">
-          <DynamicTextArea maxLength={30} placeholder={"Titre (30 char max)"} defaultValue={""} onChange={undefined}/>
-        </div>
-        <div className="module flex flex-col">
-          <DynamicTextArea maxLength={142} placeholder={"Description (142 char max)"} defaultValue={""} onChange={undefined}/>
-        </div>
-        <button onClick={() => addChat()} type="button" className="w-full rounded-full bg-(--purple) text-white">
-          <div className="flex justify-center items-center p-2 gap-1">
-            <InlineIcon icon="fa:paper-plane" />
-            <p>Crée le nouvel chat</p>
-          </div>
-        </button>
-      </div>
-  );
-}
-
 export function BtnAddChat() {
+  const [open, setOpen] = useState(false);
   return (
     <>
-      <Popup trigger=
-        {
-          <button type="button" className="w-full rounded-full bg-(--purple) text-white">
-            <div className="flex justify-center items-center p-2 gap-1">
-              <Papicons name="Add" />
-              <p>Ajouter un nouveaux chat</p>
-            </div>
-          </button>
-        }
-        modal nested>
-        <AddChatPopupContente />
+      <button type="button" className="w-full rounded-full bg-(--purple) text-white" onClick={() => setOpen(true)}>
+        <div className="flex justify-center items-center p-2 gap-1">
+          <Papicons name="Add" />
+          <p>Ajouter un nouveaux chat</p>
+        </div>
+      </button>
+      <Popup open={open} onClose={() => setOpen(false)} modal nested>
+        <PopupContente  Btntext="Crée le nouveau chat" maxLength={30} placeholder={"Titre (30 char max)"} defaultValue={""} fn={addChat} close={() => setOpen(false)}/>
       </Popup>
     </>
   );
 }
 
-function AddWhiteListPopupContente() {
-  const [login, setLogin] = useState("");
-  return (
-      <div className="module flex flex-col h-fit bg-(--bg) p-10 gap-2 border-2 border-solid border-(--gray)" style={{borderRadius: "50px"}}>
-        <div className="module flex flex-col">
-          <DynamicTextArea maxLength={100} placeholder={"login"} defaultValue={""} onChange={(e) => setLogin(e.target.value)}/>
-        </div>
-        <button onClick={() => apiAddWhiteListLogin(login)} type="button" className="w-full rounded-full bg-(--purple) text-white">
-          <div className="flex justify-center items-center p-2 gap-1">
-            <InlineIcon icon="fa:paper-plane" />
-            <p>Ajouter a la white list</p>
-          </div>
-        </button>
-      </div>
-  )
-}
-
 export function AddWhiteList() {
+  const [open, setOpen] = useState(false);
   return (
-     <Popup trigger=
-        {
-          <button className="flex flex-row items-center rounded-full bg-(--purple) text-xl text-white pt-1 pb-1 pl-3 pr-3" onClick={() => AddWhiteList()}>
-            <Papicons name="Add" />
-            Ajouter a la with list
-          </button>
-        }
-        modal nested>
-        <AddWhiteListPopupContente />
+    <>
+      <button className="flex flex-row items-center rounded-full bg-(--purple) text-xl text-white pt-1 pb-1 pl-3 pr-3" onClick={() => setOpen(true)}>
+        <Papicons name="Add" />
+        Ajouter a la with list
+      </button>
+      <Popup open={open} onClose={() => setOpen(false)} modal nested>
+        <PopupContente  Btntext="Ajouter a la white list" maxLength={100} placeholder="login" defaultValue="" fn={apiAddWhiteListLogin} close={() => setOpen(false)}/>
       </Popup>
+    </>
   );
 }

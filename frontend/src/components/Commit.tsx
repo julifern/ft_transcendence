@@ -6,6 +6,8 @@ import { Dropdown, type MenuProps } from "antd";
 import { queryClient } from "../main";
 import { DynamicTextArea } from "./Utils";
 import { useState } from "react";
+import { commitDelete } from "../api/delete/Commit";
+import { commitModify } from "../api/patch/Commit";
 
 export function CommitLeaf() {
   return (
@@ -52,30 +54,6 @@ export function EmptyCommit(student: ProfileDashboard) {
         </div>
       </div>
     </>
-  );
-}
-
-export function commitModify(id: number, msg: string, login: string) {
-  fetch(`/auth/comment/${id}/`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-    body: JSON.stringify({ content: msg }),
-  }).then().then(() => {
-      queryClient.invalidateQueries({queryKey: ["auth", "api", "profils", login]});
-      queryClient.invalidateQueries({queryKey: ["auth", "api", "dashboard"]});
-    }
-  );
-}
-
-export function commitDelete(id: number, login: string) {
-  fetch(`/auth/comment/${id}/`, {
-    method: "DELETE",
-    credentials: "include",
-  }).then().then(() => {
-      queryClient.invalidateQueries({queryKey: ["auth", "api", "profils", login]});
-      queryClient.invalidateQueries({queryKey: ["auth", "api", "dashboard"]});
-    }
   );
 }
 
