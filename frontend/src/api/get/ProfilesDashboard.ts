@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import type { ProfilesDashboard } from '../types/ObjStudent';
+import type { ProfilesDashboard } from '../../types/ObjStudent';
 import { useGetPools } from './Pools';
 
 export async function getProfilesDashboard(url: string): Promise<ProfilesDashboard> {

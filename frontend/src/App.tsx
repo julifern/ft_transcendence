@@ -8,6 +8,7 @@ import { DashboardChats } from './DashboardChats.tsx';
 import { Chat } from './Chat.tsx';
 import { NavBar } from './NavBar.tsx';
 import { Trombi } from './Trombi.tsx';
+import { Account } from './Account.tsx';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route path="/login" element={<LoginPage />}/>
         <Route path="/chats" element={<DashboardChats />}/>
         <Route path="/chat/:title" element={<Chat />}/>
+        <Route path="/account" element={<Account />}/>
         <Route path="*" element={<ErrorPage />} />
       </Routes>
       <NavBar />

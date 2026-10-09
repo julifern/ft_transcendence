@@ -8,7 +8,7 @@ import { InlineIcon } from '@iconify/react';
 import { GraphXpOverView } from './components/GraphXpOverView.tsx';
 import type { Project } from './types/Project.ts';
 import { useParams } from 'react-router-dom';
-import { useGetProfile } from './api/Profile.ts';
+import { useGetProfile } from './api/get/Profile.ts';
 import type { XpHistory } from './types/XpHistory.ts';
 import { useState } from 'react';
 
@@ -242,7 +242,7 @@ export function Profile() {
         <CommitHistory {...student} />
         <ProjectList student={student}/>
         <ProjectOverView {...student} />
-        {/* <XpOverView xpHistory={student.xp_history}/> */}
+        <XpOverView xpHistory={student.xp_history}/>
         <Summarize />
       </div>
     </>

@@ -1,4 +1,4 @@
-import { useGetProfilesDashboard } from "./api/ProfilesDashboard";
+import { useGetProfilesDashboard } from "./api/get/ProfilesDashboard";
 import type { ProfileDashboard } from "./types/ObjStudent";
 import { getRiskLevelColorBg, makeItPrety } from "./components/Utils";
 import { Link } from "react-router-dom";

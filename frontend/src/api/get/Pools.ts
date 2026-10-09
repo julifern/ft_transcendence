@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import type { Pools } from '../types/Pools';
+import type { Pools } from '../../types/Pools';
 
 export async function getPools(): Promise<Pools> {
   const res = await fetch(

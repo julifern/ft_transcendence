@@ -9,8 +9,8 @@ import { type ProfileDashboard } from './types/ObjStudent.ts'
 
 import { Commit, EmptyCommit } from './components/Commit.tsx';
 import { compareLevel, compareLogin, compareRiskScore, getRiskLevelColor, isFollowed, makeItPrety } from './components/Utils.tsx';
-import { useGetProfilesDashboard } from './api/ProfilesDashboard.ts';
-import { useGetUser } from './api/User.ts';
+import { useGetProfilesDashboard } from './api/get/ProfilesDashboard.ts';
+import { useGetUser } from './api/get/User.ts';
 import { BtnAddCommit, BtnVoirIntra, FilterBtn } from './components/Button.tsx';
 
 function StudentCard({student}: {student : ProfileDashboard}) {
