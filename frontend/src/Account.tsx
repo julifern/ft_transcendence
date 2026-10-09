@@ -47,7 +47,7 @@ function WhiteListedLogin({ login }: { login: string }) {
   ];
   return (
     <Dropdown menu={{items}} trigger={["contextMenu"]}>
-      <p>{login}</p>
+      <p className="pl-3 text-lg">{login}</p>
     </Dropdown>
   );
 }
@@ -57,21 +57,23 @@ function AccountWhiteList() {
   if (api.isPending) return (<p>Loading...</p>);
   if (api.error) return (<p>An error has occurred: {api.error.message}</p>);
   return (
-    <div className="flex">
-      <div className="module flex-col">
-        <div className="flex justify-center items-center gap-2">
-          <Papicons className="text-xs" name="List" />
-          <h1 className="text-2xl">
-            White list:
-          </h1>
-        </div>
-        {
-          api.data.whitelist.map((login: string) =>
-            <WhiteListedLogin key={login} login={login}/>
-          )
-        }
-        <AddWhiteList />
+    <div className="module flex flex-col w-fit h-fit items-start gap-3">
+      <div className="flex justify-start items-center gap-1">
+        <Papicons className="text-xs" name="List" />
+        <h1 className="text-2xl">
+          White list
+        </h1>
       </div>
+      <div className="flex flex-row h-fit gap-1.5">
+        <span className=" rounded-full w-1 h-full bg-(--purple)">
+          {
+            api.data.whitelist.map((login: string) =>
+              <WhiteListedLogin key={login} login={login}/>
+            )
+          }
+        </span>
+      </div>
+      <AddWhiteList />
     </div>
   );
 }

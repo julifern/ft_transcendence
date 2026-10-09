@@ -297,7 +297,8 @@ export function AddWhiteList() {
   return (
      <Popup trigger=
         {
-          <button className="rounded " onClick={() => AddWhiteList()}>
+          <button className="flex flex-row items-center rounded-full bg-(--purple) text-xl text-white pt-1 pb-1 pl-3 pr-3" onClick={() => AddWhiteList()}>
+            <Papicons name="Add" />
             Ajouter a la with list
           </button>
         }
